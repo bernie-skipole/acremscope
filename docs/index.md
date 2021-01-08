@@ -8,11 +8,11 @@ This container will serve the acremscope web site for remote telescope control.
 
 On server webparametrics.co.uk, as user bernard
 
-lxc launch ubuntu:20.04 skitest
+lxc launch ubuntu:20.04 acremscope
 
 lxc list
 
-This gives container ip address 10.105.192.???
+This gives container ip address 10.105.192.83
 
 lxc exec acremscope -- /bin/bash
 
@@ -34,7 +34,7 @@ adduser bernard
 
 record the password
 
-## Install git, and clone skitest repository
+## Install git, and clone skitest repository ########## done to this point
 
 Then as user bernard create an ssh key
 

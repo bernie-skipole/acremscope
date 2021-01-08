@@ -1,8 +1,3 @@
-#!/home/bernard/astrovenv/bin/python3
-
-# for proper system
-#!/home/astro/astrovenv/bin/python3
-
 
 import sys
 
@@ -21,7 +16,7 @@ else:
 
 
 try:
-    rconn = redis.StrictRedis(host='localhost', port=6379, db=0, socket_timeout=5)
+    rconn = redis.Redis(host='localhost', port=6379, db=0, socket_timeout=5)
 except Exception:
     print("Warning:redis connection failed")
 else:

@@ -23,7 +23,7 @@ except:
 solar_system_ephemeris.set('jpl')
 
 # The path to the file of the database to be created
-PLANETDB = "/home/bernard/astrodata/planet.db"
+PLANETDB = "/home/bernard/www/astrodata/planet.db"
 
 
 LONGITUDE = -2.1544

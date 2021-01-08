@@ -1,4 +1,4 @@
-#!/home/bernard/catalog/bitenv/bin/python3
+
 
 """
 Once the gsc files have been downloaded from https://cdsarc.unistra.fr/viz-bin/cat/I/254
@@ -32,9 +32,7 @@ to cross-reference a star on the chart with the source material.
 #
 # activated it, and then python3 -m pip install bitstring
 #
-# if you locate your virtual environment elsewhere, you will
-# have to change the top shebang line of this script
-#
+
 
 import os, sys, sqlite3
 

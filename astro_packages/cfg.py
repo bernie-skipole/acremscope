@@ -10,8 +10,8 @@ _CONFIG = {
             'latitude' : 53.7111,
             'longitude' : -2.1544,
             'elevation' : 316,
-            #'mqtt_ip' : '10.34.167.1',
-            'mqtt_ip' : 'localhost',
+            'mqtt_ip' : '10.105.192.1',
+            #'mqtt_ip' : 'localhost',
             'mqtt_port' : 1883,
             'mqtt_username' : '',
             'mqtt_password' : '',
@@ -26,11 +26,11 @@ _CONFIG = {
         #'star_catalogs' : "/home/astro/astrodata/gsc1.2"
 
 
-            'astrodata_directory' : '/home/bernard/astrodata',
-            'servedfiles_directory' :'/home/bernard/astrodata/served',
-            'planetdb' : "/home/bernard/astrodata/planet.db",
-            'constellation_lines' : "/home/bernard/astrodata/lines.csv",
-            'star_catalogs' : "/home/bernard/astrodata/gsc1.2"
+            'astrodata_directory' : '/home/bernard/www/astrodata',
+            'servedfiles_directory' :'/home/bernard/www/astrodata/served',
+            'planetdb' : "/home/bernard/www/astrodata/planet.db",
+            'constellation_lines' : "/home/bernard/www/astrodata/lines.csv",
+            'star_catalogs' : "/home/bernard/www/astrodata/gsc1.2"
           }
 
 

@@ -23478,12 +23478,12 @@ false
 "show": true,
 "hide_if_empty": false,
 "attribs": {
-"href": "https://github.com/bernie-skipole/astro/"
+"href": "https://github.com/bernie-skipole/acremscope/"
 },
 "parts": [
 [
 "Text",
-"https://github.com/bernie-skipole/astro/"
+"https://github.com/bernie-skipole/acremscope/"
 ]
 ]
 }
@@ -23645,12 +23645,12 @@ false
 "show": true,
 "hide_if_empty": false,
 "attribs": {
-"href": "https://github.com/bernie-skipole/astro/wiki"
+"href": "https://github.com/bernie-skipole/acremscope/wiki"
 },
 "parts": [
 [
 "Text",
-"https://github.com/bernie-skipole/astro/wiki"
+"https://github.com/bernie-skipole/acremscope/wiki"
 ]
 ]
 }
