@@ -48,7 +48,8 @@ def open_database():
     "Opens the database, and returns the database connection"
     # connect to database
     try:
-        con = psycopg2.connect(dbname='astrodb', user='astro', password='xxSgham', host='10.105.192.252')
+#        con = psycopg2.connect(dbname='astrodb', user='astro', password='xxSgham', host='10.105.192.252')
+        con = psycopg2.connect(dbname='astrodb', user='astro', password='xxSgham', host='localhost')
     except:
         raise ServerError(message="Failed database connection.")
     return con
