@@ -128,7 +128,7 @@ systemctl enable acremscope.service
 
 systemctl start acremscope
 
-This starts /home/bernard/www/astro.py on boot up.
+This starts /home/bernard/www/acremscope.py on boot up.
 
 The site will be visible at.
 
