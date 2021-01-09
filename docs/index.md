@@ -28,13 +28,17 @@ apt-get install unzip
 
 apt-get install postgresql-client
 
+psycopg2 is the python client for the postgresql database. Obtain this using apt-get rather than pip, so the binaries are installed without any build problems.
+
+apt-get install python3-psycopg2
+
 apt-get install redis
 
 adduser bernard
 
 record the password
 
-## Install git, and clone skitest repository ########## done to this point
+## Install git, and clone skitest repository
 
 Then as user bernard create an ssh key
 
@@ -56,19 +60,24 @@ rsync -ua --exclude=".*" ~/acremscope/ ~/www/
 
 ## Install dependencies
 
+
 As user bernard in the container
 
 From the 'releases' part of this repository, upload files using:
+
+cd /home/bernard/www/astrodata
 
 curl -L https://github.com/bernie-skipole/acremscope/releases/download/v2.0.0/gsc1.2.tar.gz --output gsc1.2.tar.gz
 
 note - the above is still provisional
 
-extract to create gsc1.2 and copy into
+extract with
 
-/home/bernard/www/astrodata/gsc1.2
+tar -xvf gsc1.2.tar.gz
 
-Of the other files under this directory IERS_A.py will be run by a cron job to regularly update earth location data.
+to create directory /home/bernard/www/astrodata/gsc1.2 with db files within it.
+
+Of the other files under the astrodata directory IERS_A.py will be run by a cron job to regularly update earth location data.
 
 make_planets.py will be run by a cron job to pre - calculate planet positions which will be placed in an sqlite file /home/bernard/www/astrodata/planet.db
 
@@ -78,9 +87,22 @@ builddb.py is unused, and can be left where it is. It is included for informatio
 
 Load dependencies from pypi
 
-python3 -m pip install --user -r requirements.txt
+python3 -m pip install --user skipole
 
-Run make_planets.py, so in /home/bernard/www
+python3 -m pip install --user waitress
+
+python3 -m pip install --user redis
+
+python3 -m pip install --user paho-mqtt
+
+python3 -m pip install --user astropy
+
+python3 -m pip install --user astroquery
+
+python3 -m pip install --user jplephem
+
+
+Run make_planets.py, so in /home/bernard/www/astrodata
 
 python3 make_planets.py
 
