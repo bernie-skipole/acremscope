@@ -667,12 +667,10 @@ if __name__ == "__main__":
     ###############################################################################
 
     # if using the waitress server
-    # import waitress
-
-    set_debug(True)
+    import waitress
 
     # or the skilift development server
-    from skipole import skilift
+    # from skipole import skilift
 
     # serve the application
 
@@ -681,10 +679,10 @@ if __name__ == "__main__":
     print("Serving %s on port %s." % (PROJECT, port))
 
     # using waitress
-    # waitress.serve(application, host=host, port=port)
+    waitress.serve(application, host=host, port=port)
 
     # or skilift
-    skilift.development_server(host, port, application)
+    # skilift.development_server(host, port, application)
 
 
 

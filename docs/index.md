@@ -103,12 +103,36 @@ python3 -m pip install --user jplephem
 
 python3 -m pip install --user astroplan
 
+Note: this gave an astroquery problem, the following sorted it:
+
+python3 -m pip install --user --pre --upgrade astroquery
+
 
 Run make_planets.py, so in /home/bernard/www/astrodata
 
 python3 make_planets.py
 
 This could take some time, and will create the database planets.db
+
+## Install acremscope.service
+
+as root, copy the file
+
+cp /home/bernard/www/acremscope.service /lib/systemd/system
+
+Enable the service with
+
+systemctl daemon-reload
+
+systemctl enable acremscope.service
+
+systemctl start acremscope
+
+This starts /home/bernard/www/astro.py on boot up.
+
+The site will be visible at.
+
+[https://webparametrics.co.uk/acremscope](https://webparametrics.co.uk/acremscope)
 
 
 
