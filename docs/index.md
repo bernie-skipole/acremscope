@@ -101,6 +101,8 @@ python3 -m pip install --user astroquery
 
 python3 -m pip install --user jplephem
 
+python3 -m pip install --user astroplan
+
 
 Run make_planets.py, so in /home/bernard/www/astrodata
 

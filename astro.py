@@ -669,6 +669,8 @@ if __name__ == "__main__":
     # if using the waitress server
     # import waitress
 
+    set_debug(True)
+
     # or the skilift development server
     from skipole import skilift
 
