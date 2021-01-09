@@ -5,7 +5,7 @@ After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/python3 /home/bernard/www/astro.py
+ExecStart=/usr/bin/python3 /home/bernard/www/acremscope.py
 
 User=bernard
 

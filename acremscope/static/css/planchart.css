@@ -1,0 +1,34 @@
+
+
+@media (max-width: 1400px) {
+
+    .grid-container{
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: 700px auto; /*the height of the rows*/
+        grid-template-areas: "chart"
+                             "inputs";
+    }
+
+}
+
+
+@media (min-width:1401px){
+
+    .grid-container{
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-template-areas: "chart inputs";
+    }
+
+}
+
+.planchart {grid-area:chart;
+             min-width:800px;}
+
+.planinputs {grid-area:inputs;
+             min-width:25em;}
+
+
+
+
