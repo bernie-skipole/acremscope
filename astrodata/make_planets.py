@@ -1,4 +1,3 @@
-#!/home/bernard/astrovenv/bin/python3
 
 
 ###############################################
@@ -22,9 +21,10 @@ except:
 
 solar_system_ephemeris.set('jpl')
 
-# The path to the file of the database to be created
-PLANETDB = "/home/bernard/www/astrodata/planet.db"
+THIS_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
+# The path to the file of the database to be created
+PLANETDB = os.path.join(THIS_DIRECTORY, "planet.db")
 
 LONGITUDE = -2.1544
 LATITUDE = 53.7111

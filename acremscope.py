@@ -656,10 +656,10 @@ if __name__ == "__main__":
 
     ###################### Remove for deployment ######################
     #                                                                              #
-    #set_debug(True)                                                               #
-    #from skipole import skiadmin                                                  #
-    #skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
-    #application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
+    set_debug(True)                                                               #
+    from skipole import skiadmin                                                  #
+    skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
+    application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
     #                                                                              #
     ###############################################################################
 
@@ -673,12 +673,12 @@ if __name__ == "__main__":
 
     host = "0.0.0.0"
     port = 8000
-    print("Serving %s on port %s." % (PROJECT, port))
 
     # using waitress
     waitress.serve(application, host=host, port=port)
 
     # or skilift
+    # print("Serving %s on port %s." % (PROJECT, port))
     # skilift.development_server(host, port, application)
 
 
