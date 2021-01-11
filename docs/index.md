@@ -150,5 +150,23 @@ The site will be visible at.
 
 [https://webparametrics.co.uk/acremscope](https://webparametrics.co.uk/acremscope)
 
+## Set up CRON Jobs
+
+As root create a cron table with:
+
+crontab -u bernard -e
+
+30 10 * * * /usr/bin/python3 /home/bernard/www/astrodata/make_planets.py >/dev/null 2>&1
+
+0 9 * * 6 /usr/bin/python3 /home/bernard/www/astrodata/IERS_A.py >/dev/null 2>&1
+
+make_planets.py is run at 10:30 each day, which populates planet.db with planetary positions
+
+IERS_A.py is run at 9:00 every Saturday, It downloads the IERS bulletin A for Astroplan earth location
+
+
+
+
+
 
 
