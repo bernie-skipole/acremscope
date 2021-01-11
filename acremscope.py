@@ -18,6 +18,11 @@ PROJECT = 'acremscope'
 
 from acremscope_packages import sun, database_ops, redis_ops, cfg
 
+
+# set PROJECTFILES into cfg, used to specify where astrodata and contents can be found
+cfg.set_projectfiles(PROJECTFILES)
+
+
 # _IDENT_DATA is used as part of a key to store data within redis
 _IDENT_DATA = random.randrange(1, 9999)
 
@@ -644,8 +649,7 @@ application = WSGIApplication(project=PROJECT,
                               end_call=end_call,
                               url="/acremscope")
 
-
-
+# add the skis library of javascript and css files
 skis_application = skis.makeapp()
 application.add_project(skis_application, url='/acremscope/lib')
 
@@ -653,33 +657,20 @@ application.add_project(skis_application, url='/acremscope/lib')
 
 if __name__ == "__main__":
 
-
-    ###################### Remove for deployment ######################
+    ###################### Remove for deployment ##################################
     #                                                                              #
-    set_debug(True)                                                               #
-    from skipole import skiadmin                                                  #
-    skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
-    application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
+    #set_debug(True)                                                               #
+    #from skipole import skiadmin                                                  #
+    #skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
+    #application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
     #                                                                              #
     ###############################################################################
 
-    # if using the waitress server
+    # Using the waitress server
     import waitress
 
-    # or the skilift development server
-    # from skipole import skilift
-
     # serve the application
-
-    host = "0.0.0.0"
-    port = 8000
-
-    # using waitress
-    waitress.serve(application, host=host, port=port)
-
-    # or skilift
-    # print("Serving %s on port %s." % (PROJECT, port))
-    # skilift.development_server(host, port, application)
+    waitress.serve(application, host="0.0.0.0", port=8000)
 
 
 

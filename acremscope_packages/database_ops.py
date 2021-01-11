@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 
 from skipole import ServerError
 
+from . import cfg
+
 # This is the default admin username
 _USERNAME = "admin"
 # This is the default  admin password
@@ -47,9 +49,12 @@ def hash_pin(pin, seed):
 def open_database():
     "Opens the database, and returns the database connection"
     # connect to database
+    postgresql_ip, postgresql_dbname, postgresql_username, postgresql_password = cfg.get_postgresql()
     try:
-        #con = psycopg2.connect(dbname='astrodb', user='astro', password='xxSgham', host='10.105.192.252')
-        con = psycopg2.connect(dbname='astrodb', user='astro', password='xxSgham', host='localhost')
+        con = psycopg2.connect(dbname=postgresql_dbname,
+                               user=postgresql_username,
+                               password=postgresql_password,
+                               host=postgresql_ip)
     except:
         raise ServerError(message="Failed database connection.")
     return con

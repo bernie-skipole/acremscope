@@ -4,7 +4,7 @@
 
 # astronomy centre is 53:42:40N 2:09:16W
 
-import csv
+import csv, os
 
 _CONFIG = { 
             'latitude' : 53.7111,
@@ -18,19 +18,11 @@ _CONFIG = {
             'redis_ip' : 'localhost',
             'redis_port' : 6379,
             'redis_auth' : '',
-
-        #'astrodata_directory' : '/home/astro/astrodata',
-        #'servedfiles_directory' :'/home/astro/astrodata/served',
-        #'planetdb' : "/home/astro/astrodata/planet.db",
-        #'constellation_lines' : "/home/astro/astrodata/lines.csv",
-        #'star_catalogs' : "/home/astro/astrodata/gsc1.2"
-
-
-            'astrodata_directory' : '/home/bernard/www/astrodata',
-            'servedfiles_directory' :'/home/bernard/www/astrodata/served',
-            'planetdb' : "/home/bernard/www/astrodata/planet.db",
-            'constellation_lines' : "/home/bernard/www/astrodata/lines.csv",
-            'star_catalogs' : "/home/bernard/www/astrodata/gsc1.2"
+            'postgres_ip' : '10.105.192.252',
+            #'postgresql_ip' : 'localhost',
+            'postgresql_dbname' : 'astrodb',
+            'postgresql_username' : 'astro',
+            'postgresql_password' : 'xxSgham',
           }
 
 
@@ -43,6 +35,14 @@ _PLANETS = {"mercury":  0.23,
             "neptune":  7.78,
             "pluto":   14.00}
 
+def set_projectfiles(projectfiles):
+    global _CONFIG
+    _CONFIG['astrodata_directory'] = os.path.join(projectfiles, 'astrodata')
+    _CONFIG['servedfiles_directory'] = os.path.join(projectfiles, 'astrodata', 'served')
+    _CONFIG['planetdb'] = os.path.join(projectfiles, 'astrodata', 'planet.db')
+    _CONFIG['constellation_lines'] = os.path.join(projectfiles, 'astrodata', 'lines.csv')
+    _CONFIG['star_catalogs'] = os.path.join(projectfiles, 'astrodata', 'gsc1.2')
+    
 
 def planetmags():
     "Returns dictionary of planet magnitudes"
@@ -68,6 +68,10 @@ def get_constellation_lines():
 def get_mqtt():
     "Returns tuple of mqtt server ip, port, username, password"
     return (_CONFIG['mqtt_ip'], _CONFIG['mqtt_port'], _CONFIG['mqtt_username'], _CONFIG['mqtt_password'])
+
+def get_postgresql():
+    "Returns tuple of postgresql ip, dbname, username, password"
+    return (_CONFIG['postgresql_ip'], _CONFIG['postgresql_dbname'], _CONFIG['postgresql_username'], _CONFIG['postgresql_password'])
 
 def get_redis():
     "Returns tuple of redis ip, port, auth"
