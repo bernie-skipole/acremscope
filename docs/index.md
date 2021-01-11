@@ -114,6 +114,22 @@ python3 make_planets.py
 
 This could take some time, and will create the database planets.db
 
+## Edit the acremscope web service
+
+As user bernard 
+
+Edit the file /home/bernard/www/acremscope_packages/cfg.py to have the correct database ip, usernames passwords.
+
+In particular set the lines in the _CONFIG directory:
+
+mqtt_ip : 10.105.192.1
+
+and
+
+postgresql_ip : 10.105.192.252
+
+This informs the web service how to connect to these servers.
+
 ## Install acremscope.service
 
 as root, copy the file

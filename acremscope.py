@@ -46,8 +46,6 @@ _UNPROTECTED_PAGES = [1,         # index
                       5001,      # logon page
                       5002,      # check login
                       7005,      # graph_day_temperature
-                      7010,      # event log
-                      7011,      # event log json
                       7902,      # 48hr_temperature.svg
                      10002,      # scope.svg
                      10003,      # logo.svg
@@ -421,7 +419,6 @@ _HEADER_TEXT = {    2: "About this web site build.",
                  6601: "Control Page",   # logged in control
                  7501: "Sensors Page",
                  7502: "Temperature Logs",
-                 7510: "Event Log",
                  8501: "Your Settings Page",
                  8601: "New PIN",
                 11101: "WEBCAM",
@@ -659,10 +656,10 @@ if __name__ == "__main__":
 
     ###################### Remove for deployment ##################################
     #                                                                              #
-    #set_debug(True)                                                               #
-    #from skipole import skiadmin                                                  #
-    #skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
-    #application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
+    set_debug(True)                                                               #
+    from skipole import skiadmin                                                  #
+    skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
+    application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
     #                                                                              #
     ###############################################################################
 

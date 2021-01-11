@@ -83,6 +83,13 @@ def server_settings(skicall):
         page_data['emailuser', 'input_text'] = emailusername
     if emailpassword:
         page_data['emailpassword', 'input_text'] = emailpassword
+    ######## event log
+    event_list = redis_ops.get_log_info(skicall.proj_data.get("rconn_0"))
+    if not event_list:
+        page_data['logtext', 'pre_text'] = "Awaiting events"
+    else:
+        page_data['logtext', 'pre_text'] = "\n".join(event_list)
+
 
 
 def set_server_email_settings(skicall):

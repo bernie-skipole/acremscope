@@ -379,15 +379,3 @@ def fill_timelapse_page(skicall):
         page_data['toppara', 'para_text'] = "One week time lapse video"
 
 
-
-def fill_eventlog_page(skicall):
-    "Called to fill the event log page"
-
-    event_list = redis_ops.get_log_info(skicall.proj_data.get("rconn_0"))
-    if not event_list:
-        skicall.page_data['logtext', 'pre_text'] = "Awaiting events"
-    else:
-        skicall.page_data['logtext', 'pre_text'] = "\n".join(event_list)
-
-
-
