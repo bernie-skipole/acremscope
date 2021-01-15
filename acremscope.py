@@ -11,6 +11,10 @@ import os, sys, random
 
 from skipole import WSGIApplication, FailPage, GoTo, ValidateError, ServerError, set_debug, use_submit_list, skis
 
+from indi_mr import redis_server
+
+import indiredis
+
 # the framework needs to know the location of the projectfiles directory holding this project
 
 PROJECTFILES = os.path.dirname(os.path.realpath(__file__))
@@ -650,6 +654,9 @@ application = WSGIApplication(project=PROJECT,
 skis_application = skis.makeapp()
 application.add_project(skis_application, url='/acremscope/lib')
 
+# add the indiredis client
+indi_application = indiredis.make_wsgi_app(redis_server(), blob_folder=cfg.get_servedfiles_directory())
+application.add_project(indi_application, url='/acremscope/indi')
 
 
 if __name__ == "__main__":

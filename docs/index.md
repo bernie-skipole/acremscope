@@ -95,6 +95,8 @@ python3 -m pip install --user redis
 
 python3 -m pip install --user paho-mqtt
 
+python3 -m pip install --user indiredis
+
 python3 -m pip install --user astropy
 
 python3 -m pip install --user astroquery
