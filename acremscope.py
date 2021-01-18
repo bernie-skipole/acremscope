@@ -299,6 +299,14 @@ def start_call(called_ident, skicall):
 
     ###### So user is logged in, and call_data is populated
 
+
+    # control_user_id records who is controlling the telescope chart, if someone
+    # new comes along, either a new session booked user or a test user, then this
+    # person is set to be the control_user_id and the chart is reset. But in
+    # subsequent calls, as this person already is the control_user_id, there is no need
+    # to reset the chart.
+
+
     rconn_0 = skicall.proj_data.get("rconn_0")
 
     # get user who is currently controlling the telescope, if any
@@ -657,7 +665,6 @@ def _check_cookies(received_cookies, proj_data):
         # no received cookie, therefore cannot access indi client
         return divert
 
-    user = None
     cookie_name = PROJECT + '2'
     if cookie_name not in received_cookies:
         # no cookie received with the valid cookie name, so divert
@@ -682,7 +689,7 @@ def _check_cookies(received_cookies, proj_data):
     slot_status = database_ops.get_slot_status(sun.Slot.now())
 
     if slot_status is None:
-        # no current slot
+        # exeception occurred when trying to get slot from database
         return divert
 
     # there is a current slot, which may or may not be booked

@@ -34,11 +34,13 @@ apt-get install python3-psycopg2
 
 apt-get install redis
 
+apt-get install indi-bin
+
 adduser bernard
 
 record the password
 
-## Install git, and clone skitest repository
+## Install git, and clone acremscope repository
 
 Then as user bernard create an ssh key
 
