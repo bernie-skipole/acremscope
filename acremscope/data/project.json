@@ -3,7 +3,7 @@
 "default_language": "en",
 "brief": "Astronomy Centre Robotic Telescope",
 "version": "0.0.1",
-"skipole": "5.2.0",
+"skipole": "5.2.1",
 "specialpages": {
 "addguest": 3404,
 "book_members": 3222,
@@ -3806,6 +3806,248 @@ false,
 }
 ]
 },
+"indi": {
+"ident": 6605,
+"brief": "page with iframe indi client",
+"TemplatePage": {
+"show_backcol": true,
+"last_scroll": true,
+"interval": 0,
+"interval_target": null,
+"catch_to_html": null,
+"lang": "en",
+"backcol": "#28069d",
+"default_error_widget": [
+"header",
+"top_error"
+]
+},
+"head": [
+"Part",
+{
+"tag_name": "head",
+"brief": "The head section of the page",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"ClosedPart",
+{
+"tag_name": "meta",
+"brief": "The charset meta declaration",
+"show": true,
+"attribs": {
+"charset": "utf-8"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "meta",
+"brief": "The viewport meta declaration",
+"show": true,
+"attribs": {
+"content": "width=device-width, initial-scale=1",
+"name": "viewport"
+}
+}
+],
+[
+"Part",
+{
+"tag_name": "title",
+"brief": "The page title element",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Control"
+]
+]
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to w3_css",
+"show": true,
+"attribs": {
+"href": "{w3_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to w3_theme_ski_css",
+"show": true,
+"attribs": {
+"href": "{w3_theme_ski_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to ski_css",
+"show": true,
+"attribs": {
+"href": "{ski_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"Part",
+{
+"tag_name": "script",
+"brief": "script link to jquery_core",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"src": "{jquery_core}"
+},
+"parts": []
+}
+],
+[
+"Part",
+{
+"tag_name": "script",
+"brief": "script link to skipole_js",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"src": "{skipole_js}"
+},
+"parts": []
+}
+]
+]
+}
+],
+"body": [
+"Part",
+{
+"tag_name": "body",
+"brief": "The body section of the page",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-theme"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "container",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container"
+},
+"parts": [
+[
+"SectionPlaceHolder",
+{
+"brief": "Left navigation panel",
+"section_name": "navigation",
+"placename": "navigation",
+"multiplier": 0,
+"mtag": "div"
+}
+],
+[
+"SectionPlaceHolder",
+{
+"brief": "Page header",
+"section_name": "header",
+"placename": "header",
+"multiplier": 0,
+"mtag": "div"
+}
+],
+[
+"Widget",
+{
+"class": "links.OpenButton",
+"name": "opennav",
+"brief": "Opens the navigation panel",
+"fields": {
+"get_field1": "",
+"get_field2": "",
+"link_ident": "",
+"show": true,
+"target_section": "navigation",
+"target_widget": "",
+"widget_class": "w3-button w3-theme-d4 w3-xlarge w3-hide-large",
+"widget_style": "margin-top:5px"
+}
+}
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "main",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-main",
+"style": "margin-left:200px"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "container",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container"
+},
+"parts": [
+[
+"Widget",
+{
+"class": "links.ProjectiFrame",
+"name": "indiclient",
+"brief": "iframe with indiredis",
+"fields": {
+"height": "800",
+"project": "webdemo",
+"show": true,
+"widget_class": "",
+"widget_style": "border:4px solid black;",
+"width": "100%"
+}
+}
+]
+]
+}
+]
+]
+}
+]
+]
+}
+]
+]
+}
+]
+},
 "loggedin_control_template": {
 "ident": 6601,
 "brief": "Template page for remscope control",
@@ -4210,6 +4452,33 @@ false,
 [
 "Widget",
 {
+"class": "links.ButtonLink2",
+"name": "indiclient",
+"brief": "Link to the indi control panel",
+"fields": {
+"button_class": "w3-button w3-theme-l1 w3-border w3-round",
+"button_style": "width:20em;",
+"button_text": "INDI Client",
+"button_wait_text": "Please wait...",
+"buttondiv_class": "w3-container w3-center",
+"buttondiv_style": "",
+"clear_error": false,
+"error_class": "w3-panel w3-red",
+"get_field1": "",
+"get_field2": "",
+"hide": false,
+"json_ident": "",
+"link_ident": "6005",
+"show": true,
+"show_error": "",
+"widget_class": "w3-container",
+"widget_style": ""
+}
+}
+],
+[
+"Widget",
+{
 "class": "paras.DivPara",
 "name": "test_warning",
 "brief": "Displays warning when in test mode",
@@ -4306,6 +4575,25 @@ false,
 "create_index"
 ],
 "target_ident": 6501
+},
+"original_fields": {}
+}
+},
+"indi": {
+"ident": 6005,
+"brief": "data for indi page",
+"RespondPage": {
+"class": "SubmitData",
+"original_args": {
+"allowed_callers": [],
+"fail_ident": 6601,
+"submit_list": [
+"acremscope_packages",
+"members",
+"control",
+"indi_template"
+],
+"target_ident": 6605
 },
 "original_fields": {}
 }
@@ -23329,45 +23617,6 @@ false
 "Part",
 {
 "tag_name": "p",
-"brief": "github wiki",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"Text",
-"Further information on how the catalog was derived is at the project github wiki at:"
-],
-[
-"HTMLSymbol",
-{
-"text": "&nbsp;"
-}
-],
-[
-"Part",
-{
-"tag_name": "a",
-"brief": "link to wiki",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"href": "https://github.com/bernie-skipole/acremscope/wiki"
-},
-"parts": [
-[
-"Text",
-"https://github.com/bernie-skipole/acremscope/wiki"
-]
-]
-}
-]
-]
-}
-],
-[
-"Part",
-{
-"tag_name": "p",
 "brief": "About constellation lines",
 "show": true,
 "hide_if_empty": false,
@@ -23581,6 +23830,180 @@ false
 },
 "original_fields": {}
 }
+},
+"unavailable": {
+"ident": 3,
+"brief": "Shown when INDI session times out",
+"TemplatePage": {
+"show_backcol": false,
+"last_scroll": false,
+"interval": 0,
+"interval_target": null,
+"catch_to_html": null,
+"lang": "en",
+"backcol": "#28069d",
+"default_error_widget": [
+"",
+"top_error"
+]
+},
+"head": [
+"Part",
+{
+"tag_name": "head",
+"brief": "The head section of the page",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"ClosedPart",
+{
+"tag_name": "meta",
+"brief": "The charset meta declaration",
+"show": true,
+"attribs": {
+"charset": "utf-8"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "meta",
+"brief": "The viewport meta declaration",
+"show": true,
+"attribs": {
+"content": "width=device-width, initial-scale=1",
+"name": "viewport"
+}
+}
+],
+[
+"Part",
+{
+"tag_name": "title",
+"brief": "The page title element",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"About"
+]
+]
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to w3_css",
+"show": true,
+"attribs": {
+"href": "{w3_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to w3_theme_ski_css",
+"show": true,
+"attribs": {
+"href": "{w3_theme_ski_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to ski_css",
+"show": true,
+"attribs": {
+"href": "{ski_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"Part",
+{
+"tag_name": "script",
+"brief": "script link to jquery_core",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"src": "{jquery_core}"
+},
+"parts": []
+}
+],
+[
+"Part",
+{
+"tag_name": "script",
+"brief": "script link to skipole_js",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"src": "{skipole_js}"
+},
+"parts": []
+}
+]
+]
+}
+],
+"body": [
+"Part",
+{
+"tag_name": "body",
+"brief": "The body section of the page",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-theme"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "container",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "Paragraph",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Session unavailable."
+]
+]
+}
+]
+]
+}
+]
+]
+}
+]
 },
 "url_not_found.html": {
 "ident": 10,

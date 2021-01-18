@@ -32,7 +32,7 @@ from ..cfg import observatory, get_planetdb, planetmags
 from ..sun import night_slots, Slot
 from ..stars import get_stars, radec_to_xy, xy_constellation_lines, get_planets, get_named_object
 
-from .sessions import livesession
+from .sessions import livesession, doorsession
 
 # These are mean apparant visual magnitudes, except for pluto, which is a rough guesstimate
 
@@ -101,6 +101,8 @@ def get_chart(rconn_0):
     return Chart(*redis_ops.get_chart_parameters(rconn_0))
 
 
+# livesession allows the booked in user to access the controls, but only
+# if the door is open
 @livesession
 def control_template(skicall):
     "Fills in the control template page"
@@ -108,6 +110,14 @@ def control_template(skicall):
     redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
     # draw the control page chart
     _draw_chart(skicall)
+
+# doorsession allows the booked in user to access the controls, including the door control
+# as this can be done via indi, this is the appropriate decorator 
+@doorsession
+def indi_template(skicall):
+    "Fills in the indi template page"
+    # currently does nothing
+    return
 
 
 def _draw_chart(skicall, tstamp=None, altaztuple=None):

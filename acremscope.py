@@ -33,6 +33,7 @@ _IDENT_DATA = random.randrange(1, 9999)
 # These pages can be accessed by anyone, without the need to login
 _UNPROTECTED_PAGES = [1,         # index
                       2,         # about
+                      3,         # unavailable
                       10,        # url not found page
                       1010,      # w3.css page
                       1020,      # w3-theme-ski.css page
@@ -105,6 +106,7 @@ _LOGGED_IN_PAGES = [4002,        # members sessions index
                     4008,        # shows booking terms via JSON
                     4009,        # hide booking terms via JSON
                     5003,        # logout
+                    6005,        # indi
                     6101,        # logged in control
                     6102,        # refreshes logged in control page
                     6103,        # html door control
@@ -421,6 +423,7 @@ _HEADER_TEXT = {    2: "About this web site build.",
                  5540: "PIN Fail",
                  6501: "Control Page",   # public control
                  6601: "Control Page",   # logged in control
+                 6605: "INDI Client",
                  7501: "Sensors Page",
                  7502: "Temperature Logs",
                  8501: "Your Settings Page",
@@ -641,6 +644,82 @@ def _set_stored_values(skicall):
 
 
 
+def _check_cookies(received_cookies, proj_data):
+    """If this function returns None, the call proceeds unhindered to the INDI subapplication.
+       If it returns an ident tuple then the call is routed to that ident page instead."""
+
+    global PROJECT
+
+    # page to divert to, showing message session unavailable
+    divert = 3
+
+    if not received_cookies:
+        # no received cookie, therefore cannot access indi client
+        return divert
+
+    user = None
+    cookie_name = PROJECT + '2'
+    if cookie_name not in received_cookies:
+        # no cookie received with the valid cookie name, so divert
+        return divert
+
+    cookie_string = received_cookies[cookie_name]
+    # so a recognised cookie has arrived, check redis 1 to see if the user has logged in
+    rconn_1 = proj_data.get("rconn_1")
+    user_id = redis_ops.logged_in(cookie_string, rconn_1)
+    if not user_id:
+        # cookie_string not saved in redis, unknown user, so divert
+        return divert
+
+    user = database_ops.get_user_from_id(user_id)
+    # user is (username, role, email, member) on None on failure
+    if not user:
+        # user_id not recognised user on the database, perhaps been deleted
+        # so divert
+        return divert
+
+    # is the current slot live, and if so who owns it?
+    slot_status = database_ops.get_slot_status(sun.Slot.now())
+
+    if slot_status is None:
+        # no current slot
+        return divert
+
+    # there is a current slot, which may or may not be booked
+    status, booked_user_id = slot_status
+    if status == 1:
+        # slot is booked (0 is not booked, 2 is disabled)
+        if user_id == booked_user_id:
+            # this is the user who has booked the slot, proceed to indi
+            return
+
+        if booked_user_id:
+            # someone else has booked the telescope
+            return divert
+
+    # slot not booked, but an admin user could have enabled test mode
+    # is this user an admin user
+    if user[1] != 'ADMIN':
+        # not an admin user
+        return divert
+
+    rconn_0 = proj_data.get("rconn_0")
+    test_mode_user_id = redis_ops.get_test_mode_user(rconn_0)
+    if test_mode_user_id != user_id:
+        # does not have test mode enabled
+        return divert
+
+    # This user has test mode, and is enabled, final check, is he authenticated?
+    rconn_2 = proj_data.get("rconn_2")
+    if redis_ops.is_authenticated(cookie_string, rconn_2):
+        # yes, so he can connect to indi
+        return
+    
+    # no - divert
+    return divert
+
+
+
 # create the wsgi application
 application = WSGIApplication(project=PROJECT,
                               projectfiles=PROJECTFILES,
@@ -656,7 +735,7 @@ application.add_project(skis_application, url='/acremscope/lib')
 
 # add the indiredis client
 indi_application = indiredis.make_wsgi_app(redis_server(), blob_folder=cfg.get_servedfiles_directory())
-application.add_project(indi_application, url='/acremscope/indi')
+application.add_project(indi_application, url='/acremscope/indi', check_cookies=_check_cookies)
 
 
 if __name__ == "__main__":
