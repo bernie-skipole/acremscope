@@ -26,6 +26,9 @@ from acremscope_packages import sun, database_ops, redis_ops, cfg
 # set PROJECTFILES into cfg, used to specify where astrodata and contents can be found
 cfg.set_projectfiles(PROJECTFILES)
 
+# redis server connection parameters for dbase 0
+REDISSERVER = redis_server()
+
 
 # _IDENT_DATA is used as part of a key to store data within redis
 _IDENT_DATA = random.randrange(1, 9999)
@@ -206,7 +209,9 @@ def make_proj_data():
     rconn_3 = redis_ops.open_redis(redis_db=3)
     # and another for session data
     rconn_4 = redis_ops.open_redis(redis_db=4)
-    return {'rconn_0':rconn_0, 'rconn_1':rconn_1, 'rconn_2':rconn_2, 'rconn_3':rconn_3, 'rconn_4':rconn_4, 'projectfiles':PROJECTFILES}
+    return {'rconn_0':rconn_0, 'rconn_1':rconn_1, 'rconn_2':rconn_2, 'rconn_3':rconn_3, 'rconn_4':rconn_4,
+            'projectfiles':PROJECTFILES,
+            'redisserver':REDISSERVER}
 
 
 def start_call(called_ident, skicall):
@@ -741,7 +746,7 @@ skis_application = skis.makeapp()
 application.add_project(skis_application, url='/acremscope/lib')
 
 # add the indiredis client
-indi_application = indiredis.make_wsgi_app(redis_server(), blob_folder=cfg.get_servedfiles_directory())
+indi_application = indiredis.make_wsgi_app(REDISSERVER, blob_folder=cfg.get_servedfiles_directory())
 application.add_project(indi_application, url='/acremscope/indi', check_cookies=_check_cookies)
 
 

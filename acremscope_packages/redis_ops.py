@@ -4,6 +4,8 @@ import random
 
 from datetime import datetime
 
+from indi_mr import tools
+
 try:
     import redis
 except:
@@ -408,7 +410,7 @@ def set_chart_actual(actual, rconn=None):
     return False
 
 
-def get_led(rconn=None):
+def get_led(rconn, redisserver):
     """Return led status string. If given rconn should connect to redis_db 0"""
 
     if rconn is None:
@@ -419,7 +421,12 @@ def get_led(rconn=None):
     if rconn is None:
         return 'UNKNOWN'
     try:
-        led_status = rconn.get('led').decode('utf-8')
+        #led_status = rconn.get('led').decode('utf-8')
+        led = tools.elements_dict(rconn, redisserver, "LED ON", "LED", "Rempi01 LED")
+        # led should be a dictionary, key 'value' should be On or Off
+        if not led:
+            return "UNKNOWN"
+        led_status = led.get("value", "UNKNOWN")
     except:
         return 'UNKNOWN'
     return led_status

@@ -19,7 +19,7 @@ from .. import sun, database_ops, redis_ops, cfg
 
 def retrieve_sensors_data(skicall):
     "Display sensor values, initially just the led status"
-    skicall.page_data['led_status', 'para_text'] = "LED : " + redis_ops.get_led(skicall.proj_data.get("rconn_0"))
+    skicall.page_data['led_status', 'para_text'] = "LED : " + redis_ops.get_led(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
     skicall.page_data['temperature_status', 'para_text'] = "Temperature : " + redis_ops.last_temperature(skicall.proj_data.get("rconn_0"))
     skicall.page_data['door_status', 'para_text'] = "Door : " + redis_ops.get_door(skicall.proj_data.get("rconn_0"))
     skicall.page_data['webcam01_status', 'para_text'] = "Webcam01 : " + redis_ops.get_webcam01(skicall.proj_data.get("rconn_0"))
