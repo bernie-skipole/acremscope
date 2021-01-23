@@ -79,15 +79,15 @@ class _TEMPERATURE:
         writer = asyncio.StreamWriter(writer_transport, writer_protocol, None, self.loop)
 
 
-        await asyncio.gather(self.reader(reader), self.writer(writer), self.hourlyupdate())
+        await asyncio.gather(self.reader(reader), self.writer(writer), self.update())
 
 
-    async def hourlyupdate(self):
+    async def update(self):
         """Gets an updated temperature, and creates a setNumberVector placing it into self.sender for transmission"""
+        # Send every ten minutes
         while True:            
-            await asyncio.sleep(3600)
+            await asyncio.sleep(600)
             self.temperature, self.timestamp = await self.loop.run_in_executor(None, self.setNumberVector)
-            # after updating the temperature, wait for an hour
 
 
 
@@ -231,11 +231,7 @@ class _TEMPERATURE:
         xmldata.set("device", _DEVICE)
         xmldata.set("name", _NAME)
         xmldata.set("timestamp", timestamp)
-        if timestamp == self.timestamp:
-            xmldata.set("message", f"{datetime.utcnow().isoformat(sep='T')} [ERROR] Temperature update failed")
-        else:
-            xmldata.set("message", f"{timestamp} [INFO] Temperature update {temperature} received")
-
+        xmldata.set("message", f"{datetime.utcnow().isoformat(sep='T')} [INFO] Temperature {temperature} Centigrade received")
         ne = ET.Element('oneNumber')
         ne.set("name", _ELEMENT)
         ne.text = temperature
