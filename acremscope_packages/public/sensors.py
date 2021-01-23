@@ -20,7 +20,7 @@ from .. import sun, database_ops, redis_ops, cfg
 def retrieve_sensors_data(skicall):
     "Display sensor values, initially just the led status"
 
-    rconn0 = skicall.proj_data.get("rconn_0"),
+    rconn0 = skicall.proj_data.get("rconn_0")
     redisserver = skicall.proj_data.get("redisserver")
     skicall.page_data['led_status', 'para_text'] = "LED : " + redis_ops.get_led(rconn0, redisserver)
     skicall.page_data['temperature_status', 'para_text'] = "Temperature : " + redis_ops.last_temperature(rconn0, redisserver)

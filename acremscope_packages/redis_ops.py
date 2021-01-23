@@ -501,7 +501,7 @@ def last_temperature(rconn, redisserver):
     try:
         property_att = tools.attributes_dict(rconn, redisserver, "Temperature", "Rempi01 Temperature")
         # property_att should be a dictionary
-        if not propert_att:
+        if not property_att:
             return ''
         element_att = tools.elements_dict(rconn, redisserver, "Temperature", "Temperature", "Rempi01 Temperature")
         # element_att should be a dictionary
