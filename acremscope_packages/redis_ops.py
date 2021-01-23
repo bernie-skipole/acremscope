@@ -484,8 +484,8 @@ def get_temperatures(rconn=None):
     return dataset
 
 
-def last_temperature(rconn=None):
-    """Return last date and temperature log. If given rconn should connect to redis_db 0
+def last_temperature(rconn, redisserver):
+    """Return last date and temperature. If given rconn should connect to redis_db 0
 
        String returned is of the form %Y-%m-%d %H:%M temperature, if unable to get
        the temperature, an empty string is returned"""
@@ -499,13 +499,24 @@ def last_temperature(rconn=None):
         return ''
     # get data from redis
     try:
-        date_temp = rconn.lrange("temperature", -1, -1)
+        property_att = tools.attributes_dict(rconn, redisserver, "Temperature", "Rempi01 Temperature")
+        # property_att should be a dictionary
+        if not propert_att:
+            return ''
+        element_att = tools.elements_dict(rconn, redisserver, "Temperature", "Temperature", "Rempi01 Temperature")
+        # element_att should be a dictionary
+        if not element_att:
+            return ''
+        temperature_value = element_att.get("formatted_number")
+        if temperature_value is None:
+            return ''
+        timestamp_value = property_att.get("timestamp")
+        if timestamp_value is None:
+            return ''
+        temperature_date, temperature_time =  timestamp_value.split("T")
     except:
         return ''
-    if date_temp:
-        return date_temp[0].decode('utf-8')
-    else:
-        return ''
+    return f"{temperature_date} {temperature_time} {temperature_value}"
 
 
 ############################################################
