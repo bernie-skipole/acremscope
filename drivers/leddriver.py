@@ -1,5 +1,16 @@
 #!/usr/bin/python3
 
+
+"""leddriver.py
+
+Gets and sets LED on the pi
+
+rw value
+device is 'Rempi01 LED'
+property name  is 'LED'
+element names are 'LED ON' and 'LED OFF'
+"""
+
 import os, sys, collections, asyncio
 
 import xml.etree.ElementTree as ET
@@ -243,8 +254,6 @@ def _hardwarecontrol(root, sender, led):
                 newled = False
             if (pn == "LED OFF") and (content == "Off"):
                 newled = True
-
-        print(newled)
 
         # send setSwitchVector vector
         # create the response
