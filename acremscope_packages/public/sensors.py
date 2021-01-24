@@ -72,8 +72,7 @@ def temperature_page(skicall):
 
     latest_date = None
 
-    for item in datalog:
-        log_date, log_time, log_temperature = item.split()
+    for log_date, log_time, log_temperature in datalog:
         log_year,log_month,log_day = log_date.split("-")
         log_hour, log_min = log_time.split(":")
         dtm = datetime(year=int(log_year), month=int(log_month), day=int(log_day), hour=int(log_hour), minute=int(log_min))
