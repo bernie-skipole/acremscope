@@ -59,7 +59,7 @@ def temperature_page(skicall):
     # create a time, temperature dataset
     this_day = datetime.utcnow().date()
     dataset = []
-    datalog = redis_ops.get_temperatures(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver")
+    datalog = redis_ops.get_temperatures(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
     if datalog:
         datalog = [ item.decode('utf-8') for item in datalog ]
     else:
