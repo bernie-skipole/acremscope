@@ -60,9 +60,7 @@ def temperature_page(skicall):
     this_day = datetime.utcnow().date()
     dataset = []
     datalog = redis_ops.get_temperatures(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
-    if datalog:
-        datalog = [ item.decode('utf-8') for item in datalog ]
-    else:
+    if not datalog:
         # empty data, show empty graph of today
         page_data['temperaturegraph', 'last_day'] = this_day
         prevday = this_day - timedelta(days=1)

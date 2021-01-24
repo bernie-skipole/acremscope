@@ -483,16 +483,15 @@ def get_temperatures(rconn, redisserver):
         if not elementlogs:
             return []
         dataset = [] # needs to be a list of lists of [day, time, temperature]
-        for data in elementlogs.values():
+        for t,data in elementlogs:
             if ("formatted_number" not in data) or ("timestamp" not in data):
                 continue
             number = data["formatted_number"]
-            daytime = data["timestamp"].split()
+            daytime = data["timestamp"].split("T")
             dataset.append([daytime[0], daytime[1], number])
     except:
         raise FailPage("Unable to access redis temperature variable")
     return dataset
-
 
 
 def last_temperature(rconn, redisserver):
