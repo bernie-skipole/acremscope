@@ -478,8 +478,7 @@ def get_temperatures(rconn, redisserver):
         raise FailPage("Unable to access redis temperature variable")
     # get data from redis
     try:
-        #dataset = rconn.lrange("temperature", 0, -1)
-        elementlogs = tools.logs(rconn, redisserver, 200, 'elementattributes', "Temperature", "Temperature", "Rempi01 Temperature")
+        elementlogs = tools.logs(rconn, redisserver, 48, 'elementattributes', "Temperature", "Temperature", "Rempi01 Temperature")
         if not elementlogs:
             return []
         dataset = [] # needs to be a list of lists of [day, time, temperature]
