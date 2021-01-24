@@ -466,7 +466,7 @@ def get_door(rconn=None):
     return door_status
 
 
-def get_temperatures(rconn=None):
+def get_temperatures(rconn, redisserver):
     """Return temperature log. If given rconn should connect to redis_db 0"""
 
     if rconn is None:
@@ -478,10 +478,36 @@ def get_temperatures(rconn=None):
         raise FailPage("Unable to access redis temperature variable")
     # get data from redis
     try:
-        dataset = rconn.lrange("temperature", 0, -1)
+        #dataset = rconn.lrange("temperature", 0, -1)
+        # timestamp is in property, but value required is in elements, must match the two
+        propertylogs = tools.logs(rconn, redisserver, 200, 'attributes', "Temperature", "Rempi01 Temperature")
+        if not propertylogs:
+            return []
+        elementlogs = tools.logs(rconn, redisserver, 200, 'elementattributes', "Temperature", "Temperature", "Rempi01 Temperature")
+        if not elementlogs:
+            return []
+        dataset = [] # needs to be a list of lists of [day, time, temperature]
+        propertydict = {}
+        elementdict = {}
+        avoid_duplicates = []
+        for t,d in propertylogs:
+            propertydict[t] = d['timestamp']
+        for t, d in elementlogs:
+            elementdict[t] = d["formatted_number"]
+        for t in propertydict:
+            if t in elementdict:
+                # this matches property log and alement log items
+                if propertydict[t] in avoid_duplicates:
+                    continue
+                avoid_duplicates.append(propertydict[t])
+                daytime = propertydict[t].split()
+                dataset.append([daytime[0], daytime[1], elementdict[t]])
     except:
         raise FailPage("Unable to access redis temperature variable")
     return dataset
+
+
+logdata:elementattributes:<elementname>:<propertyname>:<devicename>
 
 
 def last_temperature(rconn, redisserver):
