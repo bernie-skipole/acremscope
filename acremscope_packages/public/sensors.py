@@ -28,139 +28,23 @@ def retrieve_sensors_data(skicall):
     skicall.page_data['webcam01_status', 'para_text'] = "Webcam01 : " + redis_ops.get_webcam01(rconn0)
 
 
-def _temperature_files():
-    "Returns temperature files directory and list of temperature filenames in the directory"
-    # directory where files will be served
-    servedfiles_dir = cfg.get_servedfiles_directory()
-    temperature_dir = os.path.join(servedfiles_dir, 'temperature')
-    if not os.path.isdir(temperature_dir):
-        return None, []
-    # get logged temperature files
-    temperaturefiles = []
-    for f in os.listdir(temperature_dir):
-        path = os.path.join(temperature_dir, f)
-        if os.path.isfile(path):
-            temperaturefiles.append(f)
-    return temperature_dir, temperaturefiles
-
-
 def temperature_page(skicall):
     "Creates the page of temperature graph and logs"
 
     page_data = skicall.page_data
     # create a time, temperature dataset
-    this_day = datetime.utcnow().date()
     dataset = []
     datalog = redis_ops.get_temperatures(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
     if not datalog:
-        prevday = this_day - timedelta(days=1)
-        page_data['left', 'get_field1'] = prevday.isoformat()
         page_data['temperaturegraph', 'values'] = []
         return
-
     # so there is some data in datalog
-
     for log_date, log_time, log_temperature in datalog:
         log_year,log_month,log_day = log_date.split("-")
         log_hour, log_min = log_time.split(":")
         dtm = datetime(year=int(log_year), month=int(log_month), day=int(log_day), hour=int(log_hour), minute=int(log_min))
         dataset.append((log_temperature, dtm))
     page_data['temperaturegraph', 'values'] = dataset
-
-    # if latest_date is equal to this_day, then show graph of this_day
-    # but not including endpoint, so this makes the right hand of the graph
-    # equal to the latest point measured - acting more like a chart
-
-    prevday = this_day - timedelta(days=1)
-    page_data['left', 'get_field1'] = prevday.isoformat()
-    page_data['right', 'show'] = False
-
-
-
-def graph_day_temperature(skicall):
-    "Creates the temperature graph for a given day from CVS logs"
-
-    temperature_dir, temperaturefiles = _temperature_files()
-    if not temperaturefiles:
-        skicall.page_data['logfiles','show'] = False
-    else:
-        logfiles = []
-        for f in temperaturefiles:
-            logfiles.append((f, 'logs/temperature/' + f, ''))
-        logfiles.sort(key=lambda lf: lf[0], reverse=True)
-        skicall.page_data['logfiles','links'] = logfiles
-
-    call_data = skicall.call_data
-    page_data = skicall.page_data
-
-    day = ''
-    if ('left', 'get_field1') in call_data:
-        day = call_data['left', 'get_field1']
-    if not day:
-        if ('right', 'get_field1') in call_data:
-            day = call_data['right', 'get_field1']
-    if not day:
-        raise FailPage("A day to graph temperature has not been given")
-
-    try:
-        y,m,d = day.split("-")
-        day = date(int(y), int(m), int(d))
-        prevday = day - timedelta(days=1)
-        nextday = day + timedelta(days=1)
-    except Exception:
-        raise FailPage("Invalid date")
-
-    if day >= datetime.utcnow().date():
-        return temperature_page(skicall)
-
-    dataset = _get_logs_for_day(day)
-    prevdataset = _get_logs_for_day(prevday)
-    dataset.extend(prevdataset)
-
-    # ensure last point is for midnight
-    page_data['temperaturegraph', 'last_day'] = day
-    page_data['temperaturegraph', 'values'] = dataset
-    page_data['left', 'get_field1'] = prevday.isoformat()
-    page_data['right', 'get_field1'] = nextday.isoformat()
-
-
-def _get_logs_for_day(day):
-    "Return a list of logs for the given day, or empty list if none found"
-    if day.month < 10:
-        str_month = "0"+str(day.month)
-    else:
-        str_month = str(day.month)
-    # log file required
-    filename = str(day.year) + "_" + str_month + ".csv"
-
-    # directory where temperature logfiles are kept
-    temperature_dir, temperaturefiles = _temperature_files()
-    if not temperaturefiles:
-        return []
-    if filename not in temperaturefiles:
-        return []
-    path = os.path.join(temperature_dir, filename)
-    if not os.path.isfile(path):
-        return []
-
-    # create a dataset for day requested
-    dataset = []
-    try:
-        with open(path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                str_linedatetime, str_temperature = line.split(",")
-                str_linedate, str_linetime = str_linedatetime.split("T")
-                hr, minutes, seconds = str_linetime.split(":")
-                yy,mm,dd = list(int(i) for i in str_linedate.split("-"))
-                linedate = date(yy,mm,dd)
-                if day == linedate:
-                    dataset.append((str_temperature, datetime(linedate.year, linedate.month, linedate.day, int(hr), int(minutes), int(seconds))))
-    except Exception:
-        return []
-    return dataset
-    
-
 
 
 def _oldtemperature(skicall):

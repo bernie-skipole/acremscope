@@ -44,7 +44,6 @@
 "general_json": 2003,
 "get_webcam": 11002,
 "goto": 70020,
-"graph_day_temperature": 7005,
 "home": 1,
 "input_pin": 5515,
 "jquery_core": "skis,jquery_core",
@@ -12222,77 +12221,6 @@ false,
 },
 "parts": [
 [
-"Widget",
-{
-"class": "links.IconLink",
-"name": "left",
-"brief": "Left arrow",
-"fields": {
-"force_ident": false,
-"get_field1": "",
-"get_field2": "",
-"link_ident": "graph_day_temperature",
-"show": true,
-"svg_class": "",
-"svg_height": "100",
-"svg_preserveAspectRatio": "",
-"svg_style": "",
-"svg_viewBox": "",
-"svg_width": "100",
-"target": "",
-"transform": "scale(0.5 0.5)",
-"widget_class": "",
-"widget_style": ""
-},
-"container_0": [
-[
-"ClosedPart",
-{
-"tag_name": "circle",
-"brief": "The point of the arrow",
-"show": true,
-"attribs": {
-"cx": "10",
-"cy": "50",
-"r": "8",
-"stroke": "black"
-}
-}
-],
-[
-"ClosedPart",
-{
-"tag_name": "line",
-"brief": "line from point",
-"show": true,
-"attribs": {
-"style": "stroke:rgb(0,0,0);stroke-width:13",
-"x1": "10",
-"x2": "90",
-"y1": "48",
-"y2": "20"
-}
-}
-],
-[
-"ClosedPart",
-{
-"tag_name": "line",
-"brief": "line from point",
-"show": true,
-"attribs": {
-"style": "stroke:rgb(0,0,0);stroke-width:13",
-"x1": "10",
-"x2": "90",
-"y1": "52",
-"y2": "80"
-}
-}
-]
-]
-}
-],
-[
 "Part",
 {
 "tag_name": "svg",
@@ -12352,77 +12280,6 @@ false,
 ]
 ]
 }
-],
-[
-"Widget",
-{
-"class": "links.IconLink",
-"name": "right",
-"brief": "right arrow",
-"fields": {
-"force_ident": false,
-"get_field1": "",
-"get_field2": "",
-"link_ident": "graph_day_temperature",
-"show": true,
-"svg_class": "",
-"svg_height": "100",
-"svg_preserveAspectRatio": "",
-"svg_style": "",
-"svg_viewBox": "",
-"svg_width": "100",
-"target": "",
-"transform": "scale(0.5 0.5)",
-"widget_class": "",
-"widget_style": ""
-},
-"container_0": [
-[
-"ClosedPart",
-{
-"tag_name": "circle",
-"brief": "The point of the arrow",
-"show": true,
-"attribs": {
-"cx": "90",
-"cy": "50",
-"r": "8",
-"stroke": "black"
-}
-}
-],
-[
-"ClosedPart",
-{
-"tag_name": "line",
-"brief": "line from point",
-"show": true,
-"attribs": {
-"style": "stroke:rgb(0,0,0);stroke-width:13",
-"x1": "90",
-"x2": "10",
-"y1": "48",
-"y2": "20"
-}
-}
-],
-[
-"ClosedPart",
-{
-"tag_name": "line",
-"brief": "line from point",
-"show": true,
-"attribs": {
-"style": "stroke:rgb(0,0,0);stroke-width:13",
-"x1": "90",
-"x2": "10",
-"y1": "52",
-"y2": "80"
-}
-}
-]
-]
-}
 ]
 ]
 }
@@ -12444,30 +12301,6 @@ false,
 }
 },
 "pages": {
-"graph_day_temperature": {
-"ident": 7005,
-"brief": "Graphs a temperature for a given day",
-"RespondPage": {
-"class": "StoreData",
-"original_args": {
-"fail_ident": 7502,
-"submit_list": [
-"acremscope_packages",
-"public",
-"sensors",
-"graph_day_temperature"
-],
-"submit_option": true,
-"target_ident": 7502,
-"validate_fail_ident": null,
-"validate_option": false
-},
-"original_fields": {
-"left:get_field1": "",
-"right:get_field1": ""
-}
-}
-},
 "index": {
 "ident": 7001,
 "brief": "Responder for sensors index page",
