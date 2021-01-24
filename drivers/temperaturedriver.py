@@ -231,7 +231,7 @@ class _TEMPERATURE:
         xmldata.set("device", _DEVICE)
         xmldata.set("name", _NAME)
         xmldata.set("timestamp", timestamp)
-        xmldata.set("message", f"{datetime.utcnow().isoformat(sep='T')} [INFO] Temperature {temperature} Centigrade received")
+        #xmldata.set("message", f"{datetime.utcnow().isoformat(sep='T')} [INFO] Temperature {temperature} Centigrade received")
         ne = ET.Element('oneNumber')
         ne.set("name", _ELEMENT)
         ne.text = temperature
