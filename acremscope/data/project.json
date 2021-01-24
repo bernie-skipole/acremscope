@@ -42,7 +42,6 @@
 "free_session": 4004,
 "free_slot": 3211,
 "general_json": 2003,
-"get_logfile": 7505,
 "get_webcam": 11002,
 "goto": 70020,
 "graph_day_temperature": 7005,
@@ -11539,23 +11538,6 @@ false,
 "restricted": true,
 "folders": {},
 "pages": {
-"get_logfile": {
-"ident": 7505,
-"brief": "Gets a logfile",
-"RespondPage": {
-"class": "SubmitIterator",
-"original_args": {
-"fail_ident": "home",
-"submit_list": [
-"acremscope_packages",
-"public",
-"sensors",
-"get_logfile"
-]
-},
-"original_fields": {}
-}
-},
 "sensors_template": {
 "ident": 7501,
 "brief": "The template for the sensors page",
@@ -12443,39 +12425,6 @@ false,
 }
 ]
 ]
-}
-],
-[
-"Part",
-{
-"tag_name": "p",
-"brief": "Logs",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"Text",
-"Temperature logs: These are csv files of monthly temperature logs. Please note; they are not backed up via the admin system backup procedure. If you wish to retain them, please download and store them."
-]
-]
-}
-],
-[
-"Widget",
-{
-"class": "links.ListLinks",
-"name": "logfiles",
-"brief": "List of links to temperature logfiles",
-"fields": {
-"force_ident": false,
-"li_class": "",
-"link_class": "",
-"links": [],
-"show": true,
-"target": "",
-"widget_class": "",
-"widget_style": ""
-}
 }
 ]
 ]

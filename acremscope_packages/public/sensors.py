@@ -46,23 +46,13 @@ def _temperature_files():
 
 def temperature_page(skicall):
     "Creates the page of temperature graph and logs"
-    temperature_dir, temperaturefiles = _temperature_files()
-    if not temperaturefiles:
-        skicall.page_data['logfiles','show'] = False
-    else:
-        logfiles = []
-        for f in temperaturefiles:
-            logfiles.append((f, 'logs/temperature/' + f, ''))
-        logfiles.sort(key=lambda lf: lf[0], reverse=True)
-        skicall.page_data['logfiles','links'] = logfiles
+
     page_data = skicall.page_data
     # create a time, temperature dataset
     this_day = datetime.utcnow().date()
     dataset = []
     datalog = redis_ops.get_temperatures(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
     if not datalog:
-        # empty data, show empty graph of today
-        page_data['temperaturegraph', 'last_day'] = this_day
         prevday = this_day - timedelta(days=1)
         page_data['left', 'get_field1'] = prevday.isoformat()
         page_data['temperaturegraph', 'values'] = []
@@ -70,23 +60,12 @@ def temperature_page(skicall):
 
     # so there is some data in datalog
 
-    latest_date = None
-
     for log_date, log_time, log_temperature in datalog:
         log_year,log_month,log_day = log_date.split("-")
         log_hour, log_min = log_time.split(":")
         dtm = datetime(year=int(log_year), month=int(log_month), day=int(log_day), hour=int(log_hour), minute=int(log_min))
-        dt = dtm.date()
-        if latest_date is None:
-            latest_date = dt
-        elif dt > latest_date:
-            latest_date = dt
         dataset.append((log_temperature, dtm))
     page_data['temperaturegraph', 'values'] = dataset
-
-    if this_day != latest_date:
-        # show graph of this_day, including last_day endpoint
-        page_data['temperaturegraph', 'last_day'] = this_day
 
     # if latest_date is equal to this_day, then show graph of this_day
     # but not including endpoint, so this makes the right hand of the graph
@@ -181,36 +160,6 @@ def _get_logs_for_day(day):
         return []
     return dataset
     
-
-
-def get_logfile(skicall):
-    "Called by SubmitIterator responder to return a logfile"
-
-    call_data = skicall.call_data
-    page_data = skicall.page_data
-
-    page_data['mimetype'] = "text/csv"
-    urlpath = call_data['path']
-
-    # directory where temperature logfiles are kept
-    temperature_dir, temperaturefiles = _temperature_files()
-    if not temperaturefiles:
-        raise FailPage("File not found")
-
-    # get required server path
-    path = None
-    if urlpath.startswith("/remscope/sensors/logs/temperature/"):
-        filename = urlpath[35:]
-        if filename not in temperaturefiles:
-            raise FailPage("File not found")
-        path = os.path.join(temperature_dir, filename)
-        if not os.path.isfile(path):
-            raise FailPage("File not found")
-        with open(path, 'rb') as f:
-            file_data = f.read()
-        page_data['content-length'] = str(len(file_data))
-        return (file_data,)
-    raise FailPage("File not found")
 
 
 

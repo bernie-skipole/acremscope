@@ -237,10 +237,7 @@ def start_call(called_ident, skicall):
 
     if called_ident is None:
         # Force url not found if no called_ident
-        if skicall.path.startswith("/remscope/sensors/logs/temperature/"):
-            # call a responder which returns a file
-            return "get_logfile"
-        if skicall.path.startswith("/remscope/webcam/cam"):
+        if skicall.path.startswith("/acremscope/webcam/cam"):
             # call a responder which returns a file
             return "get_webcam"
         return
@@ -755,9 +752,9 @@ if __name__ == "__main__":
     ###################### Remove for deployment ##################################
     #                                                                              #
     set_debug(True)                                                               #
-    #from skipole import skiadmin                                                  #
-    #skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
-    #application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
+    from skipole import skiadmin                                                  #
+    skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
+    application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
     #                                                                              #
     ###############################################################################
 
