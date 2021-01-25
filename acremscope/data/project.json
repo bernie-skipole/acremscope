@@ -110,7 +110,6 @@
 "ski_upload": "skis,ski_upload",
 "skipole_js": "skis,skipole_js",
 "telescope": 6101,
-"temperature": 7002,
 "test_mode": 3030,
 "this_day": 3210,
 "timelapse": 11050,
@@ -11888,33 +11887,6 @@ false,
 "Widget",
 {
 "class": "links.ButtonLink2",
-"name": "temperature",
-"brief": "Link to temperature graph",
-"fields": {
-"button_class": "w3-button w3-block w3-theme-d4 w3-border",
-"button_style": "",
-"button_text": "Temperature Graph",
-"button_wait_text": "Please wait...",
-"buttondiv_class": "ski_mid_button",
-"buttondiv_style": "",
-"clear_error": false,
-"error_class": "w3-panel w3-red",
-"get_field1": "",
-"get_field2": "",
-"hide": false,
-"json_ident": "",
-"link_ident": "temperature",
-"show": true,
-"show_error": "",
-"widget_class": "w3-section",
-"widget_style": ""
-}
-}
-],
-[
-"Widget",
-{
-"class": "links.ButtonLink2",
 "name": "webcam",
 "brief": "Link to webcam page",
 "fields": {
@@ -11995,307 +11967,6 @@ false,
 ]
 }
 ]
-},
-"temperature_template": {
-"ident": 7502,
-"brief": "The template for the temperature page",
-"TemplatePage": {
-"show_backcol": true,
-"last_scroll": true,
-"interval": 0,
-"interval_target": null,
-"catch_to_html": null,
-"lang": "en",
-"backcol": "#28069d",
-"default_error_widget": [
-"header",
-"top_error"
-]
-},
-"head": [
-"Part",
-{
-"tag_name": "head",
-"brief": "The head section of the page",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"ClosedPart",
-{
-"tag_name": "meta",
-"brief": "The charset meta declaration",
-"show": true,
-"attribs": {
-"charset": "utf-8"
-}
-}
-],
-[
-"ClosedPart",
-{
-"tag_name": "meta",
-"brief": "The viewport meta declaration",
-"show": true,
-"attribs": {
-"content": "width=device-width, initial-scale=1",
-"name": "viewport"
-}
-}
-],
-[
-"Part",
-{
-"tag_name": "title",
-"brief": "The page title element",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"Text",
-"Temperature"
-]
-]
-}
-],
-[
-"ClosedPart",
-{
-"tag_name": "link",
-"brief": "css link to w3_css",
-"show": true,
-"attribs": {
-"href": "{w3_css}",
-"rel": "stylesheet",
-"type": "text/css"
-}
-}
-],
-[
-"ClosedPart",
-{
-"tag_name": "link",
-"brief": "css link to w3_theme_ski_css",
-"show": true,
-"attribs": {
-"href": "{w3_theme_ski_css}",
-"rel": "stylesheet",
-"type": "text/css"
-}
-}
-],
-[
-"ClosedPart",
-{
-"tag_name": "link",
-"brief": "css link to ski_css",
-"show": true,
-"attribs": {
-"href": "{ski_css}",
-"rel": "stylesheet",
-"type": "text/css"
-}
-}
-],
-[
-"Part",
-{
-"tag_name": "script",
-"brief": "script link to jquery_core",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"src": "{jquery_core}"
-},
-"parts": []
-}
-],
-[
-"Part",
-{
-"tag_name": "script",
-"brief": "script link to skipole_js",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"src": "{skipole_js}"
-},
-"parts": []
-}
-]
-]
-}
-],
-"body": [
-"Part",
-{
-"tag_name": "body",
-"brief": "The body section of the page",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"class": "w3-theme"
-},
-"parts": [
-[
-"Part",
-{
-"tag_name": "div",
-"brief": "container",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"class": "w3-container"
-},
-"parts": [
-[
-"SectionPlaceHolder",
-{
-"brief": "Left navigation panel",
-"section_name": "navigation",
-"placename": "navigation",
-"multiplier": 0,
-"mtag": "div"
-}
-],
-[
-"SectionPlaceHolder",
-{
-"brief": "Page header",
-"section_name": "header",
-"placename": "header",
-"multiplier": 0,
-"mtag": "div"
-}
-],
-[
-"Widget",
-{
-"class": "links.OpenButton",
-"name": "opennav",
-"brief": "Opens the navigation panel",
-"fields": {
-"get_field1": "",
-"get_field2": "",
-"link_ident": "",
-"show": true,
-"target_section": "navigation",
-"target_widget": "",
-"widget_class": "w3-button w3-theme-d4 w3-xlarge w3-hide-large",
-"widget_style": "margin-top:5px"
-}
-}
-],
-[
-"Part",
-{
-"tag_name": "div",
-"brief": "main",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"class": "w3-main",
-"style": "margin-left:200px"
-},
-"parts": [
-[
-"Part",
-{
-"tag_name": "div",
-"brief": "container",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"class": "w3-container"
-},
-"parts": [
-[
-"Part",
-{
-"tag_name": "div",
-"brief": "container",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"class": "w3-container"
-},
-"parts": [
-[
-"Part",
-{
-"tag_name": "svg",
-"brief": "svg container for temperature graph",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"height": "600",
-"width": "660"
-},
-"parts": [
-[
-"Part",
-{
-"tag_name": "text",
-"brief": "Graph title",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"fill": "white",
-"font-family": "verdana",
-"font-size": "15",
-"stroke-width": "0",
-"x": "20",
-"y": "40"
-},
-"parts": [
-[
-"Text",
-"Temperature"
-]
-]
-}
-],
-[
-"Widget",
-{
-"class": "svggraphs.Graph48Hr",
-"name": "temperaturegraph",
-"brief": "Graph of temperature readings",
-"fields": {
-"axiscol": "white",
-"fill": "#1b0469",
-"fill_opacity": "1",
-"font_family": "verdana",
-"last_day": "",
-"maxvalue": "35",
-"minvalue": "-10",
-"plotcol": "yellow",
-"show": true,
-"transform": "translate(-100, 80) scale(0.6)",
-"values": [],
-"widget_class": "",
-"widget_style": ""
-}
-}
-]
-]
-}
-]
-]
-}
-]
-]
-}
-]
-]
-}
-]
-]
-}
-]
-]
-}
-]
 }
 }
 }
@@ -12335,25 +12006,6 @@ false,
 "retrieve_sensors_data"
 ],
 "target_ident": "general_json"
-},
-"original_fields": {}
-}
-},
-"temperature": {
-"ident": 7002,
-"brief": "Fills in temperature logs page",
-"RespondPage": {
-"class": "SubmitData",
-"original_args": {
-"allowed_callers": [],
-"fail_ident": 7502,
-"submit_list": [
-"acremscope_packages",
-"public",
-"sensors",
-"temperature_page"
-],
-"target_ident": 7502
 },
 "original_fields": {}
 }
@@ -22821,7 +22473,18 @@ false
 "Part",
 {
 "tag_name": "div",
-"brief": "centre",
+"brief": "Centres the graphics",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container w3-center"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "container",
 "show": true,
 "hide_if_empty": false,
 "attribs": {
@@ -22968,6 +22631,9 @@ false
 [
 "Text",
 "Contains public sector information licensed under the Open Government Licence"
+]
+]
+}
 ]
 ]
 }

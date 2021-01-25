@@ -48,13 +48,10 @@ _UNPROTECTED_PAGES = [1,         # index
                       6003,      # Turn LED on
                       6004,      # Turn LED off
                       7001,      # Sensors index
-                      7002,      # temperature page with graph
                       7003,      # sensors refresh
                       4001,      # public sessions index
                       5001,      # logon page
                       5002,      # check login
-                      7005,      # graph_day_temperature
-                      7902,      # 48hr_temperature.svg
                      10002,      # scope.svg
                      10003,      # logo.svg
                      10004,      # left.png
