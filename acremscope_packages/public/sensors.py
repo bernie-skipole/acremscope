@@ -29,9 +29,24 @@ def retrieve_sensors_data(skicall):
 
 
 def temperature_page(skicall):
-    "Creates the page of temperature graph and logs"
+    "Creates the page of temperature graph and meter"
 
     page_data = skicall.page_data
+
+    date_temp = redis_ops.last_temperature(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
+    #if not date_temp:
+    #    raise FailPage("No temperature values available")
+
+    if date_temp:
+        last_date, last_time, last_temp = date_temp.split()
+
+        page_data['datetemp', 'para_text'] = last_date + " " + last_time + " Temperature: " + last_temp
+        page_data["meter", "measurement"] = last_temp
+    else:
+        page_data['datetemp', 'para_text'] = "No temperature values available"
+        page_data["meter", "measurement"] = "0.0"
+
+
     # create a time, temperature dataset
     dataset = []
     datalog = redis_ops.get_temperatures(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))

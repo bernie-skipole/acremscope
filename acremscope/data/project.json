@@ -22621,7 +22621,7 @@ false
 "TemplatePage": {
 "show_backcol": true,
 "last_scroll": true,
-"interval": 10,
+"interval": 600,
 "interval_target": 20002,
 "catch_to_html": null,
 "lang": "en",
@@ -22884,6 +22884,96 @@ false
 ]
 ]
 }
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "container",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "svg",
+"brief": "svg container for temperature graph",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"height": "600",
+"width": "660"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "text",
+"brief": "Graph title",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"fill": "white",
+"font-family": "verdana",
+"font-size": "15",
+"stroke-width": "0",
+"x": "20",
+"y": "40"
+},
+"parts": [
+[
+"Text",
+"Temperature"
+]
+]
+}
+],
+[
+"Widget",
+{
+"class": "svggraphs.Graph48Hr",
+"name": "temperaturegraph",
+"brief": "Graph of temperature readings",
+"fields": {
+"axiscol": "white",
+"fill": "#1b0469",
+"fill_opacity": "1",
+"font_family": "verdana",
+"last_day": "",
+"maxvalue": "35",
+"minvalue": "-10",
+"plotcol": "yellow",
+"show": true,
+"transform": "translate(-100, 80) scale(0.6)",
+"values": [],
+"widget_class": "",
+"widget_style": ""
+}
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "met office",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Contains public sector information licensed under the Open Government Licence"
+]
+]
+}
+]
+]
+}
 ]
 ]
 }
@@ -22930,7 +23020,7 @@ false
 "acremscope_packages",
 "public",
 "sensors",
-"last_temperature"
+"temperature_page"
 ],
 "target_ident": 21001
 },
@@ -23415,6 +23505,50 @@ false
 [
 "Text",
 "Status messages are broadcast to the Mastodon network as @remscope@botsin.space"
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "Met office",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Temperature and other weather data derived from the Met Office Datapoint service.\r\n\"Contains public sector information licensed under the Open Government Licence\""
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "Link to datapoint",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Part",
+{
+"tag_name": "a",
+"brief": "Link to https://www.metoffice.gov.uk/services/data/datapoint",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"href": "https://www.metoffice.gov.uk/services/data/datapoint"
+},
+"parts": [
+[
+"Text",
+"https://www.metoffice.gov.uk/services/data/datapoint"
+]
+]
+}
 ]
 ]
 }
