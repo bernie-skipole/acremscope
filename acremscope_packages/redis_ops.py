@@ -432,22 +432,6 @@ def get_led(rconn, redisserver):
     return led_status
 
 
-def get_webcam01(rconn=None):
-    """Return webcam01 status string. If given rconn should connect to redis_db 0"""
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return 'UNKNOWN'
-    if rconn is None:
-        return'UNKNOWN'
-    try:
-        webcam01_status = rconn.get('webcam01').decode('utf-8')
-    except:
-        return 'UNKNOWN'
-    return webcam01_status
-
 
 def get_door(rconn=None):
     """Return door status string. If given rconn should connect to redis_db 0"""

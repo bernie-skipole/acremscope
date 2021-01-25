@@ -60,9 +60,6 @@ _UNPROTECTED_PAGES = [1,         # index
                      10007,      # hright.png
                      10008,      # file_not_found.png
                      10009,      # icon.svg image
-                     11001,      # webcam - responder to webcam page
-                     11003,      # webcam_json - responder to webcam page
-                     11050,      # time lapse video page
                      12001,      # astro centre image
                      20001,      # weather - responder to weather page
                      20002,      # json update responder for weather page
@@ -159,7 +156,6 @@ _JSON_PAGES = [8004,            # de-regiser yourself
                6002,            # refreshes public control page
                6102,            # refreshes logged in control page
                7011,            # event log json
-              11003,            # webcam_json - responder to webcam page
               20002,            # json update responder for weather page
               30113,            # rotate plus 20
               30114,
@@ -214,6 +210,10 @@ def make_proj_data():
 def start_call(called_ident, skicall):
     "When a call is initially received this function is called."
 
+    if called_ident is None:
+        # Force url not found if no called_ident
+        return
+
     # set initial call_data values
     skicall.call_data = { "project":skicall.project,
                           "called_ident":called_ident,
@@ -231,13 +231,6 @@ def start_call(called_ident, skicall):
 
     call_data = skicall.call_data
 
-
-    if called_ident is None:
-        # Force url not found if no called_ident
-        if skicall.path.startswith("/acremscope/webcam/cam"):
-            # call a responder which returns a file
-            return "get_webcam"
-        return
 
     ####### get planning parameters from ident_data #######
 
