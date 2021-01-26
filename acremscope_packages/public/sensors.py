@@ -56,7 +56,9 @@ def temperature_page(skicall):
     # so there is some data in datalog
     for log_date, log_time, log_temperature in datalog:
         log_year,log_month,log_day = log_date.split("-")
-        log_hour, log_min = log_time.split(":")
+        loghms = log_time.split(":")
+        log_hour = loghms[0]
+        log_min = loghms[1]
         dtm = datetime(year=int(log_year), month=int(log_month), day=int(log_day), hour=int(log_hour), minute=int(log_min))
         dataset.append((log_temperature, dtm))
     page_data['temperaturegraph', 'values'] = dataset
