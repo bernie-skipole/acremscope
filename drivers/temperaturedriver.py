@@ -33,8 +33,8 @@ _ENDTAGS = tuple(b'</' + tag + b'>' for tag in TAGS)
 
 
 _DEVICE = 'Rempi01 Temperature'
-_NAME = 'Temperature'
-_ELEMENT = 'Temperature'
+_NAME = 'ATMOSPHERE'
+_ELEMENT = 'TEMPERATURE'
 
 _MET_OFFICE_KEY = 'XXXXXXXXXXXXXXXXXX'
 
@@ -63,8 +63,8 @@ class _TEMPERATURE:
         "Sets the data used by the data handler"
         self.loop = loop
         self.sender = collections.deque(maxlen=100)
-        # start with zero values, which should be immediately overwritten
-        self.temperature, self.timestamp = hardwaretemperature("0.0", datetime.utcnow().isoformat(sep='T'))
+        # start with zero centigrade, which should be immediately overwritten
+        self.temperature, self.timestamp = hardwaretemperature("273.15", datetime.utcnow().isoformat(sep='T'))
 
 
     async def handle_data(self):
@@ -199,7 +199,7 @@ class _TEMPERATURE:
             xmldata = ET.Element('defNumberVector')
             xmldata.set("device", _DEVICE)
             xmldata.set("name", _NAME)
-            xmldata.set("label", "Temperature (Centigrade)")
+            xmldata.set("label", "Temperature (Kelvin)")
             xmldata.set("group", "Status")
             xmldata.set("state", "Ok")
             xmldata.set("perm", "ro")
@@ -207,7 +207,7 @@ class _TEMPERATURE:
 
             ne = ET.Element('defNumber')
             ne.set("name", _ELEMENT)
-            ne.set("format", "%.1f")
+            ne.set("format", "%.2f")
             ne.set("min", "-30")
             ne.set("max", "-30")   # min== max means ignore
             ne.set("step", "0")    # 0 means ignore
@@ -231,7 +231,6 @@ class _TEMPERATURE:
         xmldata.set("device", _DEVICE)
         xmldata.set("name", _NAME)
         xmldata.set("timestamp", timestamp)
-        #xmldata.set("message", f"{datetime.utcnow().isoformat(sep='T')} [INFO] Temperature {temperature} Centigrade received")
         ne = ET.Element('oneNumber')
         ne.set("name", _ELEMENT)
         ne.text = temperature
@@ -277,10 +276,10 @@ def hardwaretemperature(temperature, timestamp):
         temperature2 = values['SiteRep']['DV']['Location']['Period']['Rep']['T']
 
         # temperature at the Astronomy Centre is estimated as the average of these two,
-        # minus a quarter of a degree due to its height.
+        # minus a quarter of a degree due to its height. 273.15 is added to convert to Kelvin
 
-        actemp = (float(temperature1) + float(temperature2))/2.0 - 0.25
-        actempstring = "%.1f" % actemp
+        actemp = (float(temperature1) + float(temperature2))/2.0 - 0.25 + 273.15
+        actempstring = "%.2f" % actemp
 
     except Exception:
         # some failure occurred getting the temperature

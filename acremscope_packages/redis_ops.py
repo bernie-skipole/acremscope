@@ -462,14 +462,14 @@ def get_temperatures(rconn, redisserver):
         raise FailPage("Unable to access redis temperature variable")
     # get data from redis
     try:
-        elementlogs = tools.logs(rconn, redisserver, 48, 'elementattributes', "Temperature", "Temperature", "Rempi01 Temperature")
+        elementlogs = tools.logs(rconn, redisserver, 48, 'elementattributes', "TEMPERATURE", "ATMOSPHERE", "Rempi01 Temperature")
         if not elementlogs:
             return []
         dataset = [] # needs to be a list of lists of [day, time, temperature]
         for t,data in elementlogs:
             if ("formatted_number" not in data) or ("timestamp" not in data):
                 continue
-            number = data["formatted_number"]
+            number = float(data["formatted_number"]) + 273.15
             daytime = data["timestamp"].split("T")
             dataset.append([daytime[0], daytime[1], number])
     except:
@@ -492,20 +492,22 @@ def last_temperature(rconn, redisserver):
         return ''
     # get data from redis
     try:
-        element_att = tools.elements_dict(rconn, redisserver, "Temperature", "Temperature", "Rempi01 Temperature")
+        element_att = tools.elements_dict(rconn, redisserver, "TEMPERATURE", "ATMOSPHERE", "Rempi01 Temperature")
         # element_att should be a dictionary
         if not element_att:
             return ''
         temperature_value = element_att.get("formatted_number")
         if temperature_value is None:
             return ''
+        # Convert from Kelvin to Centigrade
+        temperature = float(temperature_value) + 273.15
         timestamp_value = element_att.get("timestamp")
         if timestamp_value is None:
             return ''
         temperature_date, temperature_time =  timestamp_value.split("T")
     except:
         return ''
-    return f"{temperature_date} {temperature_time} {temperature_value}"
+    return f"{temperature_date} {temperature_time} {temperature}"
 
 
 ############################################################
