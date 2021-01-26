@@ -88,7 +88,7 @@ class _TEMPERATURE:
         """Gets an updated temperature, and creates a setNumberVector placing it into self.sender for transmission"""
         # Send every ten minutes
         while True:            
-            await asyncio.sleep(6)
+            await asyncio.sleep(600)
             self.temperature, self.timestamp = await self.loop.run_in_executor(None, self.setNumberVector)
 
 
@@ -252,7 +252,6 @@ def hardwaretemperature(temperature, timestamp):
 
         # get a list of available timestamps, and choose the latest (last in list)
         url = f'http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/json/capabilities?res=hourly&key={_MET_OFFICE_KEY}'
-        print(url)
         with urllib.request.urlopen(url) as response:
            values = json.loads(response.read())
 
@@ -302,7 +301,6 @@ def hardwaretemperature(temperature, timestamp):
         # some failure occurred getting the temperature
         return temperature, timestamp
 
-    print(actempstring, actimestring)
     return actempstring, actimestring
 
 
