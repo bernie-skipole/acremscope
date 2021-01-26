@@ -210,8 +210,8 @@ class _TEMPERATURE:
             ne = ET.Element('defNumber')
             ne.set("name", _ELEMENT)
             ne.set("format", "%.2f")
-            ne.set("min", "-30")
-            ne.set("max", "-30")   # min== max means ignore
+            ne.set("min", "0")
+            ne.set("max", "0")   # min== max means ignore
             ne.set("step", "0")    # 0 means ignore
             ne.text = self.temperature
             xmldata.append(ne)

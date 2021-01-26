@@ -470,8 +470,9 @@ def get_temperatures(rconn, redisserver):
             if ("formatted_number" not in data) or ("timestamp" not in data):
                 continue
             number = float(data["formatted_number"]) - 273.15
+            numberstring = "%.2f" % number
             daytime = data["timestamp"].split("T")
-            dataset.append([daytime[0], daytime[1], number])
+            dataset.append([daytime[0], daytime[1], numberstring])
     except:
         raise FailPage("Unable to access redis temperature variable")
     return dataset
@@ -501,13 +502,14 @@ def last_temperature(rconn, redisserver):
             return ''
         # Convert from Kelvin to Centigrade
         temperature = float(temperature_value) - 273.15
+        temperature_string = "%.2f" % temperature
         timestamp_value = element_att.get("timestamp")
         if timestamp_value is None:
             return ''
         temperature_date, temperature_time =  timestamp_value.split("T")
     except:
         return ''
-    return f"{temperature_date} {temperature_time} {temperature}"
+    return f"{temperature_date} {temperature_time} {temperature_string}"
 
 
 ############################################################
