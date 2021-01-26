@@ -263,33 +263,44 @@ def hardwaretemperature(temperature, timestamp):
             # no new time temperature is available 
             return temperature, timestamp
 
-        # 3344 = location id for Bingley Samos
-        url = f'http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/json/3344?res=hourly&time={latest_time}&key={_MET_OFFICE_KEY}'
-        with urllib.request.urlopen(url) as response:
-           values = json.loads(response.read())
-        temperature1 = values['SiteRep']['DV']['Location']['Period']['Rep']['T']
+        try:
+            # 3344 = location id for Bingley Samos
+            url = f'http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/json/3344?res=hourly&time={latest_time}&key={_MET_OFFICE_KEY}'
+            with urllib.request.urlopen(url) as response:
+                values = json.loads(response.read())
+            temperature1 = values['SiteRep']['DV']['Location']['Period']['Rep']['T']
+        except:
+            temperature1 = None
 
-        # 99060 = location id for Stonyhurst
-        url = f'http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/json/99060?res=hourly&time={latest_time}&key={_MET_OFFICE_KEY}'
-        with urllib.request.urlopen(url) as response:
-           values = json.loads(response.read())
-        temperature2 = values['SiteRep']['DV']['Location']['Period']['Rep']['T']
+        try:
+            # 99060 = location id for Stonyhurst
+            url = f'http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/json/99060?res=hourly&time={latest_time}&key={_MET_OFFICE_KEY}'
+            with urllib.request.urlopen(url) as response:
+               values = json.loads(response.read())
+            temperature2 = values['SiteRep']['DV']['Location']['Period']['Rep']['T']
+        except:
+            temperature2 = None
 
         # temperature at the Astronomy Centre is estimated as the average of these two,
         # minus a quarter of a degree due to its height. 273.15 is added to convert to Kelvin
 
-        actemp = (float(temperature1) + float(temperature2))/2.0 - 0.25 + 273.15
-        actempstring = "%.2f" % actemp
+        if temperature1 and temperature2:
+            actemp = (float(temperature1) + float(temperature2))/2.0 - 0.25 + 273.15
+            actempstring = "%.2f" % actemp
+        elif temperature1:
+            actemp = float(temperature1) - 0.25 + 273.15
+            actempstring = "%.2f" % actemp
+        elif temperature2:
+            actemp = float(temperature2) - 0.25 + 273.15
+            actempstring = "%.2f" % actemp
+        else:
+            return temperature, timestamp
 
     except Exception:
         # some failure occurred getting the temperature
         return temperature, timestamp
 
     return actempstring, actimestring
-
-
-
-
 
 
 
