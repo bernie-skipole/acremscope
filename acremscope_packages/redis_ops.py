@@ -469,7 +469,7 @@ def get_temperatures(rconn, redisserver):
         for t,data in elementlogs:
             if ("formatted_number" not in data) or ("timestamp" not in data):
                 continue
-            number = float(data["formatted_number"]) + 273.15
+            number = float(data["formatted_number"]) - 273.15
             daytime = data["timestamp"].split("T")
             dataset.append([daytime[0], daytime[1], number])
     except:
@@ -500,7 +500,7 @@ def last_temperature(rconn, redisserver):
         if temperature_value is None:
             return ''
         # Convert from Kelvin to Centigrade
-        temperature = float(temperature_value) + 273.15
+        temperature = float(temperature_value) - 273.15
         timestamp_value = element_att.get("timestamp")
         if timestamp_value is None:
             return ''
