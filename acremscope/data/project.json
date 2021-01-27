@@ -3656,7 +3656,7 @@ false,
 [
 "Widget",
 {
-"class": "confirm.AlertClear1",
+"class": "confirm.AlertClear2",
 "name": "status",
 "brief": "Shows status messages",
 "fields": {
@@ -3673,7 +3673,8 @@ false,
 "hide": true,
 "inner_class": "w3-panel w3-theme-d4",
 "inner_style": "",
-"link_ident": 9001,
+"json_ident": "6002",
+"link_ident": "6001",
 "para_text": "",
 "pre_line": true,
 "show": true,
