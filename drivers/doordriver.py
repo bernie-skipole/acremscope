@@ -118,10 +118,8 @@ class _Driver:
             # set the lights to show the new status, this puts xml data into sender
             self.setLightVector()
             # also set the switch
-            if (status == "CLOSED") or (status == "OPEN"):
-                # There has been a change in the status
-                self.doorstatus = status
-                self.setSwitchVector()
+            self.doorstatus = status
+            self.setSwitchVector()
 
 
     async def writer(self, writer):
@@ -234,7 +232,6 @@ class _Driver:
     def action(self, root):
         "A request has arrived to open/close the door, take the appropriate action"
 
-
        # expecting something like
         # <newSwitchVector device="Roll off door" name="DOME_SHUTTER">
         #   <oneSwitch name="SHUTTER_OPEN">On</oneSwitch>
@@ -292,12 +289,15 @@ class _Driver:
         xmldata.set("timestamp", timestamp)
         xmldata.set("perm", "rw")
         xmldata.set("rule", "OneOfMany")
-        xmldata.set("state", "Ok")
 
         se_open = ET.Element('defSwitch')
         se_open.set("name", _OPEN)
         if self.doorstatus == "OPEN":
             se_open.text = "On"
+            xmldata.set("state", "Ok")
+        elif self.doorstatus == "OPENING":
+            se_open.text = "On"
+            xmldata.set("state", "Busy")
         else:
             se_open.text = "Off"
         xmldata.append(se_open)
@@ -306,6 +306,10 @@ class _Driver:
         se_close.set("name", _CLOSE)
         if self.doorstatus == "CLOSED":
             se_close.text = "On"
+            xmldata.set("state", "Ok")
+        elif self.doorstatus == "CLOSING":
+            se_close.text = "On"
+            xmldata.set("state", "Busy")
         else:
             se_close.text = "Off"
         xmldata.append(se_close)
