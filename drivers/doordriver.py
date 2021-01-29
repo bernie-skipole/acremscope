@@ -78,8 +78,13 @@ class _Driver:
         "Sets the data used by the data handler"
         self.loop = loop
         self.hardware = hardware
-        # keep a track of status, send a setLightVector if it changes
-        self.status = hardware.status
+        # keep a track of lightstatus, send a setLightVector if it changes
+        # keep a track of doorstatus, either open or closed
+        self.lightstatus = hardware.status
+        if (self.lightstatus == "OPEN") or (self.lightstatus == "OPENING"):
+            self.doorstatus = "OPEN"
+        else:
+            self.doorstatus = "CLOSED"
         self.sender = collections.deque(maxlen=100)
 
     async def handle_data(self):
@@ -100,21 +105,22 @@ class _Driver:
         """Gets an updated door status, and if status has changed
            create a setLightVector and a setSwitchVector placing them
            into self.sender for transmission"""
-        # check every second, but sender is only updated if self.status changes
+        # check every second, but sender is only updated if a status changes
         while True:            
             await asyncio.sleep(1)
             # call setLightVector, which sets the vector into the sender deque if the door status has changed.
             status = self.hardware.status
-            if status == self.status:
-                # There has been no change in the status, so do not send anything
-                continue
-            # The status has changed
-            self.status = status
-            # set the lights to show the new status
-            self.setLightVector()
+            if status != self.lightstatus:
+                # There has been a change in the status
+                self.lightstatus = status
+                # set the lights to show the new status
+                self.setLightVector()
             # if the status has changed to open or closed, set the switch appropriately
-            if (self.status == "CLOSED") or (self.status == "OPEN"):
-                self.setSwitchVector()
+            if (status == "CLOSED") or (status == "OPEN"):
+                if status != self.doorstatus:
+                    # There has been a change in the status
+                    self.doorstatus = status
+                    self.setSwitchVector()
 
 
     async def writer(self, writer):
@@ -268,18 +274,19 @@ class _Driver:
         # set this action in hardware
         self.hardware.status = newstatus
 
-        # call setLightVector, which sets the vector into the sender deque if the door status has changed.
         status = self.hardware.status
-        if status == self.status:
-            # There has been no change in the status, so do not send anything
-            return
-        # The status has changed
-        self.status = status
-        # set the lights to show the new status
-        self.setLightVector()
+
+        if status != self.lightstatus:
+            # There has been a change in the status
+            self.lightstatus = status
+            # set the lights to show the new status
+            self.setLightVector()
         # if the status has changed to open or closed, set the switch appropriately
-        if (self.status == "CLOSED") or (self.status == "OPEN"):
-            self.setSwitchVector()
+        if (status == "CLOSED") or (status == "OPEN"):
+            if status != self.doorstatus:
+                # There has been a change in the status
+                self.doorstatus = status
+                self.setSwitchVector()
 
 
     def defSwitchVector(self):
@@ -294,27 +301,20 @@ class _Driver:
         xmldata.set("timestamp", timestamp)
         xmldata.set("perm", "rw")
         xmldata.set("rule", "OneOfMany")
+        xmldata.set("state", "Ok")
 
         se_open = ET.Element('defSwitch')
         se_open.set("name", _OPEN)
-        if self.status == "OPEN":
+        if self.doorstatus == "OPEN":
             se_open.text = "On"
-            xmldata.set("state", "Ok")
-        elif self.status == "OPENING":
-           se_open.text = "On"
-           xmldata.set("state", "Busy")
         else:
             se_open.text = "Off"
         xmldata.append(se_open)
 
         se_close = ET.Element('defSwitch')
         se_close.set("name", _CLOSE)
-        if self.status == "CLOSED":
+        if self.doorstatus == "CLOSED":
             se_close.text = "On"
-            xmldata.set("state", "Ok")
-        elif self.status == "CLOSING":
-            se_close.text = "On"
-            xmldata.set("state", "Busy")
         else:
             se_close.text = "Off"
         xmldata.append(se_close)
@@ -331,29 +331,22 @@ class _Driver:
         xmldata.set("device", 'Roll off door')
         xmldata.set("name", _NAME)
         xmldata.set("timestamp", timestamp)
+        xmldata.set("state", "Ok")
 
         # with its two switch states
 
         se_open = ET.Element('oneSwitch')
         se_open.set("name", _OPEN)
-        if self.status == "OPEN":
+        if self.doorstatus == "OPEN":
             se_open.text = "On"
-            xmldata.set("state", "Ok")
-        elif self.status == "OPENING":
-           se_open.text = "On"
-           xmldata.set("state", "Busy")
         else:
             se_open.text = "Off"
         xmldata.append(se_open)
 
         se_close = ET.Element('oneSwitch')
         se_close.set("name", _CLOSE)
-        if self.status == "CLOSED":
+        if self.doorstatus == "CLOSED":
             se_close.text = "On"
-            xmldata.set("state", "Ok")
-        elif self.status == "CLOSING":
-            se_close.text = "On"
-            xmldata.set("state", "Busy")
         else:
             se_close.text = "Off"
         xmldata.append(se_close)
@@ -393,13 +386,13 @@ class _Driver:
         e4 = ET.Element('defLight')
         e4.set("name", "CLOSED")
         e4.text = "Idle"
-        if self.status == "OPEN":
+        if self.lightstatus == "OPEN":
             e1.text = "Ok"
-        elif self.status == "OPENING":
+        elif self.lightstatus == "OPENING":
             e2.text = "Ok"
-        elif self.status == "CLOSING":
+        elif self.lightstatus == "CLOSING":
             e3.text = "Ok"
-        elif self.status == "CLOSED":
+        elif self.lightstatus == "CLOSED":
             e4.text = "Ok"
         xmldata.append(e1)
         xmldata.append(e2)
@@ -435,13 +428,13 @@ class _Driver:
         e4.set("name", "CLOSED")
         e4.text = "Idle"
 
-        if self.status == "OPEN":
+        if self.lightstatus == "OPEN":
             e1.text = "Ok"
-        elif self.status == "OPENING":
+        elif self.lightstatus == "OPENING":
             e2.text = "Ok"
-        elif self.status == "CLOSING":
+        elif self.lightstatus == "CLOSING":
             e3.text = "Ok"
-        elif self.status == "CLOSED":
+        elif self.lightstatus == "CLOSED":
             e4.text = "Ok"
         xmldata.append(e1)
         xmldata.append(e2)
