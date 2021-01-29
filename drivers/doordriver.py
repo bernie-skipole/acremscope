@@ -112,7 +112,7 @@ class _Driver:
             status = self.hardware.status
             if status == self.lightstatus:
                 # There has been no change to the status
-                return
+                continue
             # There has been a change in the status
             self.lightstatus = status
             # set the lights to show the new status, this puts xml data into sender
@@ -475,7 +475,7 @@ class _DOOR:
             # changed to CLOSING, so see if 20
             # seconds have past since then
             timenow = time.monotonic()
-            if timenow - statechange > 20:
+            if timenow - self.statechange > 20:
                 # door has finished closing, and is now CLOSED
                 self.statechange = timenow
                 self._status = "CLOSED"
