@@ -110,17 +110,18 @@ class _Driver:
             await asyncio.sleep(1)
             # call setLightVector, which sets the vector into the sender deque if the door status has changed.
             status = self.hardware.status
-            if status != self.lightstatus:
-                # There has been a change in the status
-                self.lightstatus = status
-                # set the lights to show the new status
-                self.setLightVector()
-            # if the status has changed to open or closed, set the switch appropriately
+            if status == self.lightstatus:
+                # There has been no change to the status
+                return
+            # There has been a change in the status
+            self.lightstatus = status
+            # set the lights to show the new status, this puts xml data into sender
+            self.setLightVector()
+            # also set the switch
             if (status == "CLOSED") or (status == "OPEN"):
-                if status != self.doorstatus:
-                    # There has been a change in the status
-                    self.doorstatus = status
-                    self.setSwitchVector()
+                # There has been a change in the status
+                self.doorstatus = status
+                self.setSwitchVector()
 
 
     async def writer(self, writer):
@@ -262,11 +263,11 @@ class _Driver:
             if (pn == _OPEN) and (content == "On"):
                 newstatus = "OPENING"
             if (pn == _OPEN) and (content == "Off"):
-                newled = "CLOSING"
+                newstatus = "CLOSING"
             if (pn == _CLOSE) and (content == "On"):
-                newled = "CLOSING"
+                newstatus = "CLOSING"
             if (pn == _CLOSE) and (content == "Off"):
-                newled = "OPENING"
+                newstatus = "OPENING"
 
         if newstatus is None:
             return
@@ -274,19 +275,9 @@ class _Driver:
         # set this action in hardware
         self.hardware.status = newstatus
 
-        status = self.hardware.status
+        # the self.update() method will detect the change in status
+        # and will send the appropriate setXXXVectors
 
-        if status != self.lightstatus:
-            # There has been a change in the status
-            self.lightstatus = status
-            # set the lights to show the new status
-            self.setLightVector()
-        # if the status has changed to open or closed, set the switch appropriately
-        if (status == "CLOSED") or (status == "OPEN"):
-            if status != self.doorstatus:
-                # There has been a change in the status
-                self.doorstatus = status
-                self.setSwitchVector()
 
 
     def defSwitchVector(self):
@@ -499,7 +490,8 @@ class _DOOR:
             # no change
             return
         if newstatus not in ("CLOSING", "OPENING"):
-            # invalid
+            # OPEN or CLOSE are set by the door itself (simulated here by a timer)
+            # not by external request, which can only initiate CLOSING or OPENING 
             return
         # to get here, newstatus must
         # indicate a change from Open to Closing
