@@ -78,13 +78,7 @@ class _Driver:
         "Sets the data used by the data handler"
         self.loop = loop
         self.hardware = hardware
-        # keep a track of lightstatus, send a setLightVector if it changes
-        # keep a track of doorstatus, either open or closed
-        self.lightstatus = hardware.status
-        if (self.lightstatus == "OPEN") or (self.lightstatus == "OPENING"):
-            self.doorstatus = "OPEN"
-        else:
-            self.doorstatus = "CLOSED"
+        self.status = hardware.status
         self.sender = collections.deque(maxlen=100)
 
     async def handle_data(self):
@@ -110,15 +104,14 @@ class _Driver:
             await asyncio.sleep(1)
             # call setLightVector, which sets the vector into the sender deque if the door status has changed.
             status = self.hardware.status
-            if status == self.lightstatus:
+            if status == self.status:
                 # There has been no change to the status
                 continue
             # There has been a change in the status
-            self.lightstatus = status
+            self.status = status
             # set the lights to show the new status, this puts xml data into sender
             self.setLightVector()
             # also set the switch
-            self.doorstatus = status
             self.setSwitchVector()
 
 
@@ -292,10 +285,10 @@ class _Driver:
 
         se_open = ET.Element('defSwitch')
         se_open.set("name", _OPEN)
-        if self.doorstatus == "OPEN":
+        if self.status == "OPEN":
             se_open.text = "On"
             xmldata.set("state", "Ok")
-        elif self.doorstatus == "OPENING":
+        elif self.status == "OPENING":
             se_open.text = "On"
             xmldata.set("state", "Busy")
         else:
@@ -304,10 +297,10 @@ class _Driver:
 
         se_close = ET.Element('defSwitch')
         se_close.set("name", _CLOSE)
-        if self.doorstatus == "CLOSED":
+        if self.status == "CLOSED":
             se_close.text = "On"
             xmldata.set("state", "Ok")
-        elif self.doorstatus == "CLOSING":
+        elif self.status == "CLOSING":
             se_close.text = "On"
             xmldata.set("state", "Busy")
         else:
@@ -331,10 +324,10 @@ class _Driver:
 
         se_open = ET.Element('oneSwitch')
         se_open.set("name", _OPEN)
-        if self.doorstatus == "OPEN":
+        if self.status == "OPEN":
             se_open.text = "On"
             xmldata.set("state", "Ok")
-        elif self.doorstatus == "OPENING":
+        elif self.status == "OPENING":
             se_open.text = "On"
             xmldata.set("state", "Busy")
         else:
@@ -343,10 +336,10 @@ class _Driver:
 
         se_close = ET.Element('oneSwitch')
         se_close.set("name", _CLOSE)
-        if self.doorstatus == "CLOSED":
+        if self.status == "CLOSED":
             se_close.text = "On"
             xmldata.set("state", "Ok")
-        elif self.doorstatus == "CLOSING":
+        elif self.status == "CLOSING":
             se_close.text = "On"
             xmldata.set("state", "Busy")
         else:
@@ -388,13 +381,13 @@ class _Driver:
         e4 = ET.Element('defLight')
         e4.set("name", "CLOSED")
         e4.text = "Idle"
-        if self.lightstatus == "OPEN":
+        if self.status == "OPEN":
             e1.text = "Ok"
-        elif self.lightstatus == "OPENING":
+        elif self.status == "OPENING":
             e2.text = "Ok"
-        elif self.lightstatus == "CLOSING":
+        elif self.status == "CLOSING":
             e3.text = "Ok"
-        elif self.lightstatus == "CLOSED":
+        elif self.status == "CLOSED":
             e4.text = "Ok"
         xmldata.append(e1)
         xmldata.append(e2)
@@ -430,13 +423,13 @@ class _Driver:
         e4.set("name", "CLOSED")
         e4.text = "Idle"
 
-        if self.lightstatus == "OPEN":
+        if self.status == "OPEN":
             e1.text = "Ok"
-        elif self.lightstatus == "OPENING":
+        elif self.status == "OPENING":
             e2.text = "Ok"
-        elif self.lightstatus == "CLOSING":
+        elif self.status == "CLOSING":
             e3.text = "Ok"
-        elif self.lightstatus == "CLOSED":
+        elif self.status == "CLOSED":
             e4.text = "Ok"
         xmldata.append(e1)
         xmldata.append(e2)
