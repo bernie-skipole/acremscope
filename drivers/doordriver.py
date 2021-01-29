@@ -326,7 +326,6 @@ class _Driver:
         xmldata.set("device", 'Roll off door')
         xmldata.set("name", _NAME)
         xmldata.set("timestamp", timestamp)
-        xmldata.set("state", "Ok")
 
         # with its two switch states
 
@@ -334,6 +333,10 @@ class _Driver:
         se_open.set("name", _OPEN)
         if self.doorstatus == "OPEN":
             se_open.text = "On"
+            xmldata.set("state", "Ok")
+        elif self.doorstatus == "OPENING":
+            se_open.text = "On"
+            xmldata.set("state", "Busy")
         else:
             se_open.text = "Off"
         xmldata.append(se_open)
@@ -342,6 +345,10 @@ class _Driver:
         se_close.set("name", _CLOSE)
         if self.doorstatus == "CLOSED":
             se_close.text = "On"
+            xmldata.set("state", "Ok")
+        elif self.doorstatus == "CLOSING":
+            se_close.text = "On"
+            xmldata.set("state", "Busy")
         else:
             se_close.text = "Off"
         xmldata.append(se_close)
