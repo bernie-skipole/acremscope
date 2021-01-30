@@ -25,7 +25,7 @@ def retrieve_sensors_data(skicall):
     redisserver = skicall.proj_data.get("redisserver")
     skicall.page_data['led_status', 'para_text'] = "LED : " + redis_ops.get_led(rconn0, redisserver)
     skicall.page_data['temperature_status', 'para_text'] = "Temperature : " + redis_ops.last_temperature(rconn0, redisserver)
-    skicall.page_data['door_status', 'para_text'] = "Door : " + redis_ops.get_door(rconn0)
+    skicall.page_data['door_status', 'para_text'] = "Door : " + redis_ops.get_door(rconn0, redisserver)
 
 
 def temperature_page(skicall):

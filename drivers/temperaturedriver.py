@@ -86,11 +86,21 @@ class _TEMPERATURE:
 
     async def update(self):
         """Gets an updated temperature, and creates a setNumberVector placing it into self.sender for transmission"""
-        # Send every ten minutes
+        # Check every ten minutes
         while True:            
             await asyncio.sleep(600)
-            self.temperature, self.timestamp = await self.loop.run_in_executor(None, self.setNumberVector)
-
+            temperature, timestamp = await self.loop.run_in_executor(None, self.setNumberVector)
+            if timestamp == self.timestamp:
+                # no change, continue, and try again in ten minutes
+                continue
+            # a new reading has been obtained
+            self.timestamp = timestamp
+            self.temperature = temperature
+            # since a new reading has been obtained, no point in checking every ten minutes
+            # since readings are updated hourly. So add another wait here of thirty minutes
+            await asyncio.sleep(1800)
+            # this gives a total wait of forty minutes, after which the temperature is
+            # checked agin at ten minute intervals
 
 
     async def writer(self, writer):

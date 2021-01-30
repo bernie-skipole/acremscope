@@ -433,9 +433,9 @@ def get_led(rconn, redisserver):
 
 
 
-def get_door(rconn=None):
+def get_door(rconn, redisserver):
     """Return door status string. If given rconn should connect to redis_db 0"""
-    # returns one of UNKNOWN, STOPPED, OPEN, CLOSED, OPENING, CLOSING
+    # returns one of UNKNOWN, OPEN, CLOSED, OPENING, CLOSING
     if rconn is None:
         try:
             rconn = open_redis(redis_db=0)
@@ -444,10 +444,21 @@ def get_door(rconn=None):
     if rconn is None:
         return 'UNKNOWN'
     try:
-        door_status = rconn.get('door_status').decode('utf-8')
+        door_status = tools.elements_dict(rconn, redisserver, "CLOSED", "DOOR_STATE", "Roll off door")
+        if door_status == "On":
+            return "CLOSED"
+        door_status = tools.elements_dict(rconn, redisserver, "OPEN", "DOOR_STATE", "Roll off door")
+        if door_status == "On":
+            return "OPEN"
+        door_status = tools.elements_dict(rconn, redisserver, "OPENING", "DOOR_STATE", "Roll off door")
+        if door_status == "On":
+            return "OPENING"
+        door_status = tools.elements_dict(rconn, redisserver, "CLOSING", "DOOR_STATE", "Roll off door")
+        if door_status == "On":
+            return "CLOSING"
     except:
         return 'UNKNOWN'
-    return door_status
+    return 'UNKNOWN'
 
 
 def get_temperatures(rconn, redisserver):
