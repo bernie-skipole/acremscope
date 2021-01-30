@@ -11,6 +11,7 @@
 
 import os, sys, sqlite3, datetime, math
 
+import redis
 
 try:
     import astropy.units as u
@@ -236,9 +237,27 @@ if __name__ == "__main__":
 
     astro_centre = EarthLocation.from_geodetic(LONGITUDE, LATITUDE, ELEVATION)
 
-    # make ten days of planet positions and set into the database
+    # make ten days of planet positions and set into the sqlite database
     status = make_ten_days(astro_centre)
     if status:
-        sys.exit(status)
+        message = f"Planet calculations failed with status {status}"
+    else:
+        message = "Ten days of planet data calculated"
+
+    try:
+        rconn = redis.Redis(host='localhost', port=6379, db=0, socket_timeout=5)
+    except Exception:
+        print("Warning:redis connection failed")
+    else:
+        try:
+            # create a log entry to set in the redis server
+            fullmessage = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") + " " + message
+            rconn.rpush("log_info", fullmessage)
+            # and limit number of messages to 50
+            rconn.ltrim("log_info", -50, -1)
+        except Exception:
+            print("Saving log to redis has failed")
+
+    sys.exit(status)
 
 
