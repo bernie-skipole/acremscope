@@ -445,16 +445,16 @@ def get_door(rconn, redisserver):
         return 'UNKNOWN'
     try:
         door_status = tools.elements_dict(rconn, redisserver, "CLOSED", "DOOR_STATE", "Roll off door")
-        if door_status['value'] == "On":
+        if door_status['value'] == "Ok":
             return "CLOSED"
         door_status = tools.elements_dict(rconn, redisserver, "OPEN", "DOOR_STATE", "Roll off door")
-        if door_status['value'] == "On":
+        if door_status['value'] == "Ok":
             return "OPEN"
         door_status = tools.elements_dict(rconn, redisserver, "OPENING", "DOOR_STATE", "Roll off door")
-        if door_status['value'] == "On":
+        if door_status['value'] == "Ok":
             return "OPENING"
         door_status = tools.elements_dict(rconn, redisserver, "CLOSING", "DOOR_STATE", "Roll off door")
-        if door_status['value'] == "On":
+        if door_status['value'] == "Ok":
             return "CLOSING"
     except:
         return 'UNKNOWN'
