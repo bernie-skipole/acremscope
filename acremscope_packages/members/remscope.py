@@ -17,7 +17,7 @@ def create_index(skicall):
     "Fills in the remscope index page, also used to refresh the page by JSON"
 
     # door is one of UNKNOWN, STOPPED, OPEN, CLOSED, OPENING, CLOSING
-    door = redis_ops.get_door(skicall.proj_data.get("rconn_0"))
+    door = redis_ops.get_door(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
     skicall.page_data['door_status', 'para_text'] = "Door : " + door
     if (door == 'UNKNOWN') or (door == 'CLOSED') or (door == 'STOPPED'):
         skicall.page_data['door', 'button_text'] = 'Open Door'
