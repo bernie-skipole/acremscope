@@ -10,21 +10,20 @@ from skipole import FailPage, GoTo, ValidateError, ServerError
 
 from .. import sun, database_ops, redis_ops, send_mqtt
 
+from indi_mr import tools
+
 from .sessions import doorsession
 
 
 def create_index(skicall):
     "Fills in the remscope index page, also used to refresh the page by JSON"
 
-    # door is one of UNKNOWN, STOPPED, OPEN, CLOSED, OPENING, CLOSING
+    # door is one of UNKNOWN, OPEN, CLOSED, OPENING, CLOSING
     door = redis_ops.get_door(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
     skicall.page_data['door_status', 'para_text'] = "Door : " + door
-    if (door == 'UNKNOWN') or (door == 'CLOSED') or (door == 'STOPPED'):
+    if (door == 'UNKNOWN') or (door == 'CLOSED') or (door == "OPENING"):
         skicall.page_data['door', 'button_text'] = 'Open Door'
         skicall.page_data['door', 'action'] = 'open'
-    elif (door == 'OPENING') or (door == 'CLOSING'):
-        skicall.page_data['door', 'button_text'] = 'Halt Door'
-        skicall.page_data['door', 'action'] = 'halt'
     else:
         skicall.page_data['door', 'button_text'] = 'Close Door'
         skicall.page_data['door', 'action'] = 'close'
@@ -68,14 +67,14 @@ def door_control(skicall):
         return
 
     if call_data['door', 'action'] == 'open':
-        send_mqtt.request_door_open()
+        tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
+                          "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"On", "SHUTTER_CLOSE":"Off"})
         page_data['door_status', 'para_text'] = "An Open door command has been sent."
-    elif call_data['door', 'action'] == 'halt':
-        send_mqtt.request_door_halt()
-        page_data['door_status', 'para_text'] = "An Halt door command has been sent."
     else:
         send_mqtt.request_door_close()
         page_data['door_status', 'para_text'] = "A Close door command has been sent."
+        tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
+                          "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
 
     page_data['door', 'button_text'] = 'Waiting'
     skicall.page_data['door', 'action'] = 'noaction'

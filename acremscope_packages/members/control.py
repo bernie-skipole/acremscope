@@ -871,18 +871,6 @@ AZ: {:1.3f}\xb0""".format(altitude, azimuth)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     # and when received, get
     # unpacked = unpack("10s"+"d"*62, packedstring)
     # first item is binary name, padded with \x00, so strip padding and decode

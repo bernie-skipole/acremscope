@@ -65,25 +65,6 @@ def altazgoto(packedstring):
     sendmqtt(payload = packedstring, subtopic="Telescope/altaz")
 
 
-def request_door_close():
-    "Request door close"
-    sendmqtt(payload = "CLOSE", subtopic="Outputs/door")
-
-def request_door_halt():
-    "Request door halt"
-    sendmqtt(payload = "HALT", subtopic="Outputs/door")
-
-def request_door_open():
-    "Request door open"
-    sendmqtt(payload = "OPEN", subtopic="Outputs/door")
-
-def request_led_off():
-    "Request led off"
-    sendmqtt(payload = "OFF", subtopic="Outputs/led")
-
-def request_led_on():
-    "Request led on"
-    sendmqtt(payload = "ON", subtopic="Outputs/led")
 
 
 
