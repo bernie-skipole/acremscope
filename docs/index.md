@@ -154,6 +154,44 @@ The site will be visible at.
 
 [https://webparametrics.co.uk/acremscope](https://webparametrics.co.uk/acremscope)
 
+## Install mqttdrivers.service
+
+Normally a set of drivers, communicating between instruments and MQTT would be running at a remote location. However initially a set of simulation drivers are running instead, on the same container. These are started with a service.
+
+as root, copy the file
+
+cp /home/bernard/www/mqttdrivers.service /lib/systemd/system
+
+Enable the service with
+
+systemctl daemon-reload
+
+systemctl enable mqttdrivers.service
+
+systemctl start mqttdrivers
+
+This starts /home/bernard/www/mqttdrivers.py on boot up, which in turn starts the drivers in the /home/bernard/www/drivers directory.
+
+## Install indidrivers.service
+
+This runs an indi client, pulling data from MQTT and storing it in redis. I may rename it indiclient in future since its name is misleading.
+
+It is started with a service.
+
+as root, copy the file
+
+cp /home/bernard/www/indidrivers.service /lib/systemd/system
+
+Enable the service with
+
+systemctl daemon-reload
+
+systemctl enable indidrivers.service
+
+systemctl start indidrivers
+
+This starts /home/bernard/www/indidrivers.py on boot up.
+
 ## Set up CRON Jobs
 
 As root create a cron table with:
@@ -171,10 +209,6 @@ make_planets.py is run at 10:30 each day, which populates planet.db with planeta
 IERS_A.py is run at 9:00 every Saturday, It downloads the IERS bulletin A for Astroplan earth location
 
 clientrequests.py is run at 10:15 each day, which requests dome door closure
-
-
-
-
 
 
 
