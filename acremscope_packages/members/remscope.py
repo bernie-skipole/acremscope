@@ -21,12 +21,15 @@ def create_index(skicall):
     # door is one of UNKNOWN, OPEN, CLOSED, OPENING, CLOSING
     door = redis_ops.get_door(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
     skicall.page_data['door_status', 'para_text'] = "Door : " + door
-    if (door == 'UNKNOWN') or (door == 'CLOSED') or (door == "OPENING"):
+    if door == 'CLOSED':
         skicall.page_data['door', 'button_text'] = 'Open Door'
         skicall.page_data['door', 'action'] = 'open'
-    else:
+    elif door == 'OPEN':
         skicall.page_data['door', 'button_text'] = 'Close Door'
         skicall.page_data['door', 'action'] = 'close'
+    else:
+        skicall.page_data['door', 'button_text'] = 'Waiting'
+        skicall.page_data['door', 'action'] = 'noaction'
 
     skicall.page_data['utc', 'para_text'] = datetime.utcnow().strftime("UTC Time : %H:%M")
 
@@ -66,14 +69,19 @@ def door_control(skicall):
     if ('door', 'action') not in call_data:
         return
 
-    if call_data['door', 'action'] == 'open':
+    # check current state of the door to ensure action is valid
+    door = redis_ops.get_door(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
+
+    if (door == 'CLOSED') and (call_data['door', 'action'] == 'open'):
         tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
                           "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"On", "SHUTTER_CLOSE":"Off"})
         page_data['door_status', 'para_text'] = "An Open door command has been sent."
-    else:
+    elif (door == 'OPEN') and (call_data['door', 'action'] == 'close'):
         tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
                           "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
         page_data['door_status', 'para_text'] = "A Close door command has been sent."
+
+    # so if door,action is noaction, or door is either OPENING or CLOSING, no tools command is sent
 
     page_data['door', 'button_text'] = 'Waiting'
     skicall.page_data['door', 'action'] = 'noaction'
