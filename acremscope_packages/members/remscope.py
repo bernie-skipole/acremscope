@@ -71,10 +71,9 @@ def door_control(skicall):
                           "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"On", "SHUTTER_CLOSE":"Off"})
         page_data['door_status', 'para_text'] = "An Open door command has been sent."
     else:
-        send_mqtt.request_door_close()
-        page_data['door_status', 'para_text'] = "A Close door command has been sent."
         tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
                           "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
+        page_data['door_status', 'para_text'] = "A Close door command has been sent."
 
     page_data['door', 'button_text'] = 'Waiting'
     skicall.page_data['door', 'action'] = 'noaction'
