@@ -164,9 +164,13 @@ crontab -u bernard -e
 
 0 9 * * 6 /usr/bin/python3 /home/bernard/www/astrodata/IERS_A.py >/dev/null 2>&1
 
+15 10 * * * /usr/bin/python3 /home/bernard/www/astrodata/clientrequests.py >/dev/null 2>&1
+
 make_planets.py is run at 10:30 each day, which populates planet.db with planetary positions
 
 IERS_A.py is run at 9:00 every Saturday, It downloads the IERS bulletin A for Astroplan earth location
+
+clientrequests.py is run at 10:15 each day, which requests dome door closure
 
 
 
