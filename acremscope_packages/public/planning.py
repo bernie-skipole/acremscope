@@ -641,6 +641,10 @@ def detail_planet(skicall):
     page_data['back', 'link_ident'] = "30201"
     page_data['printout', 'get_field1'] = datestring + "T" + timestring
 
+    page_data['coords', 'get_field1'] = datestring + "T" + timestring
+    page_data['coords', 'button_text'] = "Precessed Geocentric"
+    page_data['coords', 'get_field2'] = "session_pg"
+
 
 def detail(skicall):
     """Fills in the detail page, from ident data and received hour info"""
@@ -668,8 +672,15 @@ def detail(skicall):
 
     # altaz or pg, use altaz as default
     altaz = True
-    if (('coords', 'get_field2') in call_data) and call_data['coords', 'get_field2'] == "pg":
-        altaz = False
+    back_to_session = False
+    if ('coords', 'get_field2') in call_data:
+        if call_data['coords', 'get_field2'] == "pg":
+            altaz = False
+        if call_data['coords', 'get_field2'] == "session_pg":
+            altaz = False
+            back_to_session = True
+        if call_data['coords', 'get_field2'] == "session_altaz":
+            back_to_session = True
 
     target_ra = ''
     target_dec = ''
@@ -759,12 +770,21 @@ def detail(skicall):
     page_data['coords', 'get_field1'] = target_datetime
     if altaz:
         page_data['coords', 'button_text'] = "Precessed Geocentric"
-        page_data['coords', 'get_field2'] = "pg"
         page_data['printout', 'get_field2'] = "altaz"
+        if back_to_session:
+            page_data['coords', 'get_field2'] = "session_pg"
+            page_data['back', 'link_ident'] = "30201"
+        else:
+            page_data['coords', 'get_field2'] = "pg"
     else:
         page_data['coords', 'button_text'] = "Alt Az"
-        page_data['coords', 'get_field2'] = "altaz"
         page_data['printout', 'get_field2'] = "pg"
+        if back_to_session:
+            page_data['coords', 'get_field2'] = "session_altaz"
+            page_data['back', 'link_ident'] = "30201"
+        else:
+            page_data['coords', 'get_field2'] = "altaz"
+
 
 
 
@@ -788,6 +808,7 @@ def detailprint(skicall):
     altaz = True
     if (('printout', 'get_field2') in call_data) and call_data['printout', 'get_field2'] == "pg":
         altaz = False
+
 
     target_ra = ''
     target_dec = ''
