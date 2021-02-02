@@ -4,7 +4,7 @@ import os, sys, sqlite3, math
 from datetime import datetime, timedelta, timezone
 
 import astropy.units as u
-from astropy.coordinates import SkyCoord, EarthLocation, AltAz, name_resolve, solar_system_ephemeris, get_body, Angle
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz, name_resolve, solar_system_ephemeris, get_body, Angle, PrecessedGeocentric
 from astropy.time import Time
 from astroquery.mpc import MPC
 from astroquery.exceptions import InvalidQueryError
@@ -671,7 +671,7 @@ def get_unnamed_object_slots(target_ra, target_dec, thedate, astro_centre=None):
 
 
 def get_named_object_intervals(target_name, start, step, number, astro_centre=None):
-    """Return a list of lists of [ datetime, ra, dec, alt, az] in degrees starting at the given start (a datetime object)
+    """Return a list of lists of [ datetime, ra(icrs), dec(icrs), alt, az, ra(pg), dec(pg)] starting at the given start (a datetime object)
        each interval is step (a timedelta object), and number is the number of rows to return
        return None if not found.
        Note, step resolution is either whole seconds, minutes or hours, so 1 minute 30 second will be applied as one minute"""
@@ -699,7 +699,8 @@ def get_named_object_intervals(target_name, start, step, number, astro_centre=No
             time = Time(dt, format='datetime', scale='utc')
             target = get_body(target_name_lower, time, astro_centre)
             target_altaz = target.transform_to(AltAz(obstime = time, location = astro_centre))
-            result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree])
+            target_pg = target.transform_to(PrecessedGeocentric(obstime = time, equinox = time))
+            result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree, target_pg.ra.degree, target_pg.dec.degree])
         return result_list
 
     # Test if a fixed object, such as M45 - RA, DEC's will be constant, though alt, az will change
@@ -712,7 +713,8 @@ def get_named_object_intervals(target_name, start, step, number, astro_centre=No
         for dt in times:
             time = Time(dt, format='datetime', scale='utc')
             target_altaz = target.transform_to(AltAz(obstime = time, location = astro_centre))
-            result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree])
+            target_pg = target.transform_to(PrecessedGeocentric(obstime = time, equinox = time))
+            result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree, target_pg.ra.degree, target_pg.dec.degree])
         return result_list
 
     # Test if minor planet/comet
@@ -731,7 +733,8 @@ def get_named_object_intervals(target_name, start, step, number, astro_centre=No
         for idx, dt in enumerate(times):
             target = SkyCoord(eph['RA'][idx]*u.degree, eph['Dec'][idx]*u.degree, frame='icrs')
             target_altaz = target.transform_to(AltAz(obstime = dt, location = astro_centre))
-            result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree])
+            target_pg = target.transform_to(PrecessedGeocentric(obstime = dt, equinox = dt))
+            result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree, target_pg.ra.degree, target_pg.dec.degree])
     except InvalidQueryError:
         return
 
@@ -739,7 +742,7 @@ def get_named_object_intervals(target_name, start, step, number, astro_centre=No
 
 
 def get_unnamed_object_intervals(target_ra, target_dec, start, step, number, astro_centre=None):
-    """Return a list of lists of [ datetime, ra, dec, alt, az] in degrees starting at the given start (a datetime object)
+    """Return a list of lists of [ datetime, ra(icrs), dec(icrs), alt, az, ra(pg), dec(pg)] starting at the given start (a datetime object)
        each interval is step (a timedelta object), and number is the number of rows to return
        return None if not found."""
 
@@ -757,7 +760,6 @@ def get_unnamed_object_intervals(target_ra, target_dec, start, step, number, ast
 
     result_list = []
 
-    # RA, DEC's will be constant, though alt, az will change
     try:
         if isinstance(target_ra, float) or isinstance(target_ra, int):
              target_ra = target_ra*u.deg
@@ -767,7 +769,8 @@ def get_unnamed_object_intervals(target_ra, target_dec, start, step, number, ast
         for dt in times:
             time = Time(dt, format='datetime', scale='utc')
             target_altaz = target.transform_to(AltAz(obstime = time, location = astro_centre))
-            result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree])
+            target_pg = target.transform_to(PrecessedGeocentric(obstime = time, equinox = time))
+            result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree, target_pg.ra.degree, target_pg.dec.degree])
     except Exception:
         return
 

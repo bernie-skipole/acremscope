@@ -7503,6 +7503,65 @@ false,
 }
 ],
 [
+"Part",
+{
+"tag_name": "div",
+"brief": "Descriptive text",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "paragraph",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"style": "margin-left:20%;width:60%;margin-right:20%;"
+},
+"parts": [
+[
+"Text",
+"The table shows the coordinates in the ICRS frame, approximately the same as equatorial J2000. The next two columns can be toggled between Alt Az coordinates and Precessed Geocentric - which may be useful for telescope input.  You can also display the table in a printer friendly format."
+]
+]
+}
+]
+]
+}
+],
+[
+"Widget",
+{
+"class": "links.ButtonLink2",
+"name": "coords",
+"brief": "button to toggle between horizontal and EOD",
+"fields": {
+"button_class": "w3-button w3-block w3-theme-d4",
+"button_style": "",
+"button_text": "Precessed Geocentric",
+"button_wait_text": "Please wait...",
+"buttondiv_class": "ski_mid_button",
+"buttondiv_style": "",
+"clear_error": false,
+"error_class": "w3-panel w3-red",
+"get_field1": "",
+"get_field2": "",
+"hide": false,
+"json_ident": "",
+"link_ident": "detailplan",
+"show": true,
+"show_error": "",
+"widget_class": "w3-section",
+"widget_style": ""
+}
+}
+],
+[
 "Widget",
 {
 "class": "links.MessageButton",
@@ -7826,6 +7885,21 @@ false,
 "widget_class": "",
 "widget_style": ""
 }
+}
+],
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "about one hour detail link",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"For RA and Dec coordinates, please follow the 'one hour detail' links."
+]
+]
 }
 ],
 [
@@ -8824,7 +8898,8 @@ false,
 "class": "AllowStore",
 "original_args": {
 "allowed_callers": [
-30153
+30153,
+30154
 ],
 "alternate_ident": "home",
 "fail_ident": "home",
@@ -8840,6 +8915,8 @@ false,
 "validate_option": false
 },
 "original_fields": {
+"coords:get_field1": "",
+"coords:get_field2": "",
 "ephems:get_field1_1": ""
 }
 }
@@ -8867,7 +8944,8 @@ false,
 "validate_option": false
 },
 "original_fields": {
-"printout:get_field1": ""
+"printout:get_field1": "",
+"printout:get_field2": ""
 }
 }
 },

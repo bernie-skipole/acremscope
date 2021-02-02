@@ -658,9 +658,18 @@ def detail(skicall):
     # copy call_data['stored_values'] into call_data['set_values']
     set_target_from_store(skicall)
 
-    if ('ephems', 'get_field1_1') not in call_data:
+    target_datetime = call_data.get(('ephems', 'get_field1_1'))
+    if not target_datetime:
+        target_datetime = call_data.get(('coords', 'get_field1'))
+
+    if not target_datetime:
         # no time data
         raise FailPage("Target date and time unavailable")
+
+    # altaz or pg, use altaz as default
+    altaz = True
+    if (('coords', 'get_field2') in call_data) and call_data['coords', 'get_field2'] == "pg":
+        altaz = False
 
     target_ra = ''
     target_dec = ''
@@ -668,7 +677,7 @@ def detail(skicall):
 
     # date is storedtarget.str_date, but in this case, the date and time are obtained from the submitted get field
     try:
-        datestring, timestring = call_data['ephems', 'get_field1_1'].split('T')
+        datestring, timestring = target_datetime.split('T')
         yearstring,monthstring,daystring = datestring.split('-')
         year = int(yearstring)
         month = int(monthstring)
@@ -699,9 +708,12 @@ def detail(skicall):
     else:
         result_list = get_unnamed_object_intervals(storedtarget.ra, storedtarget.dec, start, step, number)
 
-    # result list is a list of lists : [ datetime, ra, dec, alt, az] in degrees
+    # result list is a list of lists : [ datetime, ra(icrs), dec(icrs), alt, az, ra(pg), dec(pg)]
 
-    page_data['table', 'titles'] = ["Time (UTC)", "RA", "DEC", "ALT (Degrees)", "AZ (Degrees)"]
+    if altaz:
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (ICRS)", "DEC (ICRS)", "ALT (Degrees)", "AZ (Degrees)"]
+    else:
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (ICRS)", "DEC (ICRS)", "RA (PG)", "DEC (PG)"]
 
     # for each cell; [0:text in the table, 1:the text color, 2:the background color]
 
@@ -718,11 +730,21 @@ def detail(skicall):
         contents.append([ra_angle.to_string(unit='hourangle', precision=1, sep='hms'), '', ''])
         dec_angle = Angle(row[2] * u.deg)
         contents.append([dec_angle.to_string(unit=u.deg, precision=1, sep='dms'), '', ''])
-        if row[3] > 5:
-            contents.append(["{:3.2f}".format(row[3]), '', ''])
+        if altaz:
+            if row[3] > 5:
+                contents.append(["{:3.2f}".format(row[3]), '', ''])
+            else:
+                contents.append(["{:3.2f}".format(row[3]), 'red', 'grey'])
+            contents.append(["{:3.2f}".format(row[4]), '', ''])
         else:
-            contents.append(["{:3.2f}".format(row[3]), 'red', 'grey'])
-        contents.append(["{:3.2f}".format(row[4]), '', ''])
+            ra_pg = Angle(row[5] * u.deg).to_string(unit='hourangle', precision=1, sep='hms')
+            dec_pg = Angle(row[6] * u.deg).to_string(unit=u.deg, precision=1, sep='dms')
+            if row[3] > 5:
+                contents.append([ra_pg, '', ''])
+                contents.append([dec_pg, '', ''])
+            else:
+                contents.append([ra_pg, 'red', 'grey'])
+                contents.append([dec_pg, 'red', 'grey'])
 
     page_data['table', 'contents'] = contents
 
@@ -733,7 +755,16 @@ def detail(skicall):
     page_data['fromdate','para_text'] = "at 10 minute intervals for session starting " + result_list[0][0].isoformat(sep=' ')
     page_data['todate','para_text'] = "and ending " + result_list[-1][0].isoformat(sep=' ')
 
-    page_data['printout', 'get_field1'] = call_data['ephems', 'get_field1_1']
+    page_data['printout', 'get_field1'] = target_datetime
+    page_data['coords', 'get_field1'] = target_datetime
+    if altaz:
+        page_data['coords', 'button_text'] = "Precessed Geocentric"
+        page_data['coords', 'get_field2'] = "pg"
+        page_data['printout', 'get_field2'] = "altaz"
+    else:
+        page_data['coords', 'button_text'] = "Alt Az"
+        page_data['coords', 'get_field2'] = "altaz"
+        page_data['printout', 'get_field2'] = "pg"
 
 
 
@@ -752,6 +783,11 @@ def detailprint(skicall):
     if ('printout', 'get_field1') not in call_data:
         # no time data
         raise FailPage("Target date and time unavailable")
+
+    # altaz or pg, use altaz as default
+    altaz = True
+    if (('printout', 'get_field2') in call_data) and call_data['printout', 'get_field2'] == "pg":
+        altaz = False
 
     target_ra = ''
     target_dec = ''
@@ -797,9 +833,12 @@ def detailprint(skicall):
     else:
         result_list = get_unnamed_object_intervals(storedtarget.ra, storedtarget.dec, start, step, number, astro_centre)
 
-    # result list is a list of lists : [ datetime, ra, dec, alt, az] in degrees
+    # result list is a list of lists : [ datetime, ra(icrs), dec(icrs), alt, az, ra(pg), dec(pg)]
 
-    page_data['table', 'titles'] = ["Time (UTC)", "RA", "DEC", "ALT (Degrees)", "AZ (Degrees)"]
+    if altaz:
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (ICRS)", "DEC (ICRS)", "ALT (Degrees)", "AZ (Degrees)"]
+    else:
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (ICRS)", "DEC (ICRS)", "RA (PG)", "DEC (PG)"]
 
     # for each cell; [0:text in the table, 1:the text color, 2:the background color]
 
@@ -816,8 +855,14 @@ def detailprint(skicall):
         contents.append([ra_angle.to_string(unit='hourangle', precision=1, sep='hms'), '', ''])
         dec_angle = Angle(row[2] * u.deg)
         contents.append([dec_angle.to_string(unit=u.deg, precision=1, sep='dms'), '', ''])
-        contents.append(["{:3.2f}".format(row[3]), '', ''])
-        contents.append(["{:3.2f}".format(row[4]), '', ''])
+        if altaz:
+            contents.append(["{:3.2f}".format(row[3]), '', ''])
+            contents.append(["{:3.2f}".format(row[4]), '', ''])
+        else:
+            ra_pg = Angle(row[5] * u.deg).to_string(unit='hourangle', precision=1, sep='hms')
+            dec_pg = Angle(row[6] * u.deg).to_string(unit=u.deg, precision=1, sep='dms')
+            contents.append([ra_pg, '', ''])
+            contents.append([dec_pg, '', ''])
 
     page_data['table', 'contents'] = contents
 

@@ -9,7 +9,7 @@
 
 
 
-import os, sys, sqlite3, datetime, math
+import os, sys, sqlite3, datetime, math, time
 
 import redis
 
@@ -233,7 +233,14 @@ if __name__ == "__main__":
         # it does exist, delete old entries
         status = delete_old()
         if status:
-            sys.exit(status)
+            # on failure, remove the file, and try to create a new one
+            print("Unable to delete old entries, attempting to create new database")
+            time.sleep(5)
+            os.remove(PLANETDB)
+            status, message = create_database()
+            print(message)
+            if status:
+                sys.exit(status)
 
     astro_centre = EarthLocation.from_geodetic(LONGITUDE, LATITUDE, ELEVATION)
 
@@ -251,7 +258,7 @@ if __name__ == "__main__":
     else:
         try:
             # create a log entry to set in the redis server
-            fullmessage = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") + " " + message
+            fullmessage = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") + " " + message
             rconn.rpush("log_info", fullmessage)
             # and limit number of messages to 50
             rconn.ltrim("log_info", -50, -1)
