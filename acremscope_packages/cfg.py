@@ -1,31 +1,33 @@
-# Sets config items
 
-# Edit this dictionary to store service parameters
+# Edit this _CONFIG dictionary to set configuration parameters
 
 # astronomy centre is 53:42:40N 2:09:16W
 
 import csv, os
 
+# The _CONFIG dictionary holds required constants, further items are added on startup
+# by calling set_projectfiles(projectfiles) once the projectfiles directory is known
+
 _CONFIG = { 
             'latitude' : 53.7111,
             'longitude' : -2.1544,
             'elevation' : 316,
-            #'mqtt_ip' : '10.105.192.1',
-            'mqtt_ip' : 'localhost',
+            'mqtt_ip' : '10.105.192.1',
+            #'mqtt_ip' : 'localhost',
             'mqtt_port' : 1883,
             'mqtt_username' : '',
             'mqtt_password' : '',
             'redis_ip' : 'localhost',
             'redis_port' : 6379,
             'redis_auth' : '',
-            #'postgresql_ip' : '10.105.192.252',
-            'postgresql_ip' : 'localhost',
+            'postgresql_ip' : '10.105.192.252',
+            #'postgresql_ip' : 'localhost',
             'postgresql_dbname' : 'astrodb',
             'postgresql_username' : 'astro',
             'postgresql_password' : 'xxSgham',
           }
 
-
+# This is a dictionary of nominal planet magnitudes for the star chart
 _PLANETS = {"mercury":  0.23,
             "venus":   -4.14,
             "mars":     0.71,
@@ -34,6 +36,11 @@ _PLANETS = {"mercury":  0.23,
             "uranus":   5.68,
             "neptune":  7.78,
             "pluto":   14.00}
+
+
+# This list is filled in from a csv file on the first call to get_constellation_lines()
+_CONSTELLATION_LINES = []
+
 
 def set_projectfiles(projectfiles):
     global _CONFIG
@@ -49,19 +56,13 @@ def planetmags():
     return _PLANETS
 
 
-_CONSTELLATION_LINES = []
-
-def _read_constellation_lines():
-    "Reads the constellation lines and places them into _CONSTELLATION_LINES"
-    global _CONSTELLATION_LINES
-    with open(_CONFIG['constellation_lines'], newline='') as f:
-        reader = csv.reader(f)
-        _CONSTELLATION_LINES = list(reader)
-
 def get_constellation_lines():
     "Returns a list of constellation lines"
+    global _CONSTELLATION_LINES
     if not _CONSTELLATION_LINES:
-        _read_constellation_lines()
+        with open(_CONFIG['constellation_lines'], newline='') as f:
+            reader = csv.reader(f)
+            _CONSTELLATION_LINES = list(reader)
     return _CONSTELLATION_LINES
 
 
@@ -92,7 +93,6 @@ def get_servedfiles_directory():
 def get_planetdb():
     "Returns the path to the database file which stores planet positions"
     return _CONFIG['planetdb']
-
 
 def observatory():
     "Returns the observatory longitude, latitude, elevation"
