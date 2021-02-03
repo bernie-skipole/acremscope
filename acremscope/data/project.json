@@ -7526,7 +7526,7 @@ false,
 "parts": [
 [
 "Text",
-"The table shows the coordinates in the ICRS frame, approximately the same as equatorial J2000. The next two columns can be toggled between Alt Az coordinates and Precessed Geocentric - which may be useful for telescope input.  You can also display the table in a printer friendly format."
+"The table shows the coordinates in the ICRS frame, approximately the same as equatorial J2000. The next two columns can be toggled between Alt Az coordinates and Precessed Geocentric (JNow) which may be useful for telescope input.  You can also display the table in a printer friendly format."
 ]
 ]
 }
@@ -8225,7 +8225,7 @@ false,
 "parts": [
 [
 "Text",
-"This page allows you to input a target and observing day - it will then display the altitude of the target for each session of that day.\r\n\r\nThis may help you to book the best session to observe that target, since the greater the altitude, the less air mass is in the way.\r\n\r\nYou can choose the target by RA and Declination - or by name or designation, such as 'Jupiter' or 'M11' or 'Ceres'."
+"For an ephemeris and finder chart, input a target and observing day.\r\n\r\nYou can choose the target by RA and Declination - or by name or designation, such as 'Jupiter' or 'M11' or 'Ceres'."
 ]
 ]
 }

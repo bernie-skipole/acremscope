@@ -19,7 +19,7 @@ Target = namedtuple('Target', ['target_name', 'planning_date', 'target_datetime'
 
 
 import astropy.units as u
-from astropy.coordinates import SkyCoord, EarthLocation, AltAz, name_resolve, solar_system_ephemeris, get_body, Angle
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz, name_resolve, solar_system_ephemeris, get_body, Angle, PrecessedGeocentric
 from astropy.time import Time
 
 from ..cfg import observatory, get_planetdb, planetmags
@@ -1473,6 +1473,9 @@ def print_finder(skicall):
         dec = dec1.d + dec1.m/60.0 + dec1.s/3600.0
         if dec1.sign < 1:
             dec = -1 * dec
+        target_time = Time(storedtarget.target_datetime, format='datetime', scale='utc')
+        target_skyc = SkyCoord(Angle(storedtarget.ra), Angle(storedtarget.dec), frame='icrs')
+        target_pg = target_skyc.transform_to(PrecessedGeocentric(obstime = target_time, equinox = target_time))
     except:
         raise FailPage("Invalid target data")
 
@@ -1492,11 +1495,13 @@ def print_finder(skicall):
     # longitude, latitude, elevation of the astronomy centre
     longitude, latitude, elevation = observatory()
 
-    header_text += """:\nRight Ascension: {}
-Declination: {}
+    header_text += """:\nRight Ascension: {} (ICRS, approximately J2000)
+Declination: {} (ICRS, approximately J2000)
 Field of view: {:2.1f} degrees
 Altitude: {} degrees
 Azimuth: {} degrees
+Right Ascension: {} (Precessed Geocentric, also called  JNow)
+Declination: {} (Precessed Geocentric, also called  JNow)
 Date: {} {}
 Observatory
 Longitude: {:2.3f} degrees
@@ -1506,6 +1511,8 @@ Elevation: {:2.1f} meters""".format(storedtarget.ra,
                                     view,
                                     storedtarget.alt,
                                     storedtarget.az,
+                                    target_pg.ra.to_string(unit='hourangle', precision=1, sep='hms'),
+                                    target_pg.dec.to_string(unit=u.deg, precision=1, sep='dms'),
                                     storedtarget.str_date, storedtarget.str_time,
                                     longitude,
                                     latitude,
