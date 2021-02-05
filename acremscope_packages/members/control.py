@@ -34,6 +34,8 @@ from ..stars import get_stars, radec_to_xy, xy_constellation_lines, get_planets,
 
 from .sessions import livesession, doorsession
 
+from . import remscope
+
 # These are mean apparant visual magnitudes, except for pluto, which is a rough guesstimate
 
 _PLANETS = planetmags()
@@ -63,37 +65,6 @@ def get_wanted_position(rconn_0):
     return wanted_position
 
 
-def get_actual_position(rconn_0):
-    """Reads Redis to get actual Telescope position,
-       return True, Position, (alt,az) if known, False, Position (alt,az)
-       if unknown"""
-
-    act_pos = redis_ops.get_actual_position(rconn_0)
-    if act_pos is None:
-        # flag an error, and assume parking position
-        return False, get_parked_radec(), _PARKED
-
-    act_altaz = redis_ops.get_actual_time_alt_az(rconn_0)
-    if act_altaz is None:
-        # flag an error, and assume parking position
-        return False, get_parked_radec(), _PARKED
-
-    timestamp1, ra_act, dec_act = act_pos
-    timestamp2, alt_act, az_act = act_altaz
-
-    if timestamp1 != timestamp2:
-        return False, get_parked_radec(), _PARKED
-
-    # should get an update every two seconds
-    nowtimestamp = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp()
-
-    # if the time between the received timestamp
-    # and now timestamp is greater than ten seconds, flag an eror
-
-    if abs( nowtimestamp - timestamp1) > 10:
-        return False, Position(ra_act, dec_act), (alt_act, az_act)
-
-    return True, Position(ra_act, dec_act), (alt_act, az_act)
 
 
 def get_chart(rconn_0):
@@ -129,7 +100,7 @@ def _draw_chart(skicall, tstamp=None, altaztuple=None):
     page_data = skicall.page_data
 
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
-    status,actual_position, altaztuple = get_actual_position(skicall.proj_data.get("rconn_0"))
+    status,actual_position, altaztuple = remscope.get_actual_position(skicall)
 
     chart = get_chart(skicall.proj_data.get("rconn_0"))
 
@@ -212,7 +183,7 @@ def refresh_chart(skicall):
     page_data = skicall.page_data
 
     if actual:
-        status,actual_position, altaztuple = get_actual_position(skicall.proj_data.get("rconn_0"))
+        status,actual_position, altaztuple = remscope.get_actual_position()
         chart = get_chart(skicall.proj_data.get("rconn_0"))
         ra = actual_position.ra
         dec = actual_position.dec

@@ -25,6 +25,8 @@ _CONFIG = {
             'postgresql_dbname' : 'astrodb',
             'postgresql_username' : 'astro',
             'postgresql_password' : 'xxSgham',
+            'door_name' : "Roll off door",             # The name as given by the indi driver
+            'telescope_name' : 'Telescope Simulator'   # The name as given by the indi driver
           }
 
 # This is a dictionary of nominal planet magnitudes for the star chart
@@ -98,6 +100,13 @@ def observatory():
     "Returns the observatory longitude, latitude, elevation"
     return _CONFIG['longitude'], _CONFIG['latitude'], _CONFIG['elevation']
 
+def telescope():
+    "Returns the telescope name, as given by its indi driver"
+    return _CONFIG['telescope_name']
+
+def door():
+    "Returns the door name, as given by its indi driver"
+    return _CONFIG['door_name']
 
 
 

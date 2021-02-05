@@ -5,14 +5,39 @@
 ##################################
 
 from datetime import datetime, timedelta
+from collections import namedtuple
+
+import astropy.units as u
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz, name_resolve, solar_system_ephemeris, get_body, Angle, PrecessedGeocentric
+from astropy.time import Time
+from astroquery.mpc import MPC
+from astroquery.exceptions import InvalidQueryError
 
 from skipole import FailPage, GoTo, ValidateError, ServerError
 
-from .. import sun, database_ops, redis_ops, send_mqtt
+from .. import sun, database_ops, redis_ops, send_mqtt, cfg
 
 from indi_mr import tools
 
 from .sessions import doorsession
+
+Position = namedtuple('Position', ['ra', 'dec'])
+
+#### may have to set a better 'parking position'
+
+_PARKED = (0.0, 180.0)  # altitude, azimuth
+
+def get_parked_radec():
+    "Returns Position object of the parked position"
+    # now work out ra dec
+    alt,az = _PARKED
+    solar_system_ephemeris.set('jpl')
+    longitude, latitude, elevation = cfg.observatory()
+    astro_centre = EarthLocation.from_geodetic(longitude, latitude, elevation)
+    altazcoord = SkyCoord(alt=alt*u.deg, az=az*u.deg, obstime = Time(datetime.utcnow(), format='datetime', scale='utc'), location = astro_centre, frame = 'altaz')
+    # transform to ra, dec
+    sc = altazcoord.transform_to('icrs')
+    return Position(sc.ra.degree, sc.dec.degree)
 
 
 def create_index(skicall):
@@ -69,16 +94,24 @@ def door_control(skicall):
     if ('door', 'action') not in call_data:
         return
 
+    door_name = cfg.door()
+
     # check current state of the door to ensure action is valid
     door = redis_ops.get_door(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
 
     if (door == 'CLOSED') and (call_data['door', 'action'] == 'open'):
+        # open the door
         tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
-                          "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"On", "SHUTTER_CLOSE":"Off"})
+                          "DOME_SHUTTER", door_name, {"SHUTTER_OPEN":"On", "SHUTTER_CLOSE":"Off"})
+        # connect the telescope
+        _telescope_connection(skicall, True)
         page_data['door_status', 'para_text'] = "An Open door command has been sent."
     elif (door == 'OPEN') and (call_data['door', 'action'] == 'close'):
+        # close the door
         tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
-                          "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
+                          "DOME_SHUTTER", door_name, {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
+        # disconnect the telescope
+        _telescope_connection(skicall, False)
         page_data['door_status', 'para_text'] = "A Close door command has been sent."
 
     # so if door,action is noaction, or door is either OPENING or CLOSING, no tools command is sent
@@ -94,5 +127,110 @@ Note: A time slot booked by a user will override Test Mode, to avoid this you sh
 
 
 
+def _telescope_connection(skicall, connect):
+    """This sends a connect or disconnect to telescope command. connect should be True to CONNECT, False to DISCONNECT"""
+    # get telescope name
+    telescope_name = cfg.telescope()
+    rconn = skicall.proj_data.get("rconn_0")
+    redisserver = skicall.proj_data.get("redisserver")
+    device_list = tools.devices(rconn, redisserver)
+    if telescope_name not in device_list:
+        return
+    # so the telescope is a known device, does it have a CONNECTION property
+    properties_list = tools.properties(rconn, redisserver, telescope_name)
+    if "CONNECTION" not in properties_list:
+        return
+    # and connect/disconnect
+    if connect:
+        tools.newswitchvector(rconn, redisserver, "CONNECTION" , telescope_name, {"CONNECT":"On", "DISCONNECT":"Off"})
+    else:
+        tools.newswitchvector(rconn, redisserver, "CONNECTION" , telescope_name, {"CONNECT":"Off", "DISCONNECT":"On"})
+
+
+def get_actual_position(skicall):
+    """Gets actual Telescope position,
+       return (True, Position, (alt,az)) if known, (False, Position (alt,az))
+       if unknown"""
+
+    # get telescope name
+    telescope_name = cfg.telescope()
+    rconn = skicall.proj_data.get("rconn_0")
+    redisserver = skicall.proj_data.get("redisserver")
+    device_list = tools.devices(rconn, redisserver)
+    if telescope_name not in device_list:
+        return False, get_parked_radec(), _PARKED
+
+    properties_list = tools.properties(rconn, redisserver, telescope_name)
+
+    ra_act = None
+    dec_act = None
+    alt_act = None
+    az_act = None
+    targettime = None
+
+
+    if 'EQUATORIAL_COORD' in properties_list:
+        # get ra_act and dec_act
+
+        # tools.elements_dict returns a dictionary of element attributes for the given element, property and device
+        ra_dict = tools.elements_dict(rconn, redisserver, 'RA', 'EQUATORIAL_COORD', telescope_name)
+        ra_act = ra_dict['float_number'] * 360.0/24.0
+        dec_dict = tools.elements_dict(rconn, redisserver, 'DEC', 'EQUATORIAL_COORD', telescope_name)
+        dec_act = dec_dict['float_number']
+        targettime = Time(ra_dict['timestamp'], format='isot', scale='utc')
+
+    if 'HORIZONTAL_COORD' in properties_list:
+        # get alt_act, az_act
+
+        # tools.elements_dict returns a dictionary of element attributes for the given element, property and device
+        alt_dict = tools.elements_dict(rconn, redisserver, 'ALT', 'HORIZONTAL_COORD', telescope_name)
+        alt_act = alt_dict['float_number']
+        az_dict = tools.elements_dict(rconn, redisserver, 'AZ', 'HORIZONTAL_COORD', telescope_name)
+        az_act = az_dict['float_number']
+        targettime = Time(alt_dict['timestamp'], format='isot', scale='utc')
+
+    if ('EQUATORIAL_COORD' in properties_list) and ('HORIZONTAL_COORD' in properties_list):
+        # all properties have been found
+        return True, Position(ra_act, dec_act), (alt_act, az_act)
+
+    # one or both are missing so need to be able to calculate properties
+    solar_system_ephemeris.set('jpl')
+    longitude, latitude, elevation = cfg.observatory()
+    astro_centre = EarthLocation.from_geodetic(longitude, latitude, elevation)
+
+    if 'EQUATORIAL_COORD' in properties_list:
+        # 'HORIZONTAL_COORD' is missing so calculate them from equatorial coords
+        target = SkyCoord(ra_act*u.deg, dec_act*u.deg, frame='icrs')
+        target_altaz = target.transform_to(AltAz(obstime = targettime, location = astro_centre))
+        return True, Position(ra_act, dec_act), (target_altaz.alt.degree, target_altaz.az.degree)
+
+    if 'HORIZONTAL_COORD' in properties_list:
+        # 'EQUATORIAL_COORD' is missing so calculate them from horizontal coords
+        target = SkyCoord(alt=alt_act*u.deg, az=az_act*u.deg, obstime = targettime, location = astro_centre, frame = 'altaz')
+        # transform to ra, dec
+        target_eq = target.transform_to('icrs')
+        return True, Position(target_eq.ra.degree, target_eq.dec.degree), (alt_act, az_act)
+
+    # so neither EQUATORIAL_COORD or HORIZONTAL_COORD are in the properties list
+
+    if 'EQUATORIAL_EOD_COORD' not in properties_list:
+        # no coords are available
+        return False, get_parked_radec(), _PARKED
+
+    # must calculate icrs ra,dec, alt and az from EQUATORIAL_EOD_COORD
+
+    # tools.elements_dict returns a dictionary of element attributes for the given element, property and device
+    ra_dict = tools.elements_dict(rconn, redisserver, 'RA', 'EQUATORIAL_EOD_COORD', telescope_name)
+    ra = ra_dict['float_number'] * 360.0/24.0
+    dec_dict = tools.elements_dict(rconn, redisserver, 'DEC', 'EQUATORIAL_EOD_COORD', telescope_name)
+    dec = dec_dict['float_number']
+    targettime = Time(ra_dict['timestamp'], format='isot', scale='utc')
+
+    target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, equinox = targettime, frame='precessedgeocentric')
+    # transform to icrs ra, dec and to alt,az
+    target_eq = target.transform_to('icrs')
+    target_altaz = target.transform_to(AltAz(obstime = targettime, location = astro_centre))
+
+    return True, Position(target_eq.ra.degree, target_eq.dec.degree), (target_altaz.alt.degree, target_altaz.az.degree)
 
 

@@ -20,26 +20,46 @@ from datetime import datetime
 from indi_mr import redis_server, tools
 
 
+DOOR_NAME = "Roll off door"             # The name as given by the indi driver
+TELESCOPE_NAME = 'Telescope Simulator'   # The name as given by the indi driver
+
+
 
 def get_door(rconn, redisserver):
     """Return door status string."""
     # returns one of UNKNOWN, OPEN, CLOSED, OPENING, CLOSING
     try:
-        door_status = tools.elements_dict(rconn, redisserver, "CLOSED", "DOOR_STATE", "Roll off door")
+        door_status = tools.elements_dict(rconn, redisserver, "CLOSED", "DOOR_STATE", DOOR_NAME)
         if door_status['value'] == "Ok":
             return "CLOSED"
-        door_status = tools.elements_dict(rconn, redisserver, "OPEN", "DOOR_STATE", "Roll off door")
+        door_status = tools.elements_dict(rconn, redisserver, "OPEN", "DOOR_STATE", DOOR_NAME)
         if door_status['value'] == "Ok":
             return "OPEN"
-        door_status = tools.elements_dict(rconn, redisserver, "OPENING", "DOOR_STATE", "Roll off door")
+        door_status = tools.elements_dict(rconn, redisserver, "OPENING", "DOOR_STATE", DOOR_NAME)
         if door_status['value'] == "Ok":
             return "OPENING"
-        door_status = tools.elements_dict(rconn, redisserver, "CLOSING", "DOOR_STATE", "Roll off door")
+        door_status = tools.elements_dict(rconn, redisserver, "CLOSING", "DOOR_STATE", DOOR_NAME)
         if door_status['value'] == "Ok":
             return "CLOSING"
     except:
         return 'UNKNOWN'
     return 'UNKNOWN'
+
+
+def telescope_connection(rconn, redisserver, connect):
+    """This sends a connect or disconnect to telescope command. connect should be True to CONNECT, False to DISCONNECT"""
+    device_list = tools.devices(rconn, redisserver)
+    if TELESCOPE_NAME not in device_list:
+        return
+    # so the telescope is a known device, does it have a CONNECTION property
+    properties_list = tools.properties(rconn, redisserver, telescope_name)
+    if "CONNECTION" not in properties_list:
+        return
+    # and connect/disconnect
+    if connect:
+        tools.newswitchvector(rconn, redisserver, "CONNECTION" , TELESCOPE_NAME, {"CONNECT":"On", "DISCONNECT":"Off"})
+    else:
+        tools.newswitchvector(rconn, redisserver, "CONNECTION" , TELESCOPE_NAME, {"CONNECT":"Off", "DISCONNECT":"On"})
 
 
 if __name__  == "__main__":
@@ -54,9 +74,11 @@ if __name__  == "__main__":
         else:
             # give getProperties time to respond
             time.sleep(10)
+            # disconnect the telescope
+            telescope_connection(rconn, redisserver, False)
             # send door close command
             result = tools.newswitchvector(rconn, redisserver,
-                                  "DOME_SHUTTER", "Roll off door", {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
+                                  "DOME_SHUTTER", DOOR_NAME, {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
             if result is None:
                 message = "Failed to send close door command"
             else:

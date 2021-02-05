@@ -184,48 +184,6 @@ def get_actual_time_alt_az(rconn=None):
     return actual_timestamp, actual_alt, actual_az
 
 
-def get_actual_position(rconn=None):
-    """Return Telescope timestamp, RA, DEC in degrees
-       If given rconn should connect to redis_db 0
-       On failure returns None"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return
-    if rconn is None:
-        return
-    try:
-        actual_timestamp = float(rconn.get('actual_timestamp').decode('utf-8'))
-        actual_ra = float(rconn.get('actual_ra').decode('utf-8'))
-        actual_dec = float(rconn.get('actual_dec').decode('utf-8'))
-    except:
-        return
-    return actual_timestamp, actual_ra, actual_dec
-
-
-def oldset_actual_position(ra, dec, rconn=None):
-    """Sets the  actual Telescope RA, DEC - given as two floats in degrees
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
-
-    if rconn is None:
-        return False
-
-    try:
-        result_ra = rconn.set('actual_ra', str(ra))
-        result_dec = rconn.set('actual_dec', str(dec))
-    except Exception:
-        return False
-    if result_ra and result_dec:
-        return True
-    return False
-
 
 def set_wanted_position(ra, dec, rconn=None):
     """Sets the  wanted Telescope RA, DEC  - given as two floats in degrees
@@ -443,17 +401,18 @@ def get_door(rconn, redisserver):
             return 'UNKNOWN'
     if rconn is None:
         return 'UNKNOWN'
+    door_name = cfg.door()
     try:
-        door_status = tools.elements_dict(rconn, redisserver, "CLOSED", "DOOR_STATE", "Roll off door")
+        door_status = tools.elements_dict(rconn, redisserver, "CLOSED", "DOOR_STATE", door_name)
         if door_status['value'] == "Ok":
             return "CLOSED"
-        door_status = tools.elements_dict(rconn, redisserver, "OPEN", "DOOR_STATE", "Roll off door")
+        door_status = tools.elements_dict(rconn, redisserver, "OPEN", "DOOR_STATE", door_name)
         if door_status['value'] == "Ok":
             return "OPEN"
-        door_status = tools.elements_dict(rconn, redisserver, "OPENING", "DOOR_STATE", "Roll off door")
+        door_status = tools.elements_dict(rconn, redisserver, "OPENING", "DOOR_STATE", door_name)
         if door_status['value'] == "Ok":
             return "OPENING"
-        door_status = tools.elements_dict(rconn, redisserver, "CLOSING", "DOOR_STATE", "Roll off door")
+        door_status = tools.elements_dict(rconn, redisserver, "CLOSING", "DOOR_STATE", door_name)
         if door_status['value'] == "Ok":
             return "CLOSING"
     except:
