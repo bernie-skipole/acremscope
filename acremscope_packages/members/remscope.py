@@ -261,7 +261,6 @@ def set_target(skicall, target_ra, target_dec, target_name):
         # not a planet, see if it is a minor planet
         else:
             try:
-                positions = [target_name.encode('utf-8'), target_ra, target_dec]
                 # get ephemeris for minor planet, 20 rows at 30 second intervals
                 eph = MPC.get_ephemeris(target_name, step="30second", start=targettime, number=20)
                 #for row in range(20):
@@ -276,18 +275,19 @@ def set_target(skicall, target_ra, target_dec, target_name):
         # target name not given, so fixed ra and dec values, find alt az
         target = SkyCoord(target_ra*u.deg, target_dec*u.deg, frame='icrs')
 
-
     target_altaz = target.transform_to(AltAz(obstime=targettime, location=astro_centre))
     target_pg = target.transform_to(PrecessedGeocentric(obstime=targettime, equinox=targettime))
 
 
     if 'HORIZONTAL_COORD' in properties_list:
-        result = tools.newnumbervector(rconn, redisserver, 'HORIZONTAL_COORD', telescope_name, {'ALT':target_altaz.alt.degree, 'AZ':target_altaz.az.degree})
+        result = tools.newnumbervector(rconn, redisserver, 'HORIZONTAL_COORD', telescope_name, {'ALT':str(target_altaz.alt.degree),
+                                                                                                 'AZ':str(target_altaz.az.degree)})
         if result is None:
             return
 
     elif 'EQUATORIAL_EOD_COORD' in properties_list:
-        result = tools.newnumbervector(rconn, redisserver, 'EQUATORIAL_EOD_COORD', telescope_name, {'RA':target_pg.ra.degree, 'DEC':target_pg.dec.degree})
+        result = tools.newnumbervector(rconn, redisserver, 'EQUATORIAL_EOD_COORD', telescope_name, {'RA':str(target_pg.ra.hour),
+                                                                                                    'DEC':str(target_pg.dec.degree)})
         if result is None:
             return
     else:

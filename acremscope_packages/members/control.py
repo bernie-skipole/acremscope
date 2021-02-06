@@ -183,7 +183,7 @@ def refresh_chart(skicall):
     page_data = skicall.page_data
 
     if actual:
-        status,actual_position, altaztuple = remscope.get_actual_position()
+        status,actual_position, altaztuple = remscope.get_actual_position(skicall)
         chart = get_chart(skicall.proj_data.get("rconn_0"))
         ra = actual_position.ra
         dec = actual_position.dec
@@ -722,7 +722,7 @@ def telescope_status(skicall):
         target_dec = wanted_position.dec
         target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"))
     except:
-        raise FailPage("Invalid target data")
+        raise FailPage("Invalid target")
 
     result = remscope.set_target(skicall, target_ra, target_dec, target_name)
     if result is None:
@@ -741,7 +741,7 @@ AZ: {:1.3f}\xb0""".format(target_ra, target_dec, target_altaz.alt.degree, target
     redis_ops.set_chart_actual(True, skicall.proj_data.get("rconn_0"))
 
     # now draw the chart
-    _draw_chart(skicall, tstamp=starttime, altaztuple=(target_altaz.alt.degree, target_altaz.az.degree))
+    _draw_chart(skicall, tstamp=datetime.utcnow(), altaztuple=(target_altaz.alt.degree, target_altaz.az.degree))
 
 
 @livesession
