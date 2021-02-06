@@ -104,14 +104,14 @@ def door_control(skicall):
         tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
                           "DOME_SHUTTER", door_name, {"SHUTTER_OPEN":"On", "SHUTTER_CLOSE":"Off"})
         # connect the telescope
-        _telescope_connection(skicall, True)
+        telescope_connection(skicall, True)
         page_data['door_status', 'para_text'] = "An Open door command has been sent."
     elif (door == 'OPEN') and (call_data['door', 'action'] == 'close'):
         # close the door
         tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
                           "DOME_SHUTTER", door_name, {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
         # disconnect the telescope
-        _telescope_connection(skicall, False)
+        telescope_connection(skicall, False)
         page_data['door_status', 'para_text'] = "A Close door command has been sent."
 
     # so if door,action is noaction, or door is either OPENING or CLOSING, no tools command is sent
@@ -126,8 +126,26 @@ Note: A time slot booked by a user will override Test Mode, to avoid this you sh
         skicall.page_data['test_warning', 'para_text'] = ""
 
 
+def is_telescope_connected(skicall):
+    "Returns True if the telescope is connected, False otherwise"
+    # get telescope name
+    telescope_name = cfg.telescope()
+    rconn = skicall.proj_data.get("rconn_0")
+    redisserver = skicall.proj_data.get("redisserver")
+    device_list = tools.devices(rconn, redisserver)
+    if telescope_name not in device_list:
+        return False
+    # so the telescope is a known device, does it have a CONNECTION property
+    properties_list = tools.properties(rconn, redisserver, telescope_name)
+    if "CONNECTION" not in properties_list:
+        return False
+    attribs = tools.elements_dict(rconn, redisserver, "CONNECT", "CONNECTION" , telescope_name)
+    if attribs['value'] == "On":
+        return True
+    return False
 
-def _telescope_connection(skicall, connect):
+
+def telescope_connection(skicall, connect):
     """This sends a connect or disconnect to telescope command. connect should be True to CONNECT, False to DISCONNECT"""
     # get telescope name
     telescope_name = cfg.telescope()

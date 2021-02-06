@@ -77,6 +77,8 @@ def get_chart(rconn_0):
 @livesession
 def control_template(skicall):
     "Fills in the control template page"
+    if not remscope.is_telescope_connected(skicall):
+        raise FailPage("Telescope not connected, try to connect with the INDI client")
     # remove target name from redis
     redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
     # draw the control page chart
