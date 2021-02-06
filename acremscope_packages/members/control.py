@@ -724,72 +724,24 @@ def telescope_status(skicall):
     except:
         raise FailPage("Invalid target data")
 
-    solar_system_ephemeris.set('jpl')
-    # longitude, latitude, elevation of the astronomy centre
-    longitude, latitude, elevation = observatory()
-    astro_centre = EarthLocation.from_geodetic(longitude, latitude, elevation)
-    targettime = datetime.utcnow()
-    starttime = targettime
-    timestamp = targettime.replace(tzinfo=timezone.utc).timestamp()
-    timeinterval = timedelta(seconds=30)
-    # get alt and az for ten minutes (twenty half seconds), every 30 seconds
+    result = remscope.set_target(skicall, target_ra, target_dec, target_name)
+    if result is None:
+        raise FailPage("Invalid target data")
 
-    # get alt and az for ten minutes (twenty half seconds), every 30 seconds
-    if target_name:
-        target_name_lower = target_name.lower()
-        if target_name_lower in ('moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'):
-            planet = get_body(target_name, Time(targettime, format='datetime', scale='utc'), astro_centre)
-            positions = [target_name.encode('utf-8'), planet.ra.degree, planet.dec.degree]
-            for t in range(20):
-                target_altaz = planet.transform_to(AltAz(obstime = Time(targettime, format='datetime', scale='utc'), location = astro_centre))
-                timestamp = targettime.replace(tzinfo=timezone.utc).timestamp()
-                positions.extend((timestamp,target_altaz.alt.degree, target_altaz.az.degree))
-                targettime += timeinterval
-                planet = get_body(target_name, Time(targettime, format='datetime', scale='utc'), astro_centre)
-        # not a planet, see if it is a minor planet
-        else:
-            try:
-                positions = [target_name.encode('utf-8'), target_ra, target_dec]
-                # get ephemeris for minor planet
-                eph = MPC.get_ephemeris(target_name, step="30second", start=Time(targettime, format='datetime', scale='utc'), number=20)
-                for row in range(20):
-                    target = SkyCoord(eph['RA'][row]*u.degree, eph['Dec'][row]*u.degree, frame='icrs')
-                    target_altaz = target.transform_to(AltAz(obstime = Time(targettime, format='datetime', scale='utc'), location = astro_centre))
-                    timestamp = targettime.replace(tzinfo=timezone.utc).timestamp()
-                    positions.extend((timestamp, target_altaz.alt.degree, target_altaz.az.degree))
-                    targettime += timeinterval
-            except InvalidQueryError:
-                # not a minor planet, so delete target_name and work on ra dec only
-                target_name = ''
-
-    if not target_name:
-        targettime = datetime.utcnow()
-        # target name not given, so fixed ra and dec values, find alt az
-        target = SkyCoord(target_ra*u.deg, target_dec*u.deg, frame='icrs')
-        positions = [target_name.encode('utf-8'), target.ra.degree, target.dec.degree]
-        for t in range(20):
-            target_altaz = target.transform_to(AltAz(obstime = Time(targettime, format='datetime', scale='utc'), location = astro_centre))
-            timestamp = targettime.replace(tzinfo=timezone.utc).timestamp()
-            positions.extend((timestamp,target_altaz.alt.degree, target_altaz.az.degree))
-            targettime += timeinterval
-
-    # positions consists of target_name, ra, dec and 20 sets of timestamp,alt,az which is a string and 62 floats, pack these into a structure
-    packedstring = pack("10s"+"d"*62, *positions)
-    # send this packed string by mqtt
-    send_mqtt.goto(packedstring)
+    target_altaz, target_pg = result
 
     skicall.page_data['scopestatus', 'para_text'] = """
 Command sent: Goto
 RA: {:1.3f}\xb0
 DEC: {:1.3f}\xb0
 ALT: {:1.3f}\xb0
-AZ: {:1.3f}\xb0""".format(positions[1], positions[2], positions[4], positions[5])
+AZ: {:1.3f}\xb0""".format(target_ra, target_dec, target_altaz.alt.degree, target_altaz.az.degree)
 
     # chart should show actual
     redis_ops.set_chart_actual(True, skicall.proj_data.get("rconn_0"))
 
     # now draw the chart
-    _draw_chart(skicall, tstamp=starttime, altaztuple=(positions[4], positions[5]))
+    _draw_chart(skicall, tstamp=starttime, altaztuple=(target_altaz.alt.degree, target_altaz.az.degree))
 
 
 @livesession

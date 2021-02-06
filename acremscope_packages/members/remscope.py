@@ -234,3 +234,64 @@ def get_actual_position(skicall):
     return True, Position(target_eq.ra.degree, target_eq.dec.degree), (target_altaz.alt.degree, target_altaz.az.degree)
 
 
+def set_target(skicall, target_ra, target_dec, target_name):
+    "Set the target. Return target_altaz, target_pg, or None on failure"
+
+    telescope_name = cfg.telescope()
+    rconn = skicall.proj_data.get("rconn_0")
+    redisserver = skicall.proj_data.get("redisserver")
+    device_list = tools.devices(rconn, redisserver)
+    if telescope_name not in device_list:
+        return
+
+    properties_list = tools.properties(rconn, redisserver, telescope_name)
+
+
+    solar_system_ephemeris.set('jpl')
+    # longitude, latitude, elevation of the astronomy centre
+    longitude, latitude, elevation = cfg.observatory()
+    astro_centre = EarthLocation.from_geodetic(longitude, latitude, elevation)
+    targettime = Time(datetime.utcnow(), format='datetime', scale='utc')
+
+ 
+    if target_name:
+        target_name_lower = target_name.lower()
+        if target_name_lower in ('moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'):
+            target = get_body(target_name, targettime, astro_centre)
+        # not a planet, see if it is a minor planet
+        else:
+            try:
+                positions = [target_name.encode('utf-8'), target_ra, target_dec]
+                # get ephemeris for minor planet, 20 rows at 30 second intervals
+                eph = MPC.get_ephemeris(target_name, step="30second", start=targettime, number=20)
+                #for row in range(20):
+                # may want all rows in future to get tracking motion, but for the moment, start with row zero
+                row = 0 
+                target = SkyCoord(eph['RA'][row]*u.degree, eph['Dec'][row]*u.degree, frame='icrs')
+            except InvalidQueryError:
+                # not a minor planet, so delete target_name and work on ra dec only
+                target_name = ''
+
+    if not target_name:
+        # target name not given, so fixed ra and dec values, find alt az
+        target = SkyCoord(target_ra*u.deg, target_dec*u.deg, frame='icrs')
+
+
+    target_altaz = target.transform_to(AltAz(obstime=targettime, location=astro_centre))
+    target_pg = target.transform_to(PrecessedGeocentric(obstime=targettime, equinox=targettime))
+
+
+    if 'HORIZONTAL_COORD' in properties_list:
+        result = tools.newnumbervector(rconn, redisserver, 'HORIZONTAL_COORD', telescope_name, {'ALT':target_altaz.alt.degree, 'AZ':target_altaz.az.degree})
+        if result is None:
+            return
+
+    elif 'EQUATORIAL_EOD_COORD' in properties_list:
+        result = tools.newnumbervector(rconn, redisserver, 'EQUATORIAL_EOD_COORD', telescope_name, {'RA':target_pg.ra.degree, 'DEC':target_pg.dec.degree})
+        if result is None:
+            return
+    else:
+        return
+
+    return target_altaz, target_pg
+

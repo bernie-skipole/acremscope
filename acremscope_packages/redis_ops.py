@@ -164,27 +164,6 @@ def delete_test_mode(rconn=None):
     return True
 
 
-def get_actual_time_alt_az(rconn=None):
-    """Return Telescope timestamp, alt and az in degrees
-       If given rconn should connect to redis_db 0
-       On failure returns None"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return
-    if rconn is None:
-        return
-    try:
-        actual_timestamp = float(rconn.get('actual_timestamp').decode('utf-8'))
-        actual_alt = float(rconn.get('actual_alt').decode('utf-8'))
-        actual_az = float(rconn.get('actual_az').decode('utf-8'))
-    except:
-        return
-    return actual_timestamp, actual_alt, actual_az
-
-
-
 def set_wanted_position(ra, dec, rconn=None):
     """Sets the  wanted Telescope RA, DEC  - given as two floats in degrees
        Return True on success, False on failure, if rconn is None, it is created.
