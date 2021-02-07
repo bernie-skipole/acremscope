@@ -27,6 +27,17 @@ Position = namedtuple('Position', ['ra', 'dec'])
 
 _PARKED = (0.0, 180.0)  # altitude, azimuth
 
+
+def telescopegetproperties(skicall):
+    "Sends a getproperties command for the telescope"
+    # get telescope name
+    telescope_name = cfg.telescope()
+    rconn = skicall.proj_data.get("rconn_0")
+    redisserver = skicall.proj_data.get("redisserver")
+    tools.getProperties(rconn, redisserver, device=telescope_name)
+
+
+
 def get_parked_radec():
     "Returns Position object of the parked position"
     # now work out ra dec
@@ -312,4 +323,87 @@ def set_target(skicall, target_ra, target_dec, target_name):
         return
 
     return target_altaz, target_pg
+
+
+def altaz_goto(skicall, altitude, azimuth):
+    """Moves telescope to given altitude and azimuth, returns True if command sent
+       False otherwise"""
+    telescope_name = cfg.telescope()
+    rconn = skicall.proj_data.get("rconn_0")
+    redisserver = skicall.proj_data.get("redisserver")
+    device_list = tools.devices(rconn, redisserver)
+    if telescope_name not in device_list:
+        return False
+    # so the telescope is a known device, does it have a CONNECTION property
+    properties_list = tools.properties(rconn, redisserver, telescope_name)
+    if "CONNECTION" not in properties_list:
+        return False
+    attribs = tools.elements_dict(rconn, redisserver, "CONNECT", "CONNECTION" , telescope_name)
+    if attribs['value'] == "Off":
+        return False
+
+    if 'ON_COORD_SET' in properties_list:
+        result = tools.newswitchvector(rconn, redisserver, 'ON_COORD_SET', telescope_name, {'SLEW':'On',
+                                                                                            'TRACK':'Off',
+                                                                                            'SYNC':'Off'})
+
+    if 'HORIZONTAL_COORD' in properties_list:
+        result = tools.newnumbervector(rconn, redisserver, 'HORIZONTAL_COORD', telescope_name, {'ALT':str(altitude),
+                                                                                                 'AZ':str(azimuth)})
+        if result is None:
+            return False
+        else:
+            return True
+
+    # longitude, latitude, elevation of the astronomy centre
+    longitude, latitude, elevation = cfg.observatory()
+    astro_centre = EarthLocation.from_geodetic(longitude, latitude, elevation)
+    targettime = Time(datetime.utcnow(), format='datetime', scale='utc')
+
+    target = SkyCoord(alt=altitude*u.deg, az=azimuth*u.deg, obstime = targettime, location = astro_centre, frame = 'altaz')
+
+    if 'EQUATORIAL_EOD_COORD' in properties_list:
+        # transform to ra, dec
+        target_pg = target.transform_to(PrecessedGeocentric(obstime=targettime, equinox=targettime))
+        result = tools.newnumbervector(rconn, redisserver, 'EQUATORIAL_EOD_COORD', telescope_name, {'RA':str(target_pg.ra.hour),
+                                                                                                    'DEC':str(target_pg.dec.degree)})
+        if result is None:
+            return False
+        else:
+            return True
+    return False
+
+
+def track_state(skicall, state):
+    "Turn tracking on or off, set state True for On, False for off" 
+    telescope_name = cfg.telescope()
+    rconn = skicall.proj_data.get("rconn_0")
+    redisserver = skicall.proj_data.get("redisserver")
+    if state:
+        tools.newswitchvector(rconn, redisserver, 'TELESCOPE_TRACK_STATE', telescope_name, {'TRACK_ON':'On',
+                                                                                            'TRACK_OFF':'Off'})
+    else:
+        tools.newswitchvector(rconn, redisserver, 'TELESCOPE_TRACK_STATE', telescope_name, {'TRACK_ON':'Off',
+                                                                                            'TRACK_OFF':'On'})
+
+
+def get_track_state(skicall):
+    "Returns On, Off or UKNOWN"
+    telescope_name = cfg.telescope()
+    rconn = skicall.proj_data.get("rconn_0")
+    redisserver = skicall.proj_data.get("redisserver")
+    device_list = tools.devices(rconn, redisserver)
+    if telescope_name not in device_list:
+        return "UNKNOWN"
+    # so the telescope is a known device, does it have a TELESCOPE_TRACK_STATE property
+    properties_list = tools.properties(rconn, redisserver, telescope_name)
+    if "TELESCOPE_TRACK_STATE" not in properties_list:
+        return "UNKNOWN"
+    attribs = tools.elements_dict(rconn, redisserver, "TRACK_ON", "TELESCOPE_TRACK_STATE" , telescope_name)
+    if attribs['value'] == "On":
+        return "On"
+    else:
+        return "Off"
+
+
 

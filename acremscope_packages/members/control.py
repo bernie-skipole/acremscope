@@ -104,6 +104,15 @@ def _draw_chart(skicall, tstamp=None, altaztuple=None):
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
     status,actual_position, altaztuple = remscope.get_actual_position(skicall)
 
+    if status:
+        # Set actual scope position
+        act_ra = Angle(actual_position.ra*u.deg).to_string(unit=u.hour, sep=':')
+        act_dec = Angle(actual_position.dec*u.deg).to_string(unit=u.degree, sep=':')
+        skicall.page_data['scopeposition', 'para_text'] = f"""
+RA: {act_ra}
+DEC: {act_dec}
+"""
+
     chart = get_chart(skicall.proj_data.get("rconn_0"))
 
     if actual:
@@ -147,7 +156,7 @@ def _draw_chart(skicall, tstamp=None, altaztuple=None):
     if actual:
         page_data['display_target', 'button_text'] = "Display target"
         if status:
-            page_data['status', 'para_text'] = "Current Telescope Altitude: {:3.2f}   Azimuth: {:3.2f}".format(*altaztuple)
+            page_data['status', 'para_text'] = "Current Telescope Altitude: {:3.3f}   Azimuth: {:3.3f}".format(*altaztuple)
         else:
             page_data['status', 'para_text'] = "Communications lost. Telescope position unknown!"
     else:
@@ -208,7 +217,13 @@ def refresh_chart(skicall):
         if stars:
             page_data['starchart', 'stars'] = stars
         if status:
-            page_data['status', 'para_text'] = "Current Telescope Altitude: {:3.2f}   Azimuth: {:3.2f}".format(*altaztuple)
+            act_ra = Angle(ra*u.deg).to_string(unit=u.hour, sep=':')
+            act_dec = Angle(dec*u.deg).to_string(unit=u.degree, sep=':')
+            skicall.page_data['scopeposition', 'para_text'] = f"""
+RA: {act_ra}
+DEC: {act_dec}
+"""
+            page_data['status', 'para_text'] = "Current Telescope Altitude: {:3.3f}   Azimuth: {:3.3f}".format(*altaztuple)
         else:
             page_data['status', 'para_text'] = "Communications lost. Telescope position unknown!"
     else:
@@ -218,6 +233,11 @@ def refresh_chart(skicall):
             page_data['status', 'para_text'] = "Target : " + target_name
         else:
             page_data['status', 'para_text'] = "Target : RA {:1.3f}\xb0 Dec: {:1.3f}\xb0".format(wanted_position.ra, wanted_position.dec)
+    # and finally, do a scope getproperties, so for the next refresh things are up to date
+    remscope.telescopegetproperties(skicall)
+
+    skicall.page_data['scopestatus', 'para_text'] = f"Telescope Tracking : {remscope.get_track_state(skicall)}"
+
 
 
 @livesession
@@ -717,7 +737,7 @@ def display_target(skicall):
 
 @livesession
 def telescope_status(skicall):
-    "Get the wanted ra and dec, and convert to alt, az, send to telescope with mqtt"
+    "Get the wanted ra and dec, and convert to alt, az, send to telescope"
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
     try:
         target_ra = wanted_position.ra
@@ -732,8 +752,7 @@ def telescope_status(skicall):
 
     target_altaz, target_pg = result
 
-    skicall.page_data['scopestatus', 'para_text'] = """
-Command sent: Goto
+    skicall.page_data['scopestatus', 'para_text'] = """Command sent: Goto
 RA: {:1.3f}\xb0
 DEC: {:1.3f}\xb0
 ALT: {:1.3f}\xb0
@@ -784,38 +803,16 @@ def altaz_goto(skicall):
     if azimuth>360.0 or azimuth<0.0:
         raise FailPage("Invalid azimuth")
 
-    packedstring = pack("dd", altitude, azimuth)
+    try:
+        if not remscope.altaz_goto(skicall, altitude, azimuth):
+            raise FailPage("Failed to send coordinates")
+    except:
+        raise FailPage("Failed to send coordinates")
 
     skicall.page_data['scopestatus', 'para_text'] = """
 Command sent: Goto
 ALT: {:1.3f}\xb0
 AZ: {:1.3f}\xb0""".format(altitude, azimuth)
 
-    # send this packed string by mqtt
-    send_mqtt.altazgoto(packedstring)
 
-
-
-    # and when received, get
-    # unpacked = unpack("10s"+"d"*62, packedstring)
-    # first item is binary name, padded with \x00, so strip padding and decode
-    # print(unpacked[0].rstrip(b'\x00').decode("utf-8"))
-    # print(unpacked[1:])
-
-    # fit nearest five alt,az points to two quadratics
-    # and then given a timestamp, can get alt and az
-
-
-#def _qcurve(x, a, b, c):
-#    "This function models the data, x is an input, and the parameters a,b,c are required to fit the data"
-#    return a*x*x + b*x + c
-
-
-    # note: using a quadratice curve fitting over 5 points each 30 seconds apart gives reasonably accurate reults
-
-    #popt_alt, pcov_alt = curve_fit(_qcurve, tm[:5], alt[:5])
-    #popt_az, pcov_az = curve_fit(_qcurve, tm[:5], az[:5])
-
-    #for t in range(4):
-    #    print(tm[t], _qcurve(tm[t], *popt_alt), _qcurve(tm[t], *popt_az))
 

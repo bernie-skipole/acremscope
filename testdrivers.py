@@ -8,6 +8,6 @@ from indi_mr import redis_server, driverstoredis
 redis_host = redis_server(host='localhost', port=6379)
 
 # blocking call which runs the service, communicating between the drivers and redis
-driverstoredis(["indi_simulator_telescope", "indi_simulator_ccd"], redis_host, blob_folder='/home/bernard/indiblobs')
+driverstoredis(["indi_simulator_telescope", "/home/bernard/git/acremscope/drivers/doordriver.py"], redis_host, blob_folder='/home/bernard/indiblobs')
 
 

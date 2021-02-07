@@ -1399,6 +1399,24 @@ false,
 [
 "Part",
 {
+"tag_name": "p",
+"brief": "Coordinates",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"style": "margin-left:3em;margin-right:3em;"
+},
+"parts": [
+[
+"Text",
+"Use ICRS / J2000 coordinates"
+]
+]
+}
+],
+[
+"Part",
+{
 "tag_name": "div",
 "brief": "container",
 "show": true,
@@ -2964,11 +2982,88 @@ false,
 }
 ],
 [
+"Part",
+{
+"tag_name": "div",
+"brief": "contains scope position",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-card-4",
+"style": "margin-top:60px;margin-left:5em;margin-right:5em;"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "header",
+"brief": "header",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container w3-blue"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "h3",
+"brief": "Telescope position header",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Telescope Position"
+]
+]
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "Contains text",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container"
+},
+"parts": [
+[
+"Widget",
+{
+"class": "paras.DivPara",
+"name": "scopeposition",
+"brief": "Shows current scope position",
+"fields": {
+"clear_error": false,
+"error_class": "w3-red",
+"para_class": "",
+"para_text": "Scope position : UNKNOWN",
+"pre_line": true,
+"show": true,
+"show_error": "",
+"widget_class": "w3-section",
+"widget_style": ""
+}
+}
+]
+]
+}
+]
+]
+}
+],
+[
 "Widget",
 {
 "class": "paras.DivPara",
 "name": "scopestatus",
-"brief": "Shows response to the goto command",
+"brief": "Shows response to the goto command and tracking status",
 "fields": {
 "clear_error": false,
 "error_class": "w3-red",
@@ -2978,7 +3073,7 @@ false,
 "show": true,
 "show_error": "",
 "widget_class": "w3-section",
-"widget_style": "margin-left:5em;"
+"widget_style": "margin-left:5em;padding-top:20px;"
 }
 }
 ]
@@ -8225,7 +8320,7 @@ false,
 "parts": [
 [
 "Text",
-"For an ephemeris and finder chart, input a target and observing day.\r\n\r\nYou can choose the target by RA and Declination - or by name or designation, such as 'Jupiter' or 'M11' or 'Ceres'."
+"For an ephemeris and finder chart, input a target and observing day.\r\n\r\nYou can choose the target by RA and Declination (ICRS/J2000) - or by name or designation, such as 'Jupiter' or 'M11' or 'Ceres'."
 ]
 ]
 }
