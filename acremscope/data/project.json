@@ -22447,6 +22447,84 @@ false
 "Part",
 {
 "tag_name": "p",
+"brief": "About indi-mr",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"with indi-mr"
+],
+[
+"HTMLSymbol",
+{
+"text": "&nbsp;"
+}
+],
+[
+"Part",
+{
+"tag_name": "a",
+"brief": "link to indi-mr",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"href": "https://indi-mr.readthedocs.io/en/latest/"
+},
+"parts": [
+[
+"Text",
+"https://indi-mr.readthedocs.io/en/latest/"
+]
+]
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "About indiredis",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"with indiredis"
+],
+[
+"HTMLSymbol",
+{
+"text": "&nbsp;"
+}
+],
+[
+"Part",
+{
+"tag_name": "a",
+"brief": "link to indiredis",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"href": "https://indiredis.readthedocs.io/en/latest/"
+},
+"parts": [
+[
+"Text",
+"https://indiredis.readthedocs.io/en/latest/"
+]
+]
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "p",
 "brief": "Further software",
 "show": true,
 "hide_if_empty": false,
