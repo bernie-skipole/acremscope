@@ -742,9 +742,9 @@ if __name__ == "__main__":
     ###################### Remove for deployment ##################################
     #                                                                              #
     set_debug(True)                                                               #
-    from skipole import skiadmin                                                  #
-    skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
-    application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
+    #from skipole import skiadmin                                                  #
+    #skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
+    #application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
     #                                                                              #
     ###############################################################################
 
