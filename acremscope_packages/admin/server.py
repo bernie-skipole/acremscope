@@ -9,7 +9,7 @@ import os
 
 from skipole import FailPage, GoTo, ValidateError, ServerError
 
-from .. import sun, database_ops, redis_ops, send_mqtt, cfg
+from .. import sun, database_ops, redis_ops, cfg
 
 
 def create_index(skicall):

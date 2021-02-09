@@ -15,11 +15,12 @@ from astroquery.exceptions import InvalidQueryError
 
 from skipole import FailPage, GoTo, ValidateError, ServerError
 
-from .. import sun, database_ops, redis_ops, send_mqtt, cfg
+from .. import sun, stars, database_ops, redis_ops, cfg
 
 from indi_mr import tools
 
 from .sessions import doorsession
+from .. import redis_ops
 
 Position = namedtuple('Position', ['ra', 'dec'])
 
@@ -84,7 +85,9 @@ def create_index(skicall):
 
 
     if skicall.call_data["test_mode"]:
+        skicall.page_data['indiclient', 'hide'] = False
         skicall.page_data['test_warning', 'para_text'] = """WARNING: You are operating in Test Mode - Telescope commands will be sent regardless of the door status, or daylight situation. This could be damaging, please ensure you are in control of the test environment.
+INDI client - this is a general purpose instrument control panel, which gives enhanced control of connected devices. 
 Note: A time slot booked by a user will override Test Mode, to avoid this you should operate within time slots which you have previously disabled."""
     elif skicall.call_data["role"] == 'ADMIN':
         skicall.page_data['test_warning', 'para_text'] = """The robotic telescope can be controlled by members during their valid booked session, or by Administrators who have enabled 'Test' mode.
@@ -246,7 +249,7 @@ def get_actual_position(skicall):
         # no coords are available
         return False, get_parked_radec(), _PARKED
 
-    # must calculate icrs ra,dec, alt and az from EQUATORIAL_EOD_COORD
+    # must calculate ra,dec, alt and az from EQUATORIAL_EOD_COORD
 
     # tools.elements_dict returns a dictionary of element attributes for the given element, property and device
     ra_dict = tools.elements_dict(rconn, redisserver, 'RA', 'EQUATORIAL_EOD_COORD', telescope_name)
@@ -255,9 +258,19 @@ def get_actual_position(skicall):
     dec = dec_dict['float_number']
     targettime = Time(ra_dict['timestamp'], format='isot', scale='utc')
 
-    target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, equinox = targettime, frame='precessedgeocentric')
-    # transform to icrs ra, dec and to alt,az
-    target_eq = target.transform_to('icrs')
+    target_frame = redis_ops.get_target_frame(skicall.proj_data.get("rconn_0"))
+    if target_frame == 'precessedgeocentric':
+        # undo the precession calculation to get icrs back
+        target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, equinox = targettime, frame='precessedgeocentric')
+        target_eq = target.transform_to(frame ='icrs')
+    elif target_frame == 'gcrs':
+        # this is used for planets and minor planets
+        target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, location = astro_centre, frame='gcrs')
+        # no need to transform this
+        target_eq = target
+    else:
+        return False, get_parked_radec(), _PARKED
+
     target_altaz = target.transform_to(AltAz(obstime = targettime, location = astro_centre))
 
     return True, Position(target_eq.ra.degree, target_eq.dec.degree), (target_altaz.alt.degree, target_altaz.az.degree)
@@ -280,33 +293,26 @@ def set_target(skicall, target_ra, target_dec, target_name):
     # longitude, latitude, elevation of the astronomy centre
     longitude, latitude, elevation = cfg.observatory()
     astro_centre = EarthLocation.from_geodetic(longitude, latitude, elevation)
-    targettime = Time(datetime.utcnow(), format='datetime', scale='utc')
+    tstamp = Time(datetime.utcnow(), format='datetime', scale='utc')
 
- 
-    if target_name:
-        target_name_lower = target_name.lower()
-        if target_name_lower in ('moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'):
-            target = get_body(target_name, targettime, astro_centre)
-        # not a planet, see if it is a minor planet
-        else:
-            try:
-                # get ephemeris for minor planet, 20 rows at 30 second intervals
-                eph = MPC.get_ephemeris(target_name, step="30second", start=targettime, number=20)
-                #for row in range(20):
-                # may want all rows in future to get tracking motion, but for the moment, start with row zero
-                row = 0 
-                target = SkyCoord(eph['RA'][row]*u.degree, eph['Dec'][row]*u.degree, frame='icrs')
-            except InvalidQueryError:
-                # not a minor planet, so delete target_name and work on ra dec only
-                target_name = ''
+    try:
+        if target_name:
+            target, target_altaz = stars.get_named_object(target_name, tstamp)
+    except:
+        target_name = ''
 
     if not target_name:
         # target name not given, so fixed ra and dec values, find alt az
         target = SkyCoord(target_ra*u.deg, target_dec*u.deg, frame='icrs')
+        target_altaz = target.transform_to(AltAz(obstime=tstamp, location=astro_centre))
 
-    target_altaz = target.transform_to(AltAz(obstime=targettime, location=astro_centre))
-    target_pg = target.transform_to(PrecessedGeocentric(obstime=targettime, equinox=targettime))
+    if target.frame.name == 'icrs':
+        target_pg = target.transform_to(PrecessedGeocentric(obstime=tstamp, equinox=tstamp))
+    else:
+        target_pg = target # target is already with respect to earth location
 
+    # record the frame used in redis
+    redis_ops.set_target_frame(target_pg.frame.name, skicall.proj_data.get("rconn_0"))
 
     if 'HORIZONTAL_COORD' in properties_list:
         result = tools.newnumbervector(rconn, redisserver, 'HORIZONTAL_COORD', telescope_name, {'ALT':str(target_altaz.alt.degree),
@@ -374,7 +380,7 @@ def altaz_goto(skicall, altitude, azimuth):
     return False
 
 
-def track_state(skicall, state):
+def set_track_state(skicall, state):
     "Turn tracking on or off, set state True for On, False for off" 
     telescope_name = cfg.telescope()
     rconn = skicall.proj_data.get("rconn_0")

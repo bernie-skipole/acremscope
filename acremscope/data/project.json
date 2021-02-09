@@ -1409,7 +1409,7 @@ false,
 "parts": [
 [
 "Text",
-"Use ICRS / J2000 coordinates"
+"J2000 coordinates"
 ]
 ]
 }
@@ -4556,7 +4556,7 @@ false,
 "error_class": "w3-panel w3-red",
 "get_field1": "",
 "get_field2": "",
-"hide": false,
+"hide": true,
 "json_ident": "",
 "link_ident": "6005",
 "show": true,
@@ -7621,7 +7621,7 @@ false,
 "parts": [
 [
 "Text",
-"The table shows the coordinates in the ICRS frame, approximately the same as equatorial J2000. The next two columns can be toggled between Alt Az coordinates and Precessed Geocentric (JNow) which may be useful for telescope input.  You can also display the table in a printer friendly format."
+"The table shows J2000 coordinates. The next two columns can be toggled between Alt Az coordinates and Precessed Geocentric (JNow) which may be useful for telescope input.  You can also display the table in a printer friendly format."
 ]
 ]
 }
@@ -8320,7 +8320,7 @@ false,
 "parts": [
 [
 "Text",
-"For an ephemeris and finder chart, input a target and observing day.\r\n\r\nYou can choose the target by RA and Declination (ICRS/J2000) - or by name or designation, such as 'Jupiter' or 'M11' or 'Ceres'."
+"For an ephemeris and finder chart, input a target and observing day.\r\n\r\nYou can choose the target by RA and Declination (J2000) - or by name or designation, such as 'Jupiter' or 'M11' or 'Ceres'."
 ]
 ]
 }

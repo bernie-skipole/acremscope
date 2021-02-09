@@ -677,11 +677,17 @@ def _check_cookies(received_cookies, proj_data):
         # so divert
         return divert
 
+    # only admin users have access to the indi client
+    # is this user an admin user
+    if user[1] != 'ADMIN':
+        # not an admin user
+        return divert
+
     # is the current slot live, and if so who owns it?
     slot_status = database_ops.get_slot_status(sun.Slot.now())
 
     if slot_status is None:
-        # exeception occurred when trying to get slot from database
+        # exception occurred when trying to get slot from database
         return divert
 
     # there is a current slot, which may or may not be booked
@@ -696,11 +702,7 @@ def _check_cookies(received_cookies, proj_data):
             # someone else has booked the telescope
             return divert
 
-    # slot not booked, but an admin user could have enabled test mode
-    # is this user an admin user
-    if user[1] != 'ADMIN':
-        # not an admin user
-        return divert
+    # if slot not booked, has the user enabled test mode
 
     rconn_0 = proj_data.get("rconn_0")
     test_mode_user_id = redis_ops.get_test_mode_user(rconn_0)
@@ -742,9 +744,9 @@ if __name__ == "__main__":
     ###################### Remove for deployment ##################################
     #                                                                              #
     set_debug(True)                                                               #
-    #from skipole import skiadmin                                                  #
-    #skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
-    #application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
+    from skipole import skiadmin                                                  #
+    skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
+    application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
     #                                                                              #
     ###############################################################################
 

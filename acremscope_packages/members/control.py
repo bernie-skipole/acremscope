@@ -26,7 +26,7 @@ from astroquery.exceptions import InvalidQueryError
 
 from skipole import FailPage, GoTo, ValidateError, ServerError
 
-from .. import redis_ops, send_mqtt
+from .. import redis_ops
 
 from ..cfg import observatory, get_planetdb, planetmags
 from ..sun import night_slots, Slot
@@ -78,7 +78,7 @@ def get_chart(rconn_0):
 def control_template(skicall):
     "Fills in the control template page"
     if not remscope.is_telescope_connected(skicall):
-        raise FailPage("Telescope not connected, try to connect with the INDI client")
+        raise FailPage("Telescope not connected")
     # remove target name from redis
     redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
     # draw the control page chart
@@ -93,8 +93,11 @@ def indi_template(skicall):
     return
 
 
-def _draw_chart(skicall, tstamp=None, altaztuple=None):
+def _draw_chart(skicall, tstamp=None):
     """Function to draw the chart"""
+
+    if tstamp is None:
+        tstamp = datetime.utcnow()
 
     actual = redis_ops.get_chart_actual(skicall.proj_data.get("rconn_0"))
     # True if the chart showing actual positions rather than target position
@@ -141,7 +144,7 @@ DEC: {act_dec}
     stars, scale, const = get_stars(ra, dec, view)
 
     # the planets database are created at 30 minutes past the hour, so get the planets for this hour
-    planets = get_planets(datetime.utcnow(), dec, view, scale, const)
+    planets = get_planets(tstamp, dec, view, scale, const)
 
     # convert stars ra, dec, to xy positions on the chart
     stars = list(radec_to_xy(stars, ra, dec, view))
@@ -332,25 +335,22 @@ def namedradec(skicall):
         raise FailPage("Invalid name")
 
     # from stars
-    # get_named_object(target_name, thetime, astro_centre=None)
-    # Return ra, dec, alt, az in degrees for the given thetime
+    # get_named_object(target_name, tstamp, astro_centre=None)
+    # Return eq_coord, altaz_coord for the tstamp
 
     targettime = datetime.utcnow()
     try:
-        namedposition = get_named_object(target_name, targettime)
+        eq_coord, altaz_coord = get_named_object(target_name, targettime)
     except:
         raise FailPage("Unable to resolve the target name")
-    if namedposition is None:
-        raise FailPage("Unable to resolve the target name")
-    ra, dec, alt, az = namedposition
 
     # set the target name into redis
     redis_ops.set_target_name(target_name, skicall.proj_data.get("rconn_0"))
-    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"))
-    # chart should show target
+    redis_ops.set_wanted_position(eq_coord.ra.degree, eq_coord.dec.degree, skicall.proj_data.get("rconn_0"))
+    # chart should show wanted target
     redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
     # now draw the chart
-    _draw_chart(skicall, tstamp=targettime, altaztuple=(alt, az))
+    _draw_chart(skicall, tstamp=targettime)
 
 
 @livesession
@@ -762,7 +762,7 @@ AZ: {:1.3f}\xb0""".format(target_ra, target_dec, target_altaz.alt.degree, target
     redis_ops.set_chart_actual(True, skicall.proj_data.get("rconn_0"))
 
     # now draw the chart
-    _draw_chart(skicall, tstamp=datetime.utcnow(), altaztuple=(target_altaz.alt.degree, target_altaz.az.degree))
+    _draw_chart(skicall, tstamp=datetime.utcnow())
 
 
 @livesession

@@ -537,9 +537,14 @@ def get_planets(thisdate_time, dec, view, scale, const):
   
   
 
-def get_named_object(target_name, thetime, astro_centre=None):
-    """Return ra, dec, alt, az in degrees for the given thetime (a datetime object)
+def get_named_object(target_name, tstamp, astro_centre=None):
+    """Return eq_coord, altaz_coord
+       where these are SkyCoord objects
+       tstamp is a datetime or Time object
        return None if not found"""
+
+    if not target_name:
+        return
 
     solar_system_ephemeris.set('jpl')
 
@@ -548,34 +553,38 @@ def get_named_object(target_name, thetime, astro_centre=None):
         longitude, latitude, elevation = observatory()
         astro_centre = EarthLocation.from_geodetic(longitude, latitude, elevation)
 
-    time = Time(thetime, format='datetime', scale='utc')
+    if not isinstance(tstamp, Time):
+        tstamp = Time(tstamp, format='datetime', scale='utc')
 
     target_name_lower = target_name.lower()
 
     if target_name_lower in ('moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'):
-        target = get_body(target_name_lower, time, astro_centre)
-        target_altaz = target.transform_to(AltAz(obstime = time, location = astro_centre))
-        return  target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree
+        target = get_body(target_name_lower, tstamp, astro_centre)
+        # target in GCRS geocentric frame
+        target_altaz = target.transform_to(AltAz(obstime = tstamp, location = astro_centre))
+        return  target, target_altaz
 
-    # not a planet, see if it is something like M45 or star name
-
+    # not a planet, see if it is something like M45 or star name, this obtains an icrs framed object
     try:
         target = SkyCoord.from_name(target_name)
     except name_resolve.NameResolveError:
         # failed to find name, maybe a minor planet
         pass
     else:
-        target_altaz = target.transform_to(AltAz(obstime = time, location = astro_centre))
-        return  target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree
+        target_altaz = target.transform_to(AltAz(obstime = tstamp, location = astro_centre))
+        return  target, target_altaz
 
+    # minor planet location
     try:
-        eph = MPC.get_ephemeris(target_name, start=time, number=1)
-        target = SkyCoord(eph['RA'][0]*u.degree, eph['Dec'][0]*u.degree, frame='icrs')
-        target_altaz = target.transform_to(AltAz(obstime = time, location = astro_centre))
+        eph = MPC.get_ephemeris(target_name, location=astro_centre, start=tstamp, number=1)
+        # eph is a table of a single line, set this into a SkyCoord object
+        target = SkyCoord(eph['RA'][0]*u.deg, eph['Dec'][0]*u.deg, obstime = tstamp, location = astro_centre, frame='gcrs')
+        # target in GCRS geocentric frame
+        target_altaz = target.transform_to(AltAz(obstime = tstamp, location = astro_centre))
     except InvalidQueryError:
         return
 
-    return  target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree
+    return  target, target_altaz
 
 
 
@@ -604,6 +613,7 @@ def get_named_object_slots(target_name, thedate, astro_centre=None):
         for mt in midtimes:
             time = Time(mt, format='datetime', scale='utc')
             target = get_body(target_name_lower, time, astro_centre)
+            # target in GCRS frame
             target_altaz = target.transform_to(AltAz(obstime = time, location = astro_centre))
             result_list.append([mt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree])
         return result_list
@@ -698,6 +708,7 @@ def get_named_object_intervals(target_name, start, step, number, astro_centre=No
         for dt in times:
             time = Time(dt, format='datetime', scale='utc')
             target = get_body(target_name_lower, time, astro_centre)
+            # target in GCRS frame
             target_altaz = target.transform_to(AltAz(obstime = time, location = astro_centre))
             target_pg = target.transform_to(PrecessedGeocentric(obstime = time, equinox = time))
             result_list.append([dt, target.ra.degree, target.dec.degree, target_altaz.alt.degree, target_altaz.az.degree, target_pg.ra.degree, target_pg.dec.degree])

@@ -719,12 +719,12 @@ def detail(skicall):
     else:
         result_list = get_unnamed_object_intervals(storedtarget.ra, storedtarget.dec, start, step, number)
 
-    # result list is a list of lists : [ datetime, ra(icrs), dec(icrs), alt, az, ra(pg), dec(pg)]
+    # result list is a list of lists : [ datetime, ra(J2000), dec(J2000), alt, az, ra(pg), dec(pg)]
 
     if altaz:
-        page_data['table', 'titles'] = ["Time (UTC)", "RA (ICRS)", "DEC (ICRS)", "ALT (Degrees)", "AZ (Degrees)"]
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "ALT (Degrees)", "AZ (Degrees)"]
     else:
-        page_data['table', 'titles'] = ["Time (UTC)", "RA (ICRS)", "DEC (ICRS)", "RA (PG)", "DEC (PG)"]
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "RA (PG)", "DEC (PG)"]
 
     # for each cell; [0:text in the table, 1:the text color, 2:the background color]
 
@@ -854,12 +854,12 @@ def detailprint(skicall):
     else:
         result_list = get_unnamed_object_intervals(storedtarget.ra, storedtarget.dec, start, step, number, astro_centre)
 
-    # result list is a list of lists : [ datetime, ra(icrs), dec(icrs), alt, az, ra(pg), dec(pg)]
+    # result list is a list of lists : [ datetime, ra(J2000), dec(J2000), alt, az, ra(pg), dec(pg)]
 
     if altaz:
-        page_data['table', 'titles'] = ["Time (UTC)", "RA (ICRS)", "DEC (ICRS)", "ALT (Degrees)", "AZ (Degrees)"]
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "ALT (Degrees)", "AZ (Degrees)"]
     else:
-        page_data['table', 'titles'] = ["Time (UTC)", "RA (ICRS)", "DEC (ICRS)", "RA (PG)", "DEC (PG)"]
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "RA (PG)", "DEC (PG)"]
 
     # for each cell; [0:text in the table, 1:the text color, 2:the background color]
 
@@ -1495,8 +1495,8 @@ def print_finder(skicall):
     # longitude, latitude, elevation of the astronomy centre
     longitude, latitude, elevation = observatory()
 
-    header_text += """:\nRight Ascension: {} (ICRS, approximately J2000)
-Declination: {} (ICRS, approximately J2000)
+    header_text += """:\nRight Ascension: {} (J2000)
+Declination: {} (J2000)
 Field of view: {:2.1f} degrees
 Altitude: {} degrees
 Azimuth: {} degrees
