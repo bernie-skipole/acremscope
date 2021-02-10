@@ -239,7 +239,7 @@ DEC: {act_dec}
     # and finally, do a scope getproperties, so for the next refresh things are up to date
     remscope.telescopegetproperties(skicall)
 
-    skicall.page_data['scopestatus', 'para_text'] = f"Telescope Tracking : {remscope.get_track_state(skicall)}"
+    #skicall.page_data['scopestatus', 'para_text'] = f"Telescope Tracking : {remscope.get_track_state(skicall)}"
 
 
 
@@ -753,10 +753,13 @@ def telescope_status(skicall):
     target_altaz, target_pg = result
 
     skicall.page_data['scopestatus', 'para_text'] = """Command sent: Goto
-RA: {:1.3f}\xb0
-DEC: {:1.3f}\xb0
+RA: {}
+DEC: {}
 ALT: {:1.3f}\xb0
-AZ: {:1.3f}\xb0""".format(target_ra, target_dec, target_altaz.alt.degree, target_altaz.az.degree)
+AZ: {:1.3f}\xb0""".format(target_pg.ra.to_string(unit=u.hour, sep=':'),
+                          target_pg.dec.to_string(unit=u.degree, sep=':'),
+                          target_altaz.alt.degree,
+                          target_altaz.az.degree)
 
     # chart should show actual
     redis_ops.set_chart_actual(True, skicall.proj_data.get("rconn_0"))

@@ -259,15 +259,14 @@ def get_actual_position(skicall):
     targettime = Time(ra_dict['timestamp'], format='isot', scale='utc')
 
     target_frame = redis_ops.get_target_frame(skicall.proj_data.get("rconn_0"))
-    if target_frame == 'precessedgeocentric':
+    if target_frame == 'icrs':
         # undo the precession calculation to get icrs back
-        target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, equinox = targettime, frame='precessedgeocentric')
+        target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, equinox=targettime, frame='precessedgeocentric')
         target_eq = target.transform_to(frame ='icrs')
     elif target_frame == 'gcrs':
         # this is used for planets and minor planets
-        target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, location = astro_centre, frame='gcrs')
-        # no need to transform this
-        target_eq = target
+        target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, equinox=targettime, frame='precessedgeocentric')
+        target_eq = target.transform_to(frame ='gcrs')
     else:
         return False, get_parked_radec(), _PARKED
 
@@ -309,10 +308,11 @@ def set_target(skicall, target_ra, target_dec, target_name):
     if target.frame.name == 'icrs':
         target_pg = target.transform_to(PrecessedGeocentric(obstime=tstamp, equinox=tstamp))
     else:
-        target_pg = target # target is already with respect to earth location
+        # frame is gcrs
+        target_pg = target.transform_to(PrecessedGeocentric(obstime=tstamp, equinox=tstamp))
 
-    # record the frame used in redis
-    redis_ops.set_target_frame(target_pg.frame.name, skicall.proj_data.get("rconn_0"))
+    # record the original frame used in redis
+    redis_ops.set_target_frame(target.frame.name, skicall.proj_data.get("rconn_0"))
 
     if 'HORIZONTAL_COORD' in properties_list:
         result = tools.newnumbervector(rconn, redisserver, 'HORIZONTAL_COORD', telescope_name, {'ALT':str(target_altaz.alt.degree),
