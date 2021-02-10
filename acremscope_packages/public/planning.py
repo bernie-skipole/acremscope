@@ -642,7 +642,7 @@ def detail_planet(skicall):
     page_data['printout', 'get_field1'] = datestring + "T" + timestring
 
     page_data['coords', 'get_field1'] = datestring + "T" + timestring
-    page_data['coords', 'button_text'] = "Precessed Geocentric"
+    page_data['coords', 'button_text'] = "Precessed"
     page_data['coords', 'get_field2'] = "session_pg"
 
 
@@ -719,12 +719,12 @@ def detail(skicall):
     else:
         result_list = get_unnamed_object_intervals(storedtarget.ra, storedtarget.dec, start, step, number)
 
-    # result list is a list of lists : [ datetime, ra(J2000), dec(J2000), alt, az, ra(pg), dec(pg)]
+    # result list is a list of lists : [ datetime, ra(J2000), dec(J2000), alt, az, ra(precessed), dec(precessed)]
 
     if altaz:
         page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "ALT (Degrees)", "AZ (Degrees)"]
     else:
-        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "RA (PG)", "DEC (PG)"]
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "RA (Precessed)", "DEC (Precessed)"]
 
     # for each cell; [0:text in the table, 1:the text color, 2:the background color]
 
@@ -769,7 +769,7 @@ def detail(skicall):
     page_data['printout', 'get_field1'] = target_datetime
     page_data['coords', 'get_field1'] = target_datetime
     if altaz:
-        page_data['coords', 'button_text'] = "Precessed Geocentric"
+        page_data['coords', 'button_text'] = "Precessed"
         page_data['printout', 'get_field2'] = "altaz"
         if back_to_session:
             page_data['coords', 'get_field2'] = "session_pg"
@@ -854,12 +854,12 @@ def detailprint(skicall):
     else:
         result_list = get_unnamed_object_intervals(storedtarget.ra, storedtarget.dec, start, step, number, astro_centre)
 
-    # result list is a list of lists : [ datetime, ra(J2000), dec(J2000), alt, az, ra(pg), dec(pg)]
+    # result list is a list of lists : [ datetime, ra(J2000), dec(J2000), alt, az, ra(precessed), dec(precessed)]
 
     if altaz:
         page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "ALT (Degrees)", "AZ (Degrees)"]
     else:
-        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "RA (PG)", "DEC (PG)"]
+        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "RA (Precessed)", "DEC (Precessed)"]
 
     # for each cell; [0:text in the table, 1:the text color, 2:the background color]
 
@@ -1500,8 +1500,8 @@ Declination: {} (J2000)
 Field of view: {:2.1f} degrees
 Altitude: {} degrees
 Azimuth: {} degrees
-Right Ascension: {} (Precessed Geocentric, also called  JNow)
-Declination: {} (Precessed Geocentric, also called  JNow)
+Right Ascension: {} (Precessed)
+Declination: {} (Precessed)
 Date: {} {}
 Observatory
 Longitude: {:2.3f} degrees
