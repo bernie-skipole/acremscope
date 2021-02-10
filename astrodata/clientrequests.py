@@ -52,7 +52,7 @@ def telescope_connection(rconn, redisserver, connect):
     if TELESCOPE_NAME not in device_list:
         return
     # so the telescope is a known device, does it have a CONNECTION property
-    properties_list = tools.properties(rconn, redisserver, telescope_name)
+    properties_list = tools.properties(rconn, redisserver, TELESCOPE_NAME)
     if "CONNECTION" not in properties_list:
         return
     # and connect/disconnect
