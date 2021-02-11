@@ -7621,7 +7621,7 @@ false,
 "parts": [
 [
 "Text",
-"The table shows J2000 coordinates. The next two columns can be toggled between Alt Az coordinates and Precessed Geocentric (JNow) which may be useful for telescope input.  You can also display the table in a printer friendly format."
+"The table shows J2000 coordinates. The next two columns can be toggled between Alt Az coordinates and Precessed which may be useful for telescope input.  You can also display the table in a printer friendly format."
 ]
 ]
 }
@@ -7638,7 +7638,7 @@ false,
 "fields": {
 "button_class": "w3-button w3-block w3-theme-d4",
 "button_style": "",
-"button_text": "Precessed Geocentric",
+"button_text": "Precessed",
 "button_wait_text": "Please wait...",
 "buttondiv_class": "ski_mid_button",
 "buttondiv_style": "",
