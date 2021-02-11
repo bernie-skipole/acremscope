@@ -12,16 +12,11 @@ _CONFIG = {
             'latitude' : 53.7111,
             'longitude' : -2.1544,
             'elevation' : 316,
-            'mqtt_ip' : '10.105.192.1',
-            #'mqtt_ip' : 'localhost',
-            'mqtt_port' : 1883,
-            'mqtt_username' : '',
-            'mqtt_password' : '',
             'redis_ip' : 'localhost',
             'redis_port' : 6379,
             'redis_auth' : '',
-            'postgresql_ip' : '10.105.192.252',
-            #'postgresql_ip' : 'localhost',
+            #'postgresql_ip' : '10.105.192.252',
+            'postgresql_ip' : 'localhost',
             'postgresql_dbname' : 'astrodb',
             'postgresql_username' : 'astro',
             'postgresql_password' : 'xxSgham',
@@ -67,10 +62,6 @@ def get_constellation_lines():
             _CONSTELLATION_LINES = list(reader)
     return _CONSTELLATION_LINES
 
-
-def get_mqtt():
-    "Returns tuple of mqtt server ip, port, username, password"
-    return (_CONFIG['mqtt_ip'], _CONFIG['mqtt_port'], _CONFIG['mqtt_username'], _CONFIG['mqtt_password'])
 
 def get_postgresql():
     "Returns tuple of postgresql ip, dbname, username, password"

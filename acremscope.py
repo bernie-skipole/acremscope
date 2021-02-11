@@ -26,8 +26,11 @@ from acremscope_packages import sun, database_ops, redis_ops, cfg
 # set PROJECTFILES into cfg, used to specify where astrodata and contents can be found
 cfg.set_projectfiles(PROJECTFILES)
 
-# redis server connection parameters for dbase 0
-REDISSERVER = redis_server()
+# redis server settings from cfg.py
+redis_ip, redis_port, redis_auth = cfg.get_redis()
+
+# set these into REDISSERVER tuple, with dbase 0, as used by indi_mr and indiredis
+REDISSERVER = redis_server(host=redis_ip, port=redis_port, db=0, password=redis_auth)
 
 
 # _IDENT_DATA is used as part of a key to store data within redis
@@ -744,9 +747,9 @@ if __name__ == "__main__":
     ###################### Remove for deployment ##################################
     #                                                                              #
     set_debug(True)                                                               #
-    #from skipole import skiadmin                                                  #
-    #skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
-    #application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
+    from skipole import skiadmin                                                  #
+    skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
+    application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
     #                                                                              #
     ###############################################################################
 
