@@ -1894,6 +1894,20 @@ false,
 }
 ],
 [
+"Widget",
+{
+"class": "paras.ParaText",
+"name": "viewtext",
+"brief": "Displays the view in degrees",
+"fields": {
+"para_text": "Field of view:",
+"show": true,
+"widget_class": "",
+"widget_style": "position:absolute;top:640px;left:220px;"
+}
+}
+],
+[
 "Part",
 {
 "tag_name": "div",
@@ -3248,20 +3262,6 @@ false,
 }
 ]
 ]
-}
-],
-[
-"Widget",
-{
-"class": "paras.ParaText",
-"name": "viewtext",
-"brief": "Displays the view in degrees",
-"fields": {
-"para_text": "Field of view:",
-"show": true,
-"widget_class": "",
-"widget_style": "position:absolute;top:640px;left:220px;"
-}
 }
 ]
 ]
