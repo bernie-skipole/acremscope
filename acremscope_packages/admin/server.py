@@ -134,7 +134,6 @@ def add_message(skicall):
         raise FailPage('Invalid settings.')
 
     # store message in database, and get the message, with timestamp and username
-    # to send as a payload via mqtt to engine
 
     payload = database_ops.set_message(username, message)
 
@@ -143,9 +142,6 @@ def add_message(skicall):
         page_data['showresult', 'show'] = True
     else:
         raise FailPage("Database access failure")
-
-    # and also send it by mqtt for engine to publish it via Mastodon
-    send_mqtt.sendmqtt(payload, subtopic="Message")
 
 
 

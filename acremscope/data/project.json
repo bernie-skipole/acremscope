@@ -76,8 +76,6 @@
 "sensors": 7001,
 "server_error": "skis,server_error",
 "sessions": 4001,
-"set_mqtt_settings": 3026,
-"set_redis_settings": 3025,
 "setpin": 8100,
 "setup": 3001,
 "show_terms": 4007,
@@ -19799,7 +19797,7 @@ false
 "parts": [
 [
 "Text",
-"You can also add a status message  which will appear on the public home page. Please note, these messages will also be broadcast on the Mastodon network as @remscope@botsin.space - please note all content is public."
+"You can also add a status message  which will appear on the public home page."
 ]
 ]
 }
@@ -22610,21 +22608,6 @@ false
 ]
 ]
 }
-]
-]
-}
-],
-[
-"Part",
-{
-"tag_name": "p",
-"brief": "Mastodon",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"Text",
-"Status messages are broadcast to the Mastodon network as @remscope@botsin.space"
 ]
 ]
 }
