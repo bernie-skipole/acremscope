@@ -239,7 +239,7 @@ DEC: {act_dec}
     # and finally, do a scope getproperties, so for the next refresh things are up to date
     remscope.telescopegetproperties(skicall)
 
-    #skicall.page_data['scopestatus', 'para_text'] = f"Telescope Tracking : {remscope.get_track_state(skicall)}"
+    skicall.page_data['scopestatus', 'para_text'] = f"Telescope Tracking : {remscope.get_track_state(skicall)}"
 
 
 
