@@ -1894,20 +1894,6 @@ false,
 }
 ],
 [
-"Widget",
-{
-"class": "paras.ParaText",
-"name": "viewtext",
-"brief": "Displays the view in degrees",
-"fields": {
-"para_text": "Field of view:",
-"show": true,
-"widget_class": "w3-center",
-"widget_style": ""
-}
-}
-],
-[
 "Part",
 {
 "tag_name": "div",
@@ -1915,7 +1901,7 @@ false,
 "show": true,
 "hide_if_empty": false,
 "attribs": {
-"style": "position: absolute;top:120px;left:50px;"
+"style": "position: absolute;top:100px;left:50px;"
 },
 "parts": [
 [
