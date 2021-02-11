@@ -133,8 +133,6 @@ DEC: {act_dec}
     except:
         raise FailPage("Invalid view")
 
-    page_data['viewtext', 'para_text'] = "Field of view: {:3.2f}".format(view)
-
     # set the transform on the widget
     page_data['starchart', 'transform'] = _transform(chart.flip, chart.rot)
 
@@ -155,7 +153,6 @@ DEC: {act_dec}
     if stars:
         page_data['starchart', 'stars'] = stars
 
-
     if actual:
         page_data['display_target', 'button_text'] = "Display target"
         if status:
@@ -166,9 +163,9 @@ DEC: {act_dec}
         page_data['display_target', 'button_text'] = "Display actual"
         target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"))
         if target_name:
-            page_data['status', 'para_text'] = "Target : " + target_name
+            page_data['status', 'para_text'] = "Target : " + target_name + " Field of view: {:3.2f}\xb0".format(view)
         else:
-            page_data['status', 'para_text'] = "Target : RA {:1.3f}\xb0 Dec: {:1.3f}\xb0".format(wanted_position.ra, wanted_position.dec)
+            page_data['status', 'para_text'] = "Target : RA {:1.3f}\xb0 Dec: {:1.3f}\xb0 FOV: {:3.2f}\xb0".format(wanted_position.ra, wanted_position.dec, view)
 
     # Set input fields, these always show the wanted positions
     w_ra = Angle(wanted_position.ra*u.deg).hms
