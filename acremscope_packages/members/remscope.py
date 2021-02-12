@@ -279,7 +279,7 @@ def set_target(skicall, target_ra, target_dec, target_name):
     "Set the target. Return target_altaz, target_pg, or None on failure"
 
     telescope_name = cfg.telescope()
-    rconn = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
     device_list = tools.devices(rconn, redisserver)
     if telescope_name not in device_list:
@@ -335,7 +335,7 @@ def altaz_goto(skicall, altitude, azimuth):
     """Moves telescope to given altitude and azimuth, returns True if command sent
        False otherwise"""
     telescope_name = cfg.telescope()
-    rconn = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
     device_list = tools.devices(rconn, redisserver)
     if telescope_name not in device_list:
@@ -383,7 +383,7 @@ def altaz_goto(skicall, altitude, azimuth):
 def set_track_state(skicall, state):
     "Turn tracking on or off, set state True for On, False for off" 
     telescope_name = cfg.telescope()
-    rconn = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
     if state:
         tools.newswitchvector(rconn, redisserver, 'TELESCOPE_TRACK_STATE', telescope_name, {'TRACK_ON':'On',
@@ -396,7 +396,7 @@ def set_track_state(skicall, state):
 def get_track_state(skicall):
     "Returns On, Off or UKNOWN"
     telescope_name = cfg.telescope()
-    rconn = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
     device_list = tools.devices(rconn, redisserver)
     if telescope_name not in device_list:
