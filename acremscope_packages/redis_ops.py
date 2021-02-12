@@ -217,44 +217,31 @@ def del_target_name(prefix='', rconn=None):
     return True
 
 
-def get_chart_parameters(rconn=None):
+def get_chart_parameters(prefix='', rconn=None):
     """Return view, flip and rotate values of the control chart"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return (100.0, False, 0.0)
     if rconn is None:
         return (100.0, False, 0.0)
     try:
-        view = rconn.get('view').decode('utf-8')
-        flip = rconn.get('flip').decode('utf-8')
-        rot = rconn.get('rot').decode('utf-8')
+        view = rconn.get(prefix+'view').decode('utf-8')
+        flip = rconn.get(prefix+'flip').decode('utf-8')
+        rot = rconn.get(prefix+'rot').decode('utf-8')
     except:
         return (100.0, False, 0.0)
     return float(view), bool(flip), float(rot)
 
 
-def set_chart_parameters(view, flip, rot, rconn=None):
+def set_chart_parameters(view, flip, rot, prefix='', rconn=None):
     """Set view, flip, rot
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
-
+       Return True on success, False on failure"""
     if rconn is None:
         return False
-
     try:
-        result_view = rconn.set('view', str(view))
+        result_view = rconn.set(prefix+'view', str(view))
         if flip:
-            result_flip = rconn.set('flip', 'true')
+            result_flip = rconn.set(prefix+'flip', 'true')
         else:
-            result_flip = rconn.set('flip', '')
-        result_rot = rconn.set('rot', str(rot))
+            result_flip = rconn.set(prefix+'flip', '')
+        result_rot = rconn.set(prefix+'rot', str(rot))
     except Exception:
         return False
     if result_view and result_flip and result_rot:
@@ -262,40 +249,29 @@ def set_chart_parameters(view, flip, rot, rconn=None):
     return False
 
 
-def get_chart_actual(rconn=None):
+def get_chart_actual(prefix='', rconn=None):
     """Return True if the chart is showing actual view, False if target view"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
     if rconn is None:
         return False
     try:
-        actual = rconn.get('chart_actual').decode('utf-8')
+        actual = rconn.get(prefix+'chart_actual').decode('utf-8')
     except:
         return False
     return bool(actual)
 
 
-def set_chart_actual(actual, rconn=None):
+def set_chart_actual(actual, prefix='', rconn=None):
     """Set actual value
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
+       Return True on success, False on failure, if rconn is None, it is created."""
 
     if rconn is None:
         return False
 
     try:
         if actual:
-            result_actual = rconn.set('chart_actual', 'true')
+            result_actual = rconn.set(prefix+'chart_actual', 'true')
         else:
-            result_actual = rconn.set('chart_actual', '')
+            result_actual = rconn.set(prefix+'chart_actual', '')
     except Exception:
         return False
     if result_actual:

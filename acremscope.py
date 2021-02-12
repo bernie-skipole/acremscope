@@ -198,8 +198,6 @@ def make_proj_data():
     """create a redis connection and sets of redis prefixes to keys
        to be used as proj_data"""
     rconn = redis_ops.open_redis(redis_db=0)
-    # create a redis connection for miscellaneous use
-    rconn_0 = redis_ops.open_redis(redis_db=0)
     return {'rconn': rconn,
             'rconn_0':"remscope_various_",  # should match prefix-key used in cron jobs which do any logging to redis
             'rconn_1':"remscope_logged_in_",

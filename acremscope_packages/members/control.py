@@ -65,9 +65,9 @@ def get_wanted_position(rconn_0, rconn):
     return wanted_position
 
 
-def get_chart(rconn_0):
+def get_chart(rconn_0, rconn):
     """Read redis to get chart parameters"""
-    return Chart(*redis_ops.get_chart_parameters(rconn_0))
+    return Chart(*redis_ops.get_chart_parameters(rconn_0, rconn))
 
 
 # livesession allows the booked in user to access the controls, but only
@@ -97,7 +97,7 @@ def _draw_chart(skicall, tstamp=None):
     if tstamp is None:
         tstamp = datetime.utcnow()
 
-    actual = redis_ops.get_chart_actual(skicall.proj_data.get("rconn_0"))
+    actual = redis_ops.get_chart_actual(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # True if the chart showing actual positions rather than target position
 
     page_data = skicall.page_data
@@ -114,7 +114,7 @@ RA: {act_ra}
 DEC: {act_dec}
 """
 
-    chart = get_chart(skicall.proj_data.get("rconn_0"))
+    chart = get_chart(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     if actual:
         page_data['interval']=3
@@ -186,14 +186,14 @@ def refresh_chart(skicall):
     """Function to refresh the chart by json page interval call, if this is for the target, only the alt az values
        are changed, however if it is for the actual position, the whole chart is redone"""
 
-    actual = redis_ops.get_chart_actual(skicall.proj_data.get("rconn_0"))
+    actual = redis_ops.get_chart_actual(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # True if the chart showing actual positions rather than target position
 
     page_data = skicall.page_data
 
     if actual:
         status,actual_position, altaztuple = remscope.get_actual_position(skicall)
-        chart = get_chart(skicall.proj_data.get("rconn_0"))
+        chart = get_chart(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
         ra = actual_position.ra
         dec = actual_position.dec
         try:
@@ -314,7 +314,7 @@ def newradec(skicall):
     # set these wanted coordinates into redis
     redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # chart should show target
-    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # now draw the chart
     _draw_chart(skicall)
 
@@ -343,7 +343,7 @@ def namedradec(skicall):
     redis_ops.set_target_name(target_name, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     redis_ops.set_wanted_position(eq_coord.ra.degree, eq_coord.dec.degree, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # chart should show wanted target
-    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # now draw the chart
     _draw_chart(skicall, tstamp=targettime)
 
@@ -352,7 +352,7 @@ def namedradec(skicall):
 def plus_view(skicall):
     "reduce the view by 10%, hence magnify, and call _draw_chart"
     try:
-        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"))
+        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     except:
         view = 100.0
         flip = False
@@ -362,7 +362,7 @@ def plus_view(skicall):
         view = 0.1
     if view > 270.0:
         view = 270.0
-    redis_ops.set_chart_parameters(view, flip, rot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, flip, rot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # now draw the chart
     _draw_chart(skicall)
 
@@ -371,7 +371,7 @@ def plus_view(skicall):
 def minus_view(skicall):
     "increase the field of view by 10%, hence reduce magnification, and call _draw_chart"
     try:
-        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"))
+        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     except:
         view = 100.0
         flip = False
@@ -381,7 +381,7 @@ def minus_view(skicall):
         view = 0.1
     if view > 270.0:
         view = 270.0    
-    redis_ops.set_chart_parameters(view, flip, rot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, flip, rot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # now draw the chart
     _draw_chart(skicall)
 
@@ -391,7 +391,7 @@ def flip_v(skicall):
     """Flips the chart vertically - this is done with a horizontal flip plus 180 degree rotation"""
 
     try:
-        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"))
+        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     except:
         view = 100.0
         flip = False
@@ -408,7 +408,7 @@ def flip_v(skicall):
         rot -= 360
 
     # save the new chart parameters
-    redis_ops.set_chart_parameters(view, flipv, rot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, flipv, rot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # and send a transform string to the chart
     skicall.page_data['starchart', 'transform'] = _transform(flipv, rot)
 
@@ -418,7 +418,7 @@ def flip_h(skicall):
     """Flips the chart horizontally"""
 
     try:
-        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"))
+        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     except:
         view = 100.0
         flip = False
@@ -431,7 +431,7 @@ def flip_h(skicall):
         fliph = True
 
     # save the new chart parameters
-    redis_ops.set_chart_parameters(view, fliph, rot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, fliph, rot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # and send a transform string to the chart
     skicall.page_data['starchart', 'transform'] = _transform(fliph, rot)
 
@@ -441,7 +441,7 @@ def rotate_plus(skicall):
     """Rotates the chart by 30 degrees"""
 
     try:
-        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"))
+        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     except:
         view = 100.0
         flip = False
@@ -459,7 +459,7 @@ def rotate_plus(skicall):
             rot -= 360
 
     # save the new chart parameters
-    redis_ops.set_chart_parameters(view, flip, rot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, flip, rot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # and send a transform string to the chart
     skicall.page_data['starchart', 'transform'] = _transform(flip, rot)
 
@@ -469,7 +469,7 @@ def rotate_minus(skicall):
     """Rotates the chart by -30 degrees"""
 
     try:
-        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"))
+        view, flip, rot = redis_ops.get_chart_parameters(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     except:
         view = 100.0
         flip = False
@@ -487,7 +487,7 @@ def rotate_minus(skicall):
             rot += 360
 
     # save the new chart parameters
-    redis_ops.set_chart_parameters(view, flip, rot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, flip, rot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # and send a transform string to the chart
     skicall.page_data['starchart', 'transform'] = _transform(flip, rot)
 
@@ -515,7 +515,7 @@ def up_arrow(skicall):
 
     # The chart is the 'wanted_position'
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
-    chart = get_chart(skicall.proj_data.get("rconn_0"))
+    chart = get_chart(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     view = chart.view
     if view > 100.0:
         separation = 10.0
@@ -541,10 +541,10 @@ def up_arrow(skicall):
     redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # save the new chart parameters
-    redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # chart should show target
-    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # now draw the chart
     _draw_chart(skicall)
@@ -560,7 +560,7 @@ def left_arrow(skicall):
 
     # The chart is the 'wanted_position'
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
-    chart = get_chart(skicall.proj_data.get("rconn_0"))
+    chart = get_chart(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     view = chart.view
     if view > 100.0:
         separation = 10.0
@@ -591,10 +591,10 @@ def left_arrow(skicall):
     redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # save the new chart parameters
-    redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # chart should show target
-    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # now draw the chart
     _draw_chart(skicall)
@@ -610,7 +610,7 @@ def right_arrow(skicall):
 
     # The chart is the 'wanted_position'
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
-    chart = get_chart(skicall.proj_data.get("rconn_0"))
+    chart = get_chart(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     view = chart.view
     if view > 100.0:
         separation = 10.0
@@ -641,10 +641,10 @@ def right_arrow(skicall):
     redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # save the new chart parameters
-    redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # chart should show target
-    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # now draw the chart
     _draw_chart(skicall)
@@ -660,7 +660,7 @@ def down_arrow(skicall):
 
     # The chart is the 'wanted_position'
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
-    chart = get_chart(skicall.proj_data.get("rconn_0"))
+    chart = get_chart(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     view = chart.view
     if view > 100.0:
         separation = 10.0
@@ -684,10 +684,10 @@ def down_arrow(skicall):
     redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # save the new chart parameters
-    redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # chart should show target
-    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # now draw the chart
     _draw_chart(skicall)
@@ -719,12 +719,12 @@ def _new_ra_dac(ra, dec, position_angle, separation):
 @livesession
 def display_target(skicall):
     """toggles the redis flag to indicate the chart display"""
-    mode = redis_ops.get_chart_actual(skicall.proj_data.get("rconn_0"))
+    mode = redis_ops.get_chart_actual(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # save the chart display mode
     if mode:
-        redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
+        redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     else:
-        redis_ops.set_chart_actual(True, skicall.proj_data.get("rconn_0"))
+        redis_ops.set_chart_actual(True, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # now draw the chart
     _draw_chart(skicall)
 
@@ -757,7 +757,7 @@ AZ: {:1.3f}\xb0""".format(target_pg.ra.to_string(unit=u.hour, sep=':'),
                           target_altaz.az.degree)
 
     # chart should show actual
-    redis_ops.set_chart_actual(True, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_chart_actual(True, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # now draw the chart
     _draw_chart(skicall, tstamp=datetime.utcnow())
