@@ -21,7 +21,7 @@ def create_login_page(skicall):
     # two minute time slot.  Four sets of such random numbers are available
     # specified by argument rndset which should be 0 to 3
     # This login form uses rndset 0
-    rnd1, rnd2 = redis_ops.two_min_numbers(rndset=0, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
+    rnd1, rnd2 = redis_ops.two_min_numbers(0, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     if rnd1 is None:
         raise ServerError(message = "Database access failure")
 
@@ -57,7 +57,7 @@ def check_login(skicall):
     except:
         raise FailPage(message = "Invalid input")
 
-    rnd = redis_ops.two_min_numbers(rndset=0, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
+    rnd = redis_ops.two_min_numbers(0, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # rnd is a tuple of two valid random numbers
     # rnd[0] for the current 2 minute time slot
     # rnd[1] for the previous 2 minute time slot
