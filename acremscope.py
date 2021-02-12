@@ -201,7 +201,7 @@ def make_proj_data():
     # create a redis connection for miscellaneous use
     rconn_0 = redis_ops.open_redis(redis_db=0)
     return {'rconn': rconn,
-            'rconn_0':"remscope_various_",
+            'rconn_0':"remscope_various_",  # should match prefix-key used in cron jobs which do any logging to redis
             'rconn_1':"remscope_logged_in_",
             'rconn_2':"remscope_authenticated_",
             'rconn_3':"remscope_pintrycounts_",
@@ -301,10 +301,11 @@ def start_call(called_ident, skicall):
 
 
     rconn_0 = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
 
     # get user who is currently controlling the telescope, if any
-    control_user_id = redis_ops.get_control_user(rconn_0)
-    test_mode_user_id = redis_ops.get_test_mode_user(rconn_0)
+    control_user_id = redis_ops.get_control_user(rconn_0, rconn)
+    test_mode_user_id = redis_ops.get_test_mode_user(rconn_0, rconn)
     # is the current slot live, and if so who owns it?
     slot_status = database_ops.get_slot_status(sun.Slot.now())
     if (slot_status is None) and (test_mode_user_id == user_id):
@@ -312,7 +313,7 @@ def start_call(called_ident, skicall):
         call_data["test_mode"] = True
         if control_user_id != user_id:
             # This sets the control user, and resets the chart view
-            redis_ops.set_control_user(user_id, rconn_0)
+            redis_ops.set_control_user(user_id, rconn_0, rconn)
     elif slot_status is not None:
         # there is a current slot, which may or may not be booked
         status, booked_user_id = slot_status
@@ -322,18 +323,16 @@ def start_call(called_ident, skicall):
             # so is this booked user the control user?
             if control_user_id != booked_user_id:
                 # This sets the control user, and resets the chart view
-                redis_ops.set_control_user(booked_user_id, rconn_0)
+                redis_ops.set_control_user(booked_user_id, rconn_0, rconn)
             # A booked user disables test mode
             if test_mode_user_id is not None:
-                redis_ops.delete_test_mode(rconn_0)
+                redis_ops.delete_test_mode(rconn_0, rconn)
         elif test_mode_user_id == user_id:
             # no current booking, but this user has test mode
             call_data["test_mode"] = True
             if control_user_id != user_id:
                 # This sets the control user, and resets the chart view
-                redis_ops.set_control_user(user_id, rconn_0)
-
-
+                redis_ops.set_control_user(user_id, rconn_0, rconn)
 
     # If access is required to any of these pages, can now go to page
     if page_num in _LOGGED_IN_PAGES:
@@ -701,8 +700,7 @@ def _check_cookies(received_cookies, proj_data):
 
     # if slot not booked, has the user enabled test mode
 
-    rconn_0 = proj_data.get("rconn_0")
-    test_mode_user_id = redis_ops.get_test_mode_user(rconn_0)
+    test_mode_user_id = redis_ops.get_test_mode_user(proj_data.get("rconn_0"), proj_data.get("rconn"))
     if test_mode_user_id != user_id:
         # does not have test mode enabled
         return divert

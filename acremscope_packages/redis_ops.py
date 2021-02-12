@@ -45,42 +45,28 @@ def open_redis(redis_db=0):
     return rconn
 
 
-def get_control_user(rconn=None):
+def get_control_user(prefix='', rconn=None):
     """Return user_id of the user who has current control of the telescope,
-       or None if not found,
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return
-    if rconn is None:
-        return
+       or None if not found"""
     try:
-        control_user_id = int(rconn.get('control_user_id').decode('utf-8'))
+        control_user_id = int(rconn.get(prefix+'control_user_id').decode('utf-8'))
     except:
         return
     return control_user_id
 
 
-def set_control_user(user_id, rconn=None):
+def set_control_user(user_id, prefix='', rconn=None):
     """Set the user who has current control of the telescope and resets chart parameters.
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
+       Return True on success, False on failure"""
     if user_id is None:
         return False
     if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
-    if rconn is None:
         return False
     try:
-        rconn.set('view', "100.0")
-        rconn.set('flip', '')
-        rconn.set('rot', "0.0")
-        result = rconn.set('control_user_id', user_id)
+        rconn.set(prefix+'view', "100.0")
+        rconn.set(prefix+'flip', '')
+        rconn.set(prefix+'rot', "0.0")
+        result = rconn.set(prefix+'control_user_id', user_id)
     except:
         return False
     if result:
@@ -88,57 +74,39 @@ def set_control_user(user_id, rconn=None):
     return False
 
 
-def test_mode(user_id, rconn=None):
-    """Return True if this user has test mode, False otherwise,
-       If given rconn should connect to redis_db 0"""
+def test_mode(user_id, prefix='', rconn=None):
+    """Return True if this user has test mode, False otherwise"""
     if user_id is None:
         return False
     if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
-    if rconn is None:
         return False
     try:
-        test_user_id = int(rconn.get('test_mode').decode('utf-8'))
+        test_user_id = int(rconn.get(prefix+'test_mode').decode('utf-8'))
     except:
         return False
     return bool(user_id == test_user_id)
 
 
-def get_test_mode_user(rconn=None):
-    """Return user_id of test mode, or None if not found,
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return
+def get_test_mode_user(prefix='', rconn=None):
+    """Return user_id of test mode, or None if not found"""
     if rconn is None:
         return
     try:
-        test_user_id = int(rconn.get('test_mode').decode('utf-8'))
+        test_user_id = int(rconn.get(prefix+'test_mode').decode('utf-8'))
     except:
         return
     return test_user_id
 
 
-def set_test_mode(user_id, rconn=None):
+def set_test_mode(user_id, prefix='', rconn=None):
     """Set this user with test mode.
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
+       Return True on success, False on failure"""
     if user_id is None:
         return False
     if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
-    if rconn is None:
         return False
     try:
-        result = rconn.set('test_mode', user_id, ex=3600, nx=True)  # expires after one hour, can only be set if it does not exist
+        result = rconn.set(prefix+'test_mode', user_id, ex=3600, nx=True)  # expires after one hour, can only be set if it does not exist
     except:
         return False
     if result:
@@ -146,40 +114,26 @@ def set_test_mode(user_id, rconn=None):
     return False
 
 
-def delete_test_mode(rconn=None):
+def delete_test_mode(prefix='', rconn=None):
     """Delete test mode.
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
+       Return True on success, False on failure"""
     if rconn is None:
         return False
     try:
-        rconn.delete('test_mode')
+        rconn.delete(prefix+'test_mode')
     except:
         return False
     return True
 
 
-def set_wanted_position(ra, dec, rconn=None):
+def set_wanted_position(ra, dec, prefix='', rconn=None):
     """Sets the  wanted Telescope RA, DEC  - given as two floats in degrees
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
-
+       Return True on success, False on failure"""
     if rconn is None:
         return False
-
     try:
-        result_ra = rconn.set('wanted_ra', str(ra))
-        result_dec = rconn.set('wanted_dec', str(dec))
+        result_ra = rconn.set(prefix+'wanted_ra', str(ra))
+        result_dec = rconn.set(prefix+'wanted_dec', str(dec))
     except Exception:
         return False
     if result_ra and result_dec:
@@ -187,20 +141,14 @@ def set_wanted_position(ra, dec, rconn=None):
     return False
 
 
-def get_wanted_position(rconn=None):
+def get_wanted_position(prefix='', rconn=None):
     """Return wanted Telescope RA, DEC as two floats in degrees
-       If given rconn should connect to redis_db 0
        On failure returns None"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return
     if rconn is None:
         return
     try:
-        wanted_ra = float(rconn.get('wanted_ra').decode('utf-8'))
-        wanted_dec = float(rconn.get('wanted_dec').decode('utf-8'))
+        wanted_ra = float(rconn.get(prefix+'wanted_ra').decode('utf-8'))
+        wanted_dec = float(rconn.get(prefix+'wanted_dec').decode('utf-8'))
     except:
         return
     return wanted_ra, wanted_dec
@@ -386,13 +334,8 @@ def set_chart_actual(actual, rconn=None):
 
 
 def get_led(rconn, redisserver):
-    """Return led status string. If given rconn should connect to redis_db 0"""
+    """Return led status string."""
 
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return 'UNKNOWN'
     if rconn is None:
         return 'UNKNOWN'
     try:
@@ -409,13 +352,8 @@ def get_led(rconn, redisserver):
 
 
 def get_door(rconn, redisserver):
-    """Return door status string. If given rconn should connect to redis_db 0"""
+    """Return door status string."""
     # returns one of UNKNOWN, OPEN, CLOSED, OPENING, CLOSING
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return 'UNKNOWN'
     if rconn is None:
         return 'UNKNOWN'
     door_name = cfg.door()
@@ -438,13 +376,8 @@ def get_door(rconn, redisserver):
 
 
 def get_temperatures(rconn, redisserver):
-    """Return temperature log. If given rconn should connect to redis_db 0"""
+    """Return temperature log."""
 
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            raise FailPage("Unable to access redis temperature variable")
     if rconn is None:
         raise FailPage("Unable to access redis temperature variable")
     # get data from redis
@@ -466,16 +399,11 @@ def get_temperatures(rconn, redisserver):
 
 
 def last_temperature(rconn, redisserver):
-    """Return last date and temperature. If given rconn should connect to redis_db 0
+    """Return last date and temperature.
 
        String returned is of the form %Y-%m-%d %H:%M temperature, if unable to get
        the temperature, an empty string is returned"""
 
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return ''
     if rconn is None:
         return ''
     # get data from redis

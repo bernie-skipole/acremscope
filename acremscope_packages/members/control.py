@@ -54,17 +54,15 @@ def get_parked_radec():
     return Position(sc.ra.degree, sc.dec.degree)
 
 
-def get_wanted_position(rconn_0):
+def get_wanted_position(rconn_0, rconn):
     """Reads Redis to get requested Telescope position"""
-    radec = redis_ops.get_wanted_position(rconn_0)
+    radec = redis_ops.get_wanted_position(rconn_0, rconn)
     if radec is not None:
         wanted_position = Position(*radec)
     else:
         wanted_position = get_parked_radec()
-        redis_ops.set_wanted_position(wanted_position.ra, wanted_position.dec, rconn_0)
+        redis_ops.set_wanted_position(wanted_position.ra, wanted_position.dec, rconn_0, rconn)
     return wanted_position
-
-
 
 
 def get_chart(rconn_0):
@@ -104,7 +102,7 @@ def _draw_chart(skicall, tstamp=None):
 
     page_data = skicall.page_data
 
-    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
+    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     status,actual_position, altaztuple = remscope.get_actual_position(skicall)
 
     if status:
@@ -227,7 +225,7 @@ DEC: {act_dec}
         else:
             page_data['status', 'para_text'] = "Communications lost. Telescope position unknown!"
     else:
-        wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
+        wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
         target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"))
         if target_name:
             page_data['status', 'para_text'] = "Target : " + target_name
@@ -314,7 +312,7 @@ def newradec(skicall):
         dec = Angle(dec_deg+'d'+dec_min+'m'+dec_sec+'s').degree
 
     # set these wanted coordinates into redis
-    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # chart should show target
     redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
     # now draw the chart
@@ -343,7 +341,7 @@ def namedradec(skicall):
 
     # set the target name into redis
     redis_ops.set_target_name(target_name, skicall.proj_data.get("rconn_0"))
-    redis_ops.set_wanted_position(eq_coord.ra.degree, eq_coord.dec.degree, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_wanted_position(eq_coord.ra.degree, eq_coord.dec.degree, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # chart should show wanted target
     redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
     # now draw the chart
@@ -516,7 +514,7 @@ def up_arrow(skicall):
     redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
 
     # The chart is the 'wanted_position'
-    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
+    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     chart = get_chart(skicall.proj_data.get("rconn_0"))
     view = chart.view
     if view > 100.0:
@@ -540,7 +538,7 @@ def up_arrow(skicall):
     # set these wanted coordinates into redis
     ra = newtarget.ra.degree
     dec = newtarget.dec.degree
-    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # save the new chart parameters
     redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"))
@@ -561,7 +559,7 @@ def left_arrow(skicall):
     redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
 
     # The chart is the 'wanted_position'
-    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
+    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     chart = get_chart(skicall.proj_data.get("rconn_0"))
     view = chart.view
     if view > 100.0:
@@ -590,7 +588,7 @@ def left_arrow(skicall):
     # set these wanted coordinates into redis
     ra = newtarget.ra.degree
     dec = newtarget.dec.degree
-    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # save the new chart parameters
     redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"))
@@ -611,7 +609,7 @@ def right_arrow(skicall):
     redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
 
     # The chart is the 'wanted_position'
-    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
+    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     chart = get_chart(skicall.proj_data.get("rconn_0"))
     view = chart.view
     if view > 100.0:
@@ -640,7 +638,7 @@ def right_arrow(skicall):
     # set these wanted coordinates into redis
     ra = newtarget.ra.degree
     dec = newtarget.dec.degree
-    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # save the new chart parameters
     redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"))
@@ -661,7 +659,7 @@ def down_arrow(skicall):
     redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
 
     # The chart is the 'wanted_position'
-    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
+    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     chart = get_chart(skicall.proj_data.get("rconn_0"))
     view = chart.view
     if view > 100.0:
@@ -683,7 +681,7 @@ def down_arrow(skicall):
     # set these wanted coordinates into redis
     ra = newtarget.ra.degree
     dec = newtarget.dec.degree
-    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_wanted_position(ra, dec, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # save the new chart parameters
     redis_ops.set_chart_parameters(view, chart.flip, newrot, skicall.proj_data.get("rconn_0"))
@@ -735,7 +733,7 @@ def display_target(skicall):
 @livesession
 def telescope_status(skicall):
     "Get the wanted ra and dec, and convert to alt, az, send to telescope"
-    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"))
+    wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     try:
         target_ra = wanted_position.ra
         target_dec = wanted_position.dec

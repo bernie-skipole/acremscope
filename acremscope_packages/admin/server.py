@@ -38,7 +38,7 @@ def create_index(skicall):
         skicall.page_data['teststatus', 'para_text'] = "You have Test Mode Enabled"
         return
 
-    user_id = redis_ops.get_test_mode_user(skicall.proj_data.get("rconn_0"))
+    user_id = redis_ops.get_test_mode_user(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     if user_id is None:
         # No user has test mode
         skicall.page_data['setup_buttons', 'nav_links'].append(['test_mode','Set Test Mode', True, ''])
@@ -257,7 +257,7 @@ def set_test_mode(skicall):
     # check test mode
     if skicall.call_data["test_mode"]:
         # This user has test mode, so remove it
-        if redis_ops.delete_test_mode(skicall.proj_data.get("rconn_0")):
+        if redis_ops.delete_test_mode(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn")):
             skicall.call_data["test_mode"] = False
             skicall.page_data['teststatus', 'show'] = True
             skicall.page_data['teststatus', 'para_text'] = "Test Mode Disabled"
@@ -265,14 +265,14 @@ def set_test_mode(skicall):
 
     # so the request is to get test mode, however another admin may have it
 
-    user_id = redis_ops.get_test_mode_user(skicall.proj_data.get("rconn_0"))
+    user_id = redis_ops.get_test_mode_user(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     if user_id is None:
         # No other admin has test mode, so it can be set
-        if redis_ops.set_test_mode(skicall.call_data['user_id'],skicall.proj_data.get("rconn_0")):
+        if redis_ops.set_test_mode(skicall.call_data['user_id'], skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn")):
             # this user has been set with test mode
             skicall.call_data["test_mode"] = True
             # This sets the control user, and resets the chart view
-            redis_ops.set_control_user(skicall.call_data['user_id'], skicall.proj_data.get("rconn_0"))
+            redis_ops.set_control_user(skicall.call_data['user_id'], skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
         else:
             skicall.page_data['teststatus', 'show'] = True
             skicall.page_data['teststatus', 'para_text'] = "Failed to set test mode"
