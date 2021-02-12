@@ -33,7 +33,7 @@ def telescopegetproperties(skicall):
     "Sends a getproperties command for the telescope"
     # get telescope name
     telescope_name = cfg.telescope()
-    rconn = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
     tools.getProperties(rconn, redisserver, device=telescope_name)
 
@@ -115,14 +115,14 @@ def door_control(skicall):
 
     if (door == 'CLOSED') and (call_data['door', 'action'] == 'open'):
         # open the door
-        tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
+        tools.newswitchvector(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver"),
                           "DOME_SHUTTER", door_name, {"SHUTTER_OPEN":"On", "SHUTTER_CLOSE":"Off"})
         # connect the telescope
         telescope_connection(skicall, True)
         page_data['door_status', 'para_text'] = "An Open door command has been sent."
     elif (door == 'OPEN') and (call_data['door', 'action'] == 'close'):
         # close the door
-        tools.newswitchvector(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"),
+        tools.newswitchvector(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver"),
                           "DOME_SHUTTER", door_name, {"SHUTTER_OPEN":"Off", "SHUTTER_CLOSE":"On"})
         # disconnect the telescope
         telescope_connection(skicall, False)
@@ -144,7 +144,7 @@ def is_telescope_connected(skicall):
     "Returns True if the telescope is connected, False otherwise"
     # get telescope name
     telescope_name = cfg.telescope()
-    rconn = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
     device_list = tools.devices(rconn, redisserver)
     if telescope_name not in device_list:
@@ -163,7 +163,7 @@ def telescope_connection(skicall, connect):
     """This sends a connect or disconnect to telescope command. connect should be True to CONNECT, False to DISCONNECT"""
     # get telescope name
     telescope_name = cfg.telescope()
-    rconn = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
     device_list = tools.devices(rconn, redisserver)
     if telescope_name not in device_list:
@@ -186,7 +186,7 @@ def get_actual_position(skicall):
 
     # get telescope name
     telescope_name = cfg.telescope()
-    rconn = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
     device_list = tools.devices(rconn, redisserver)
     if telescope_name not in device_list:
