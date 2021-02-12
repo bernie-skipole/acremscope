@@ -258,7 +258,7 @@ def get_actual_position(skicall):
     dec = dec_dict['float_number']
     targettime = Time(ra_dict['timestamp'], format='isot', scale='utc')
 
-    target_frame = redis_ops.get_target_frame(skicall.proj_data.get("rconn_0"))
+    target_frame = redis_ops.get_target_frame(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     if target_frame == 'icrs':
         # undo the precession calculation to get icrs back
         target = SkyCoord(ra*u.deg, dec*u.deg, obstime = targettime, equinox=targettime, frame='precessedgeocentric')
@@ -312,7 +312,7 @@ def set_target(skicall, target_ra, target_dec, target_name):
         target_pg = target.transform_to(PrecessedGeocentric(obstime=tstamp, equinox=tstamp))
 
     # record the original frame used in redis
-    redis_ops.set_target_frame(target.frame.name, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_target_frame(target.frame.name, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     if 'HORIZONTAL_COORD' in properties_list:
         result = tools.newnumbervector(rconn, redisserver, 'HORIZONTAL_COORD', telescope_name, {'ALT':str(target_altaz.alt.degree),

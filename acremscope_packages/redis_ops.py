@@ -154,19 +154,13 @@ def get_wanted_position(prefix='', rconn=None):
     return wanted_ra, wanted_dec
 
 
-def set_target_name(target_name, rconn=None):
+def set_target_name(target_name, prefix='', rconn=None):
     """Sets the  wanted Telescope target_name
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
+       Return True on success, False on failure"""
     if rconn is None:
         return False
     try:
-        result = rconn.set('target_name', target_name.lower())
+        result = rconn.set(prefix+'target_name', target_name.lower())
     except Exception:
         return False
     if result:
@@ -174,37 +168,25 @@ def set_target_name(target_name, rconn=None):
     return False
 
 
-def get_target_name(rconn=None):
+def get_target_name(prefix='', rconn=None):
     """Return wanted Telescope named target.
-       If given rconn should connect to redis_db 0
        On failure, or no name returns empty string"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return ''
     if rconn is None:
         return ''
     try:
-        target_name = rconn.get('target_name').decode('utf-8')
+        target_name = rconn.get(prefix+'target_name').decode('utf-8')
     except:
         return ''
     return target_name
 
 
-def set_target_frame(target_frame, rconn=None):
+def set_target_frame(target_frame, prefix='', rconn=None):
     """Sets the target_frame of the item currently being tracked
-       Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
+       Return True on success, False on failure"""
     if rconn is None:
         return False
     try:
-        result = rconn.set('target_frame', target_frame.lower())
+        result = rconn.set(prefix+'target_frame', target_frame.lower())
     except Exception:
         return False
     if result:
@@ -212,36 +194,24 @@ def set_target_frame(target_frame, rconn=None):
     return False
 
 
-def get_target_frame(rconn=None):
+def get_target_frame(prefix='', rconn=None):
     """Returns the target_frame of the item currently being tracked
-       If given rconn should connect to redis_db 0
        On failure, or no name returns empty string"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return ''
     if rconn is None:
         return ''
     try:
-        target_frame = rconn.get('target_frame').decode('utf-8')
+        target_frame = rconn.get(prefix+'target_frame').decode('utf-8')
     except:
         return ''
     return target_frame
 
 
-def del_target_name(rconn=None):
-    """Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 0"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return False
+def del_target_name(prefix='', rconn=None):
+    """Return True on success, False on failure"""
     if rconn is None:
         return False
     try:
-        rconn.delete('target_name')
+        rconn.delete(prefix+'target_name')
     except:
         return False
     return True

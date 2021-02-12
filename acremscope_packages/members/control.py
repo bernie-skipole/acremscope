@@ -78,7 +78,7 @@ def control_template(skicall):
     if not remscope.is_telescope_connected(skicall):
         raise FailPage("Telescope not connected")
     # remove target name from redis
-    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
+    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # draw the control page chart
     _draw_chart(skicall)
 
@@ -159,7 +159,7 @@ DEC: {act_dec}
             page_data['status', 'para_text'] = "Communications lost. Telescope position unknown!"
     else:
         page_data['display_target', 'button_text'] = "Display actual"
-        target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"))
+        target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
         if target_name:
             page_data['status', 'para_text'] = "Target : " + target_name + " Field of view: {:3.2f}\xb0".format(view)
         else:
@@ -226,7 +226,7 @@ DEC: {act_dec}
             page_data['status', 'para_text'] = "Communications lost. Telescope position unknown!"
     else:
         wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
-        target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"))
+        target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
         if target_name:
             page_data['status', 'para_text'] = "Target : " + target_name
         else:
@@ -248,7 +248,7 @@ def newradec(skicall):
     # If an ra dec value has been input, then clear any
     # name from the name input field, and from redis
     page_data['name', 'input_text'] = ''
-    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
+    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     try:
 
@@ -340,7 +340,7 @@ def namedradec(skicall):
         raise FailPage("Unable to resolve the target name")
 
     # set the target name into redis
-    redis_ops.set_target_name(target_name, skicall.proj_data.get("rconn_0"))
+    redis_ops.set_target_name(target_name, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     redis_ops.set_wanted_position(eq_coord.ra.degree, eq_coord.dec.degree, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # chart should show wanted target
     redis_ops.set_chart_actual(False, skicall.proj_data.get("rconn_0"))
@@ -511,7 +511,7 @@ def up_arrow(skicall):
 
     # clear any name from the name input field
     skicall.page_data['name', 'input_text'] = ''
-    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
+    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # The chart is the 'wanted_position'
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
@@ -556,7 +556,7 @@ def left_arrow(skicall):
 
     # clear any name from the name input field
     skicall.page_data['name', 'input_text'] = ''
-    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
+    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # The chart is the 'wanted_position'
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
@@ -606,7 +606,7 @@ def right_arrow(skicall):
 
     # clear any name from the name input field
     skicall.page_data['name', 'input_text'] = ''
-    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
+    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # The chart is the 'wanted_position'
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
@@ -656,7 +656,7 @@ def down_arrow(skicall):
 
     # clear any name from the name input field
     skicall.page_data['name', 'input_text'] = ''
-    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
+    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
 
     # The chart is the 'wanted_position'
     wanted_position = get_wanted_position(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
@@ -737,7 +737,7 @@ def telescope_status(skicall):
     try:
         target_ra = wanted_position.ra
         target_dec = wanted_position.dec
-        target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"))
+        target_name = redis_ops.get_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     except:
         raise FailPage("Invalid target")
 
@@ -767,7 +767,7 @@ AZ: {:1.3f}\xb0""".format(target_pg.ra.to_string(unit=u.hour, sep=':'),
 def altaz_template(skicall):
     "Fills in the template page of the altaz control"
     # remove target name from redis
-    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"))
+    redis_ops.del_target_name(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     # This page consists of two input fields
 
 
