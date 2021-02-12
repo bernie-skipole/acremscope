@@ -60,7 +60,7 @@ def fill_input_pin(skicall):
     # two minute time slot.  Four sets of such random numbers are available
     # specified by argument rndset which should be 0 to 3
     # This login form uses rndset 1
-    rnd1, rnd2 = redis_ops.two_min_numbers(rndset=1, rconn=skicall.proj_data.get("rconn_0"))
+    rnd1, rnd2 = redis_ops.two_min_numbers(rndset=1, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
     if rnd1 is None:
         raise ServerError(message = "Database access failure")
     page_data['input_pin', 'hidden_field3'] = str(rnd1)
@@ -157,7 +157,7 @@ def check_pin(skicall):
             int_rnd = int(str_rnd)
         except:
             raise FailPage(message = "Invalid input")
-        rnd = redis_ops.two_min_numbers(rndset=1, rconn=skicall.proj_data.get("rconn_0"))
+        rnd = redis_ops.two_min_numbers(rndset=1, skicall.proj_data.get("rconn_0"), skicall.proj_data.get("rconn"))
         # rnd is a tuple of two valid random numbers
         # rnd[0] for the current 2 minute time slot
         # rnd[1] for the previous 2 minute time slot

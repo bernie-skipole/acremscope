@@ -642,43 +642,35 @@ def clear_tries(user_id, prefix='', rconn=None):
 
 ################################################
 #
-# Two timed random numbers, stored in db 0
+# Two timed random numbers
 #
 ################################################
 
-def two_min_numbers(rndset, rconn=None):
+def two_min_numbers(rndset, prefix='', rconn=None):
     """returns two random numbers
        one valid for the current two minute time slot, one valid for the previous
        two minute time slot.  Four sets of such random numbers are available
-       specified by argument rndset which should be 0 to 3
-       If given rconn should connect to redis_db 0"""
+       specified by argument rndset which should be 0 to 3"""
 
     # limit rndset to 0 to 3
     if rndset not in (0,1,2,3):
         return None, None
 
     # call timed_random_numbers with timeslot of two minutes in seconds
-    return timed_random_numbers(rndset, 120, rconn)
+    return timed_random_numbers(rndset, 120, prefix, rconn)
 
 
 
-def timed_random_numbers(rndset, timeslot, rconn=None):
+def timed_random_numbers(rndset, timeslot, prefix, rconn=None):
     """returns two random numbers
        one valid for the current time slot, one valid for the previous
        time slot.  Multiple sets of such random numbers are available
-       specified by argument rndset which should be an integer.
-       If given rconn should connect to redis_db 0"""
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=0)
-        except:
-            return None, None
+       specified by argument rndset which should be an integer."""
 
     if rconn is None:
         return None, None
 
-    key = "rndset_" + str(rndset)
+    key = prefix + "rndset_" + str(rndset)
     now = rconn.time()[0]     # time in seconds
 
     try:
@@ -814,7 +806,7 @@ def get_session_value(key_string, prefix='', rconn=None):
 
 ######################### log information to redis,
 
-def log_info(messagetime=None, topic = '', message='', prefix='', rconn=None)
+def log_info(messagetime=None, topic = '', message='', prefix='', rconn=None):
     """Log the given message to the redis connection rconn, return True on success, False on failure.
        messagetime is a datetime object or not given, if not given a current timestamp will be created
        topic is optional, if given the resultant log will be topic : message"""
@@ -839,7 +831,7 @@ def log_info(messagetime=None, topic = '', message='', prefix='', rconn=None)
     return True
 
 
-def get_log_info(prefix='', rconn=None)
+def get_log_info(prefix='', rconn=None):
     """Return info log as a list of log strings, newest first. On failure, returns empty list"""
     if rconn is None:
         return []
