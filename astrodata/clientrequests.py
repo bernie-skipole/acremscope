@@ -94,9 +94,9 @@ if __name__  == "__main__":
         try:
             # create a log entry to set in the redis server
             fullmessage = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") + " " + message
-            rconn.rpush("log_info", fullmessage)
+            rconn.rpush("remscope_various_log_info", fullmessage)
             # and limit number of messages to 50
-            rconn.ltrim("log_info", -50, -1)
+            rconn.ltrim("remscope_various_log_info", -50, -1)
         except Exception:
             print("Saving log to redis has failed")
 

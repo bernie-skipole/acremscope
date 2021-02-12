@@ -33,7 +33,7 @@ def open_redis(redis_db=0):
     if not redis_ip:
         raise FailPage("Redis service not available")
 
-    # create a connection to the redis data logging server
+    # create a connection
     try:
         rconn = redis.StrictRedis(host=redis_ip, port=redis_port, db=redis_db, password=redis_auth, socket_timeout=5)
     except:
@@ -940,7 +940,7 @@ def get_session_value(key_string, prefix='', rconn=None):
 
 ######################### log information to redis,
 
-def log_info(rconn, messagetime=None, topic = '', message=''):
+def log_info(messagetime=None, topic = '', message='', prefix='', rconn=None)
     """Log the given message to the redis connection rconn, return True on success, False on failure.
        messagetime is a datetime object or not given, if not given a current timestamp will be created
        topic is optional, if given the resultant log will be topic : message"""
@@ -957,21 +957,21 @@ def log_info(rconn, messagetime=None, topic = '', message=''):
     try:
         # create a log entry to set in the redis server
         fullmessage = messagetime.strftime("%Y-%m-%d %H:%M:%S") + topicmessage
-        rconn.rpush("log_info", fullmessage)
+        rconn.rpush(prefix+"log_info", fullmessage)
         # and limit number of messages to 50
-        rconn.ltrim("log_info", -50, -1)
+        rconn.ltrim(prefix+"log_info", -50, -1)
     except:
         return False
     return True
 
 
-def get_log_info(rconn):
-    """Return info log as a list of log strings, newest first. rconn should connect to redis_db 0. On failure, returns empty list"""
+def get_log_info(prefix='', rconn=None)
+    """Return info log as a list of log strings, newest first. On failure, returns empty list"""
     if rconn is None:
         return []
     # get data from redis
     try:
-        logset = rconn.lrange("log_info", 0, -1)
+        logset = rconn.lrange(prefix+"log_info", 0, -1)
     except:
         return []
     if logset:

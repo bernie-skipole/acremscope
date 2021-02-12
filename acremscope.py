@@ -201,7 +201,7 @@ def make_proj_data():
     # create a redis connection for miscellaneous use
     rconn_0 = redis_ops.open_redis(redis_db=0)
     return {'rconn': rconn,
-            'rconn_0':rconn_0,
+            'rconn_0':"remscope_various_",
             'rconn_1':"remscope_logged_in_",
             'rconn_2':"remscope_authenticated_",
             'rconn_3':"remscope_pintrycounts_",
