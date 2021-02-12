@@ -502,50 +502,40 @@ def last_temperature(rconn, redisserver):
 ############################################################
 #
 # The following deals with cookies and user logged in status
+# stored with prefix from rconn_1
 #
 ############################################################
 
 
-def logged_in(cookie_string, rconn=None):
+def logged_in(cookie_string, prefix='', rconn=None):
     """Check for a valid cookie, if logged in, return user_id
-       If not, return None. If rconn is None, a new connection will be created.
-       If given rconn should connect to redis_db 1"""
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=1)
-        except:
-            return
+       If not, return None."""
 
     if rconn is None:
         return
 
     if (not cookie_string) or (cookie_string == "noaccess"):
         return
+
+    cookiekey = prefix+cookie_string
     try:
-        if not rconn.exists(cookie_string):
+        if not rconn.exists(cookiekey):
             return
-        user_info = rconn.lrange(cookie_string, 0, -1)
+        user_info = rconn.lrange(cookiekey, 0, -1)
         # user_info is a list of binary values
         # user_info[0] is user id
         # user_info[1] is a random number, added to input pin form and checked on submission
         # user_info[2] is a random number between 1 and 6, sets which pair of PIN numbers to request
         user_id = int(user_info[0].decode('utf-8'))
         # and update expire after two hours
-        rconn.expire(cookie_string, 7200)
+        rconn.expire(cookiekey, 7200)
     except:
         return
     return user_id
 
 
-def set_cookie(cookie_string, user_id, rconn=None):
-    """Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 1"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=1)
-        except:
-            return False
+def set_cookie(cookie_string, user_id, prefix='', rconn=None):
+    """Return True on success, False on failure"""
 
     if rconn is None:
         return False
@@ -553,97 +543,81 @@ def set_cookie(cookie_string, user_id, rconn=None):
     if (not  user_id) or (not cookie_string):
         return False
 
-    # with cookie string as key, set value as a list of [user_id, random_number]
+    cookiekey = prefix+cookie_string
+    # set value as a list of [user_id, random_number, pair number]
     try:
-        if rconn.exists(cookie_string):
+        if rconn.exists(cookiekey):
             # cookie already delete it
-            rconn.delete(cookie_string)
+            rconn.delete(cookiekey)
             # and return False, as this should not happen
             return False
-        # set the cookie into the database
-        rconn.rpush(cookie_string, str(user_id), str(random.randint(10000000, 99999999)), str(random.randint(1,6)))
-        rconn.expire(cookie_string, 7200)
+        # set the cookie into redis
+        rconn.rpush(cookiekey, str(user_id), str(random.randint(10000000, 99999999)), str(random.randint(1,6)))
+        rconn.expire(cookiekey, 7200)
     except:
         return False
     return True
 
 
 
-def del_cookie(cookie_string, rconn=None):
-    """Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 1"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=1)
-        except:
-            return False
+def del_cookie(cookie_string, prefix='', rconn=None):
+    """Return True on success, False on failure"""
 
     if rconn is None:
         return False
 
     if not cookie_string:
         return False
+    cookiekey = prefix+cookie_string
     try:
-        rconn.delete(cookie_string)
+        rconn.delete(cookiekey)
     except:
         return False
     return True
 
 
-def set_rnd(cookie_string, rconn=None):
+def set_rnd(cookie_string, prefix='', rconn=None):
     """Sets a random number against the cookie, return the random number on success,
-       None on failure,
-       if rconn is None, it is created.
-       If given rconn should connect to redis_db 1"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=1)
-        except:
-            return
+       None on failure"""
 
     if rconn is None:
         return
 
     if not cookie_string:
         return
+    cookiekey = prefix+cookie_string
 
     rnd = random.randint(10000000, 99999999)
 
-    # with cookie string as key, set a random_number
+    # set a random_number
     try:
-        if not rconn.exists(cookie_string):
+        if not rconn.exists(cookiekey):
             return
         # set the random number into the database
-        rconn.lset(cookie_string, 1, str(rnd))
+        rconn.lset(cookiekey, 1, str(rnd))
     except:
         return
     return rnd
 
 
-def get_rnd(cookie_string, rconn=None):
+def get_rnd(cookie_string, prefix='', rconn=None):
     """Gets the saved random number from the cookie, return the random number on success,
        None on failure.
        Once called, it creates a new random number to store in the database,
-       so the number returned is then lost from the database.
-       If rconn is None, it is created.
-       If given rconn should connect to redis_db 1"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=1)
-        except:
-            return
+       so the number returned is then lost from the database."""
 
     if rconn is None:
         return
 
     if not cookie_string:
         return
+    cookiekey = prefix+cookie_string
 
-    # with cookie string as key, get and set a random_number
+    # get and set a random_number
     try:
-        if not rconn.exists(cookie_string):
+        if not rconn.exists(cookiekey):
             return
-        user_info = rconn.lrange(cookie_string, 0, -1)
+        user_info = rconn.lrange(cookiekey, 0, -1)
         # user_info is a list of binary values
         # user_info[0] is user id
         # user_info[1] is a random number
@@ -651,34 +625,28 @@ def get_rnd(cookie_string, rconn=None):
         rnd = int(user_info[1].decode('utf-8'))
         # after obtaining rnd, insert a new one
         newrnd = random.randint(10000000, 99999999)
-        rconn.lset(cookie_string, 1, str(newrnd))
+        rconn.lset(cookiekey, 1, str(newrnd))
     except:
         return
     return rnd
 
 
-def get_pair(cookie_string, rconn=None):
+def get_pair(cookie_string, prefix='', rconn=None):
     """Gets the saved pair random number from the cookie, return it on success,
-       None on failure.
-       If rconn is None, it is created.
-       If given rconn should connect to redis_db 1"""
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=1)
-        except:
-            return
+       None on failure."""
 
     if rconn is None:
         return
 
     if not cookie_string:
         return
+    cookiekey = prefix+cookie_string
 
-    # with cookie string as key, get the pair number
+    # get the pair number
     try:
-        if not rconn.exists(cookie_string):
+        if not rconn.exists(cookiekey):
             return
-        user_info = rconn.lrange(cookie_string, 0, -1)
+        user_info = rconn.lrange(cookiekey, 0, -1)
         # user_info is a list of binary values
         # user_info[0] is user id
         # user_info[1] is a random number
@@ -689,26 +657,29 @@ def get_pair(cookie_string, rconn=None):
     return pair
 
 
-def is_authenticated(cookie_string, rconn=None):
-    """Check for a valid cookie, if logged in, return True
-       If not, return False. If rconn is None, a new connection will be created.
-       If given rconn should connect to redis_db 2"""
+##################################################
+#
+# admin user authenticated state,
+# stored with prefix from rconn_2
+#
+##################################################
 
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=2)
-        except:
-            return False
+def is_authenticated(cookie_string, prefix='', rconn=None):
+    """Check for a valid cookie, if exists, return True
+       If not, return False."""
 
     if rconn is None:
         return False
 
     if (not cookie_string) or (cookie_string == "noaccess"):
         return False
+
+    cookiekey = prefix+cookie_string
+
     try:
-        if rconn.exists(cookie_string):
+        if rconn.exists(cookiekey):
             # key exists, and update expire after ten minutes
-            rconn.expire(cookie_string, 600)
+            rconn.expire(cookiekey, 600)
         else:
             return False
     except:
@@ -716,32 +687,27 @@ def is_authenticated(cookie_string, rconn=None):
     return True
 
 
-def set_authenticated(cookie_string, user_id, rconn=None):
-    """Sets cookie into redis db2 as key, with [user_id,...] as value
-       If successfull return True, if not return False.
-       If rconn is None, a new connection will be created.
-       If given rconn should connect to redis_db 2"""
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=2)
-        except:
-            return False
+def set_authenticated(cookie_string, user_id, prefix='', rconn=None):
+    """Sets cookie into redis, with user_id as value
+       If successfull return True, if not return False."""
 
     if rconn is None:
         return False
 
     if (not  user_id) or (not cookie_string):
         return False
+
+    cookiekey = prefix+cookie_string
+
     try:
-        if rconn.exists(cookie_string):
+        if rconn.exists(cookiekey):
             # already authenticated, delete it
-            rconn.delete(cookie_string)
+            rconn.delete(cookiekey)
             # and return False, as this should not happen
             return False
         # set the cookie into the database
-        rconn.rpush(cookie_string, str(user_id))
-        rconn.expire(cookie_string, 600)
+        rconn.rpush(cookiekey, str(user_id))
+        rconn.expire(cookiekey, 600)
     except:
         return False
     return True
@@ -749,28 +715,21 @@ def set_authenticated(cookie_string, user_id, rconn=None):
 
 ##################################################
 #
-# count of pin failures for a user, stored in db 3
+# count of pin failures for a user,
+# stored with prefix from rconn_3
 #
 ##################################################
 
 
 
-def increment_try(user_id, rconn=None):
+def increment_try(user_id, prefix='', rconn=None):
     """creates an incrementing count against the user_id
-       which expires after one hour
-       If rconn is None, a new connection will be created.
-       If given rconn should connect to redis_db 3"""
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=3)
-        except:
-            return
+       which expires after one hour"""
 
     if rconn is None:
         return
 
-    str_user_id = str(user_id)
+    str_user_id = prefix+str(user_id)
 
     # increment and reset expire
     tries = rconn.incr(str_user_id)
@@ -778,21 +737,13 @@ def increment_try(user_id, rconn=None):
     return int(tries)
 
 
-def get_tries(user_id, rconn=None):
-    """Gets the count against the user_id
-       If rconn is None, a new connection will be created.
-       If given rconn should connect to redis_db 3"""
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=3)
-        except:
-            return
+def get_tries(user_id, prefix='', rconn=None):
+    """Gets the count against the user_id"""
 
     if rconn is None:
         return
 
-    str_user_id = str(user_id)
+    str_user_id = prefix+str(user_id)
 
     if not rconn.exists(str_user_id):
         # No count, equivalent to 0
@@ -802,21 +753,13 @@ def get_tries(user_id, rconn=None):
     return int(tries)
 
 
-def clear_tries(user_id, rconn=None):
-    """Clears the count to zero against the user_id
-       If rconn is None, a new connection will be created.
-       If given rconn should connect to redis_db 3"""
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=3)
-        except:
-            return
+def clear_tries(user_id, prefix='', rconn=None):
+    """Clears the count to zero against the user_id"""
 
     if rconn is None:
         return
 
-    str_user_id = str(user_id)
+    str_user_id = prefix+str(user_id)
 
     rconn.set(str_user_id, 0)
     return
@@ -905,7 +848,7 @@ def timed_random_numbers(rndset, timeslot, rconn=None):
 
 ######################################################################
 #
-# dbase 4 for temporary session values, lifetime 7200 (two hours)
+# temporary session values, lifetime 7200 (two hours)
 #
 # each key contains a list of strings, note the string '_'
 # should not be used as it has a special meaning
@@ -914,9 +857,8 @@ def timed_random_numbers(rndset, timeslot, rconn=None):
 
 
 
-def set_session_value(key_string, value_list, rconn=None):
-    """Return True on success, False on failure, if rconn is None, it is created.
-       If given rconn should connect to redis_db 4
+def set_session_value(key_string, value_list, prefix='', rconn=None):
+    """Return True on success, False on failure
 
        Given a key_string, saves a value_list
        with an expirey time of 7200 seconds (2 hours)
@@ -927,19 +869,15 @@ def set_session_value(key_string, value_list, rconn=None):
         return False
     if not value_list:
         return False
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=4)
-        except:
-            return False
-
     if rconn is None:
         return False
 
+    keystring = prefix+key_string
+
     # dbsize() returns the number of keys in the database
     numberofkeys = rconn.dbsize()
-    # If the database is getting bigger, reduce the expire time of keys to reduce it
+    # If the database is getting bigger, reduce the expire time of
+    # these session keys to help reduce it
     if numberofkeys > 2000:
         return False
     elif numberofkeys > 1500:
@@ -972,22 +910,15 @@ def set_session_value(key_string, value_list, rconn=None):
 
 
 
-def get_session_value(key_string, rconn=None):
-    """If rconn is None, a new connection will be created.
-       If given rconn should connect to redis_db 4
-       If key_string is not found, return None"""
+def get_session_value(key_string, prefix='', rconn=None):
+    """If key_string is not found, return None"""
 
     if not key_string:
         return
-
-    if rconn is None:
-        try:
-            rconn = open_redis(redis_db=4)
-        except:
-            return
-
     if rconn is None:
         return
+
+    keystring = prefix+key_string
 
     if not rconn.exists(key_string):
         # no value exists

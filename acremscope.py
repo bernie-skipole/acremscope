@@ -30,6 +30,7 @@ cfg.set_projectfiles(PROJECTFILES)
 redis_ip, redis_port, redis_auth = cfg.get_redis()
 
 # set these into REDISSERVER tuple, with dbase 0, as used by indi_mr and indiredis
+# uses the default indi_mr redis prefix
 REDISSERVER = redis_server(host=redis_ip, port=redis_port, db=0, password=redis_auth)
 
 
@@ -194,18 +195,17 @@ _JSON_PAGES = [8004,            # de-regiser yourself
 
 
 def make_proj_data():
-    "create a group of redis connections, to be used as proj_data"
+    """create a redis connection and sets of redis prefixes to keys
+       to be used as proj_data"""
+    rconn = redis_ops.open_redis(redis_db=0)
     # create a redis connection for miscellaneous use
     rconn_0 = redis_ops.open_redis(redis_db=0)
-    # create a redis connection for logged in users
-    rconn_1 = redis_ops.open_redis(redis_db=1)
-    # and another for authenticated admins
-    rconn_2 = redis_ops.open_redis(redis_db=2)
-    # and another for user_id
-    rconn_3 = redis_ops.open_redis(redis_db=3)
-    # and another for session data
-    rconn_4 = redis_ops.open_redis(redis_db=4)
-    return {'rconn_0':rconn_0, 'rconn_1':rconn_1, 'rconn_2':rconn_2, 'rconn_3':rconn_3, 'rconn_4':rconn_4,
+    return {'rconn': rconn,
+            'rconn_0':rconn_0,
+            'rconn_1':"remscope_logged_in_",
+            'rconn_2':"remscope_authenticated_",
+            'rconn_3':"remscope_pintrycounts_",
+            'rconn_4':"remscope_sessions_",
             'projectfiles':PROJECTFILES,
             'redisserver':REDISSERVER}
 
@@ -249,9 +249,8 @@ def start_call(called_ident, skicall):
         cookie_name = skicall.project + '2'
         if cookie_name in skicall.received_cookies:
             cookie_string = skicall.received_cookies[cookie_name]
-            # so a recognised cookie has arrived, check redis 1 to see if the user has logged in
-            rconn_1 = skicall.proj_data.get("rconn_1")
-            user_id = redis_ops.logged_in(cookie_string, rconn_1)
+            # so a recognised cookie has arrived, check redis to see if the user has logged in
+            user_id = redis_ops.logged_in(cookie_string, skicall.proj_data.get("rconn_1"), skicall.proj_data.get("rconn"))
             if user_id:
                 user = database_ops.get_user_from_id(user_id)
                 # user is (username, role, email, member) on None on failure
@@ -266,9 +265,8 @@ def start_call(called_ident, skicall):
                     if user[1] != 'ADMIN':
                         call_data['authenticated'] = False
                     else:
-                        # Is this user authenticated, check redis 2 to see if authenticated
-                        rconn_2 = skicall.proj_data.get("rconn_2")
-                        call_data['authenticated'] = redis_ops.is_authenticated(cookie_string, rconn_2)
+                        # Is this user authenticated
+                        call_data['authenticated'] = redis_ops.is_authenticated(cookie_string, skicall.proj_data.get("rconn_2"), skicall.proj_data.get("rconn"))
 
     ### Check the page being called
     page_num = called_ident[1]
@@ -545,9 +543,8 @@ def _get_stored_values(skicall, key_string):
        in a dictionary under skicall.call_data['stored_values']"""
 
     stored_values = skicall.call_data['stored_values']
-    rconn_4 = skicall.proj_data.get("rconn_4")
 
-    value_list = redis_ops.get_session_value(key_string, rconn_4)
+    value_list = redis_ops.get_session_value(key_string, skicall.proj_data.get("rconn_4"), skicall.proj_data.get("rconn"))
     if value_list:
         if value_list[0]:
             stored_values['starchart'] = value_list[0]
@@ -596,8 +593,6 @@ def _set_stored_values(skicall):
         return
 
     set_values = skicall.call_data['set_values']
-    rconn_4 = skicall.proj_data.get("rconn_4")
-
 
     # generate a key, being a combination of incrementing _IDENT_DATA and a random number
     _IDENT_DATA += 1
@@ -642,7 +637,7 @@ def _set_stored_values(skicall):
 
      
     # and store these values in redis, under the ident_data_key
-    redis_ops.set_session_value(ident_data_key, value_list, rconn_4)
+    redis_ops.set_session_value(ident_data_key, value_list, skicall.proj_data.get("rconn_4"), skicall.proj_data.get("rconn"))
     return ident_data_key
 
 
@@ -666,9 +661,8 @@ def _check_cookies(received_cookies, proj_data):
         return divert
 
     cookie_string = received_cookies[cookie_name]
-    # so a recognised cookie has arrived, check redis 1 to see if the user has logged in
-    rconn_1 = proj_data.get("rconn_1")
-    user_id = redis_ops.logged_in(cookie_string, rconn_1)
+    # so a recognised cookie has arrived, check redis to see if the user has logged in
+    user_id = redis_ops.logged_in(cookie_string, proj_data.get("rconn_1"), proj_data.get("rconn"))
     if not user_id:
         # cookie_string not saved in redis, unknown user, so divert
         return divert
@@ -714,8 +708,7 @@ def _check_cookies(received_cookies, proj_data):
         return divert
 
     # This user has test mode, and is enabled, final check, is he authenticated?
-    rconn_2 = proj_data.get("rconn_2")
-    if redis_ops.is_authenticated(cookie_string, rconn_2):
+    if redis_ops.is_authenticated(cookie_string, proj_data.get("rconn_2"), proj_data.get("rconn")):
         # yes, so he can connect to indi
         return
     

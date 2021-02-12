@@ -33,7 +33,7 @@ def fill_input_pin(skicall):
     user_id  = call_data['user_id']
 
     # Check for locked out due to too many failed tries
-    tries = redis_ops.get_tries(user_id, rconn=skicall.proj_data.get("rconn_3"))
+    tries = redis_ops.get_tries(user_id, skicall.proj_data.get("rconn_3"), skicall.proj_data.get("rconn"))
     if tries is None:
         raise FailPage(message="Invalid user")
     if tries > 3:
@@ -42,7 +42,7 @@ def fill_input_pin(skicall):
     # Generate a random number, unique to the cookie, and set it into radius
     # and also as an hidden field in the form, so it is submitted when the user submits
     # a PIN and will be checked against the radius database.
-    rnd_number = redis_ops.set_rnd(call_data.get('cookie'), rconn=skicall.proj_data.get("rconn_1"))
+    rnd_number = redis_ops.set_rnd(call_data.get('cookie'), skicall.proj_data.get("rconn_1"), skicall.proj_data.get("rconn"))
     if rnd_number is None:
         raise FailPage(message="Failure accessing the database")
     page_data['input_pin', 'hidden_field1'] = str(rnd_number)
@@ -70,7 +70,7 @@ def fill_input_pin(skicall):
     # a valid timeout period.
 
     # Get the pair of pin characters to be requested
-    pair = redis_ops.get_pair(call_data.get('cookie'), rconn=skicall.proj_data.get("rconn_1"))
+    pair = redis_ops.get_pair(call_data.get('cookie'), skicall.proj_data.get("rconn_1"), skicall.proj_data.get("rconn"))
     if not pair:
         raise FailPage(message="Failure accessing database")
 
@@ -136,13 +136,13 @@ def check_pin(skicall):
 
     try:
         # Increment tries and check for locked out due to too many failed tries
-        tries = redis_ops.increment_try(user_id, rconn=skicall.proj_data.get("rconn_3"))
+        tries = redis_ops.increment_try(user_id, skicall.proj_data.get("rconn_3"), skicall.proj_data.get("rconn"))
         if tries is None:
             raise FailPage(message="Invalid user")
         if tries > 3:
             raise FailPage(message= "Authentication locked out. Please try again after an hour.")
         # Test saved random number
-        rnd_number = redis_ops.get_rnd(call_data.get('cookie'), rconn=skicall.proj_data.get("rconn_1"))
+        rnd_number = redis_ops.get_rnd(call_data.get('cookie'), skicall.proj_data.get("rconn_1"), skicall.proj_data.get("rconn"))
         if rnd_number is None:
             raise FailPage(message= "Invalid input")
         # Test received hidden_field1 is the same as the rnd_number in the radius database
@@ -177,7 +177,7 @@ def check_pin(skicall):
             if diverted_page not in _DIVERT:
                 raise FailPage(message= "Invalid input")
         # get pair of pin characters to be tested
-        pair = redis_ops.get_pair(call_data.get('cookie'), rconn=skicall.proj_data.get("rconn_1"))
+        pair = redis_ops.get_pair(call_data.get('cookie'), skicall.proj_data.get("rconn_1"), skicall.proj_data.get("rconn"))
         seed = call_data['project'] + str(user_id) + str(pair)
         if pair == 1:
             if call_data['input_pin', 'pin3'] or call_data['input_pin', 'pin4']:
@@ -219,11 +219,11 @@ def check_pin(skicall):
             raise FailPage(message= "Authentication Failed")
         # user is authenticated
         ### changed to redis
-        if not redis_ops.set_authenticated(call_data['cookie'], user_id, skicall.proj_data.get('rconn_2')):
+        if not redis_ops.set_authenticated(call_data['cookie'], user_id, skicall.proj_data.get('rconn_2'), skicall.proj_data.get('rconn')):
             # failed to set authenticated to True
             raise FailPage(message= "Unable to set Authenticate")
         # clears number of tries
-        redis_ops.clear_tries(user_id, skicall.proj_data.get('rconn_3'))
+        redis_ops.clear_tries(user_id, skicall.proj_data.get('rconn_3'), skicall.proj_data.get('rconn'))
         call_data['authenticated'] = True
     except FailPage:
         raise

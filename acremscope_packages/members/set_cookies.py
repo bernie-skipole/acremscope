@@ -37,7 +37,7 @@ def logout(skicall):
         del call_data['member']
     # Remove cookie from redis database
     if 'cookie' in call_data:
-        redis_ops.del_cookie(call_data['cookie'], skicall.proj_data.get("rconn_1"))
+        redis_ops.del_cookie(call_data['cookie'], skicall.proj_data.get("rconn_1"), skicall.proj_data.get("rconn"))
         del call_data['cookie']
 
     # set a cookie 'project2:noaccess'
@@ -84,7 +84,7 @@ def set_cookie(skicall):
     cki[ck_key]['path'] = ck_path
     
     # and set the cookie string into database
-    status = redis_ops.set_cookie(ck_string, user_id, skicall.proj_data.get("rconn_1"))
+    status = redis_ops.set_cookie(ck_string, user_id, skicall.proj_data.get("rconn_1"), skicall.proj_data.get("rconn"))
     if not status:
         raise FailPage(message="Unable to access redis database")
     return cki
