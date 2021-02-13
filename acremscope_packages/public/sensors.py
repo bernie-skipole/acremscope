@@ -21,11 +21,11 @@ from .. import sun, database_ops, redis_ops, cfg
 def retrieve_sensors_data(skicall):
     "Display sensor values, initially just the led status"
 
-    rconn0 = skicall.proj_data.get("rconn_0")
+    rconn = skicall.proj_data.get("rconn")
     redisserver = skicall.proj_data.get("redisserver")
-    skicall.page_data['led_status', 'para_text'] = "LED : " + redis_ops.get_led(rconn0, redisserver)
-    skicall.page_data['temperature_status', 'para_text'] = "Temperature : " + redis_ops.last_temperature(rconn0, redisserver)
-    skicall.page_data['door_status', 'para_text'] = "Door : " + redis_ops.get_door(rconn0, redisserver)
+    skicall.page_data['led_status', 'para_text'] = "LED : " + redis_ops.get_led(rconn, redisserver)
+    skicall.page_data['temperature_status', 'para_text'] = "Temperature : " + redis_ops.last_temperature(rconn, redisserver)
+    skicall.page_data['door_status', 'para_text'] = "Door : " + redis_ops.get_door(rconn, redisserver)
 
 
 def temperature_page(skicall):
@@ -33,7 +33,7 @@ def temperature_page(skicall):
 
     page_data = skicall.page_data
 
-    date_temp = redis_ops.last_temperature(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
+    date_temp = redis_ops.last_temperature(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver"))
     #if not date_temp:
     #    raise FailPage("No temperature values available")
 
@@ -49,7 +49,7 @@ def temperature_page(skicall):
 
     # create a time, temperature dataset
     dataset = []
-    datalog = redis_ops.get_temperatures(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
+    datalog = redis_ops.get_temperatures(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver"))
     if not datalog:
         page_data['temperaturegraph', 'values'] = []
         return
@@ -68,7 +68,7 @@ def temperature_page(skicall):
 def last_temperature(skicall):
     "Gets the day, temperature for the last logged value"
 
-    date_temp = redis_ops.last_temperature(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
+    date_temp = redis_ops.last_temperature(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver"))
     if not date_temp:
         raise FailPage("No temperature values available")
 
