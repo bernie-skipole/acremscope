@@ -88,7 +88,7 @@ def create_index(skicall):
         skicall.page_data['booked', 'para_text'] = "You are operating in Test Mode."
         skicall.page_data['indiclient', 'hide'] = False
         skicall.page_data['test_warning', 'para_text'] = """WARNING: You are operating in Test Mode - Telescope commands will be sent regardless of the door status, or daylight situation. This could be damaging, please ensure you are in control of the test environment.
-INDI client - this is a general purpose instrument control panel, which gives enhanced control of connected devices. 
+INDI client - this is a general purpose instrument control panel, which gives enhanced control of connected devices.
 Note: A time slot booked by a user will override Test Mode, to avoid this you should operate within time slots which you have previously disabled."""
     elif skicall.call_data["role"] == 'ADMIN':
         skicall.page_data['test_warning', 'para_text'] = """The robotic telescope can be controlled by members during their valid booked session, or by Administrators who have enabled 'Test' mode.
@@ -140,6 +140,7 @@ def door_control(skicall):
         skicall.page_data['booked', 'para_text'] = "You are operating in Test Mode."
         skicall.page_data['indiclient', 'hide'] = False
         skicall.page_data['test_warning', 'para_text'] = """WARNING: You are operating in Test Mode - Telescope commands will be sent regardless of the door status, or daylight situation. This could be damaging, please ensure you are in control of the test environment.
+INDI client - this is a general purpose instrument control panel, which gives enhanced control of connected devices.
 Note: A time slot booked by a user will override Test Mode, to avoid this you should operate within time slots which you have previously disabled."""
     else:
         skicall.page_data['test_warning', 'para_text'] = ""
