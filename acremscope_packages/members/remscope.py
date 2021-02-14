@@ -109,6 +109,8 @@ def door_control(skicall):
     if ('door', 'action') not in call_data:
         return
 
+    page_data['utc', 'para_text'] = datetime.utcnow().strftime("UTC Time : %H:%M")
+
     door_name = cfg.door()
 
     # check current state of the door to ensure action is valid
