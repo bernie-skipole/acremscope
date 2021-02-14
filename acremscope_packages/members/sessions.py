@@ -614,7 +614,7 @@ def livesession(submit_data):
         if user_id == call_data["booked_user_id"]:
             # the current slot has been booked by the current logged in user,
             # check the door is open
-            if redis_ops.get_door(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver")) != "OPEN":
+            if redis_ops.get_door(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver")) != "OPEN":
                # booked user, but the door is not open
                raise FailPage("The door is not open.")
             # so continue with submit_data
