@@ -111,7 +111,7 @@ def door_control(skicall):
     door_name = cfg.door()
 
     # check current state of the door to ensure action is valid
-    door = redis_ops.get_door(skicall.proj_data.get("rconn_0"), skicall.proj_data.get("redisserver"))
+    door = redis_ops.get_door(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver"))
 
     if (door == 'CLOSED') and (call_data['door', 'action'] == 'open'):
         # open the door
