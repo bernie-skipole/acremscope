@@ -1,17 +1,14 @@
 #!/usr/bin/python3
 
 
-"""temperaturedriver.py
+"""networkmonitor.py
 
-Gets temperature from the pi sensor, and sends it at regular intervals
-
-Initially, this is a simulator, using metoffice data
+Sends a text message every ten seconds, client can check its timestamp, and if
+longer than, say 15 seconds, then the connection can be presumed down
 
 """
 
 import os, sys, collections, asyncio
-
-import urllib.request, json     # required for met office communications
 
 import xml.etree.ElementTree as ET
 
@@ -32,14 +29,9 @@ _STARTTAGS = tuple(b'<' + tag for tag in TAGS)
 _ENDTAGS = tuple(b'</' + tag + b'>' for tag in TAGS)
 
 
-_DEVICE = 'Rempi01 Temperature'
-_NAME = 'ATMOSPHERE'
-_ELEMENT = 'TEMPERATURE'
-
-_MET_OFFICE_KEY = ''
-
-if not _MET_OFFICE_KEY:
-    sys.exit(1)
+_DEVICE = 'Network Monitor'
+_NAME = 'TenSecondHeartbeat'
+_ELEMENT = 'KeepAlive'
 
 
 def driver():
@@ -48,7 +40,7 @@ def driver():
     # now start eventloop to read and write to stdin, stdout
     loop = asyncio.get_event_loop()
 
-    connections = _TEMPERATURE(loop)
+    connections = _MONITOR(loop)
 
     while True:
         try:
@@ -57,14 +49,12 @@ def driver():
             loop.close()
 
 
-class _TEMPERATURE:
+class _MONITOR:
 
     def __init__(self, loop):
         "Sets the data used by the data handler"
         self.loop = loop
-        self.sender = collections.deque(maxlen=100)
-        # start with zero centigrade, which should be immediately overwritten
-        self.temperature, self.timestamp = hardwaretemperature("273.15", datetime.utcnow().isoformat(sep='T'))
+        self.sender = collections.deque(maxlen=5)
 
 
     async def handle_data(self):
@@ -78,27 +68,7 @@ class _TEMPERATURE:
                                                        sys.stdout)
         writer = asyncio.StreamWriter(writer_transport, writer_protocol, None, self.loop)
 
-
         await asyncio.gather(self.reader(reader), self.writer(writer), self.update())
-
-
-    async def update(self):
-        """Gets an updated temperature, and creates a setNumberVector placing it into self.sender for transmission"""
-        # Check every ten minutes
-        while True:            
-            await asyncio.sleep(600)
-            temperature, timestamp = await self.loop.run_in_executor(None, self.setNumberVector)
-            if timestamp == self.timestamp:
-                # no change, continue, and try again in ten minutes
-                continue
-            # a new reading has been obtained
-            self.timestamp = timestamp
-            self.temperature = temperature
-            # since a new reading has been obtained, no point in checking every ten minutes
-            # since readings are updated hourly. So add another wait here of thirty minutes
-            await asyncio.sleep(1800)
-            # this gives a total wait of forty minutes, after which the temperature is
-            # checked agin at ten minute intervals
 
 
     async def writer(self, writer):
@@ -112,10 +82,18 @@ class _TEMPERATURE:
                 await asyncio.sleep(0.5)
 
 
+    async def update(self):
+        """Writes data every ten seconds to sender """
+        while True:
+            await asyncio.sleep(10)
+            # and update self.sender with a setTextVector
+            self.setTextVector()
+
+
     async def reader(self, reader):
         """Reads data from stdin reader which is the input stream of the driver
            if a getProperties is received (only entry in TAGS), then puts a
-           defNumberVector into self.sender"""
+           defTextVector into self.sender"""
         # get received data, and put it into message
         message = b''
         messagetagnumber = None
@@ -149,9 +127,8 @@ class _TEMPERATURE:
                         message = b''
                         messagetagnumber = None
                         continue
-                    ########## does not measure temperature, just gets last measured value,
                     # and sets xml into the sender deque
-                    self.defnumbervector(root)
+                    self.deftextvector(root)
 
                     # and start again, waiting for a new message
                     message = b''
@@ -171,22 +148,21 @@ class _TEMPERATURE:
                     message = b''
                     messagetagnumber = None
                     continue
-                ########## does not measure temperature, just gets last measured value,
                 # and sets xml into the sender deque
-                self.defnumbervector(root)
+                self.deftextvector(root)
 
                 # and start again, waiting for a new message
                 message = b''
                 messagetagnumber = None
 
-    def defnumbervector(self, root):
-        """Responds to a getProperties, and sets temperature defNumberVector in the sender deque.
+    def deftextvector(self, root):
+        """Responds to a getProperties, and sets message defTextVector in the sender deque.
            Returns None"""
 
         if root.tag == "getProperties":
 
             # expecting something like
-            # <getProperties version="1.7" device="Rempi01 Temperature" name="Temperature" />
+            # <getProperties version="1.7" device="Network Monitor" name="TenSecondHeartbeat" />
 
             version = root.get("version")
             if version != "1.7":
@@ -206,23 +182,21 @@ class _TEMPERATURE:
                 return
 
             # create the responce
-            xmldata = ET.Element('defNumberVector')
+            xmldata = ET.Element('defTextVector')
             xmldata.set("device", _DEVICE)
             xmldata.set("name", _NAME)
-            xmldata.set("label", "Temperature (Kelvin)")
+            xmldata.set("label", "Ten second keep-alive")
             xmldata.set("group", "Status")
             xmldata.set("state", "Ok")
             xmldata.set("perm", "ro")
-            xmldata.set("timestamp", self.timestamp)
+            timestamp = datetime.utcnow().isoformat(sep='T')
+            xmldata.set("timestamp", timestamp)
 
-            ne = ET.Element('defNumber')
-            ne.set("name", _ELEMENT)
-            ne.set("format", "%.2f")
-            ne.set("min", "0")
-            ne.set("max", "0")   # min== max means ignore
-            ne.set("step", "0")    # 0 means ignore
-            ne.text = self.temperature
-            xmldata.append(ne)
+            te = ET.Element('defText')
+            te.set("name", _ELEMENT)
+            te.set("label", "Message")
+            te.text = f"{timestamp}: Keep-alive message from {_DEVICE}"
+            xmldata.append(te)
         else:
             # tag not recognised, do not add anything to sender
             return
@@ -232,84 +206,25 @@ class _TEMPERATURE:
         return
 
 
-    def setNumberVector(self):
-        """Sets temperature setNumberVector in the sender deque.
-           Returns new temperature, timestamp"""
-        temperature, timestamp = hardwaretemperature(self.temperature, self.timestamp)
-        # create the setNumberVector
-        xmldata = ET.Element('setNumberVector')
+    def setTextVector(self):
+        """Appends setTextVector in the sender deque."""
+
+        # create the setTextVector
+        xmldata = ET.Element('setTextVector')
         xmldata.set("device", _DEVICE)
         xmldata.set("name", _NAME)
+        timestamp = datetime.utcnow().isoformat(sep='T')
         xmldata.set("timestamp", timestamp)
-        ne = ET.Element('oneNumber')
-        ne.set("name", _ELEMENT)
-        ne.text = temperature
-        xmldata.append(ne)
+        xmldata.set("message", "Sent every 10 seconds, an older timestamp indicates connection failure")
+
+        te = ET.Element('oneText')
+        te.set("name", _ELEMENT)
+        te.text = f"{timestamp}: Keep-alive message from {_DEVICE}"
+        xmldata.append(te)
 
         # appends the xml data to be sent to the sender deque object
         self.sender.append(ET.tostring(xmldata))
-        return temperature, timestamp
-
-
-def hardwaretemperature(temperature, timestamp):
-    """temperature is the current temperature, gets a new value from hardware and returns it
-       with an updated timestamp. Both temperature and timestamp are strings
-       If a temperature cannot be found, returns the old temperature and timestamp"""
-    # Eventually this will use hardware, currently just use the met office
-    try:
-
-        # get a list of available timestamps, and choose the latest (last in list)
-        url = f'http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/json/capabilities?res=hourly&key={_MET_OFFICE_KEY}'
-        with urllib.request.urlopen(url) as response:
-           values = json.loads(response.read())
-
-        # get the last timestemp
-        latest_time = values["Resource"]['TimeSteps']["TS"][-1]
-
-        # remove the TZ info
-        actimestring = latest_time[:-4]
-        if actimestring == timestamp:
-            # no new time temperature is available 
-            return temperature, timestamp
-
-        try:
-            # 3344 = location id for Bingley Samos
-            url = f'http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/json/3344?res=hourly&time={latest_time}&key={_MET_OFFICE_KEY}'
-            with urllib.request.urlopen(url) as response:
-                values = json.loads(response.read())
-            temperature1 = values['SiteRep']['DV']['Location']['Period']['Rep']['T']
-        except:
-            temperature1 = None
-
-        try:
-            # 99060 = location id for Stonyhurst
-            url = f'http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/json/99060?res=hourly&time={latest_time}&key={_MET_OFFICE_KEY}'
-            with urllib.request.urlopen(url) as response:
-               values = json.loads(response.read())
-            temperature2 = values['SiteRep']['DV']['Location']['Period']['Rep']['T']
-        except:
-            temperature2 = None
-
-        # temperature at the Astronomy Centre is estimated as the average of these two,
-        # minus a quarter of a degree due to its height. 273.15 is added to convert to Kelvin
-
-        if temperature1 and temperature2:
-            actemp = (float(temperature1) + float(temperature2))/2.0 - 0.25 + 273.15
-            actempstring = "%.2f" % actemp
-        elif temperature1:
-            actemp = float(temperature1) - 0.25 + 273.15
-            actempstring = "%.2f" % actemp
-        elif temperature2:
-            actemp = float(temperature2) - 0.25 + 273.15
-            actempstring = "%.2f" % actemp
-        else:
-            return temperature, timestamp
-
-    except Exception:
-        # some failure occurred getting the temperature
-        return temperature, timestamp
-
-    return actempstring, actimestring
+        return
 
 
 

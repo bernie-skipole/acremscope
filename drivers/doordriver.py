@@ -65,9 +65,6 @@ def driver():
     while True:
         try:
             loop.run_until_complete(connections.handle_data())
-        except Exception as e:
-            raise
-            print("An exception has occurred")
         finally:
             loop.close()
 
