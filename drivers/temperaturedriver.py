@@ -38,9 +38,6 @@ _ELEMENT = 'TEMPERATURE'
 
 _MET_OFFICE_KEY = ''
 
-if not _MET_OFFICE_KEY:
-    sys.exit(1)
-
 
 def driver():
     "Blocking call"
@@ -256,6 +253,9 @@ def hardwaretemperature(temperature, timestamp):
        with an updated timestamp. Both temperature and timestamp are strings
        If a temperature cannot be found, returns the old temperature and timestamp"""
     # Eventually this will use hardware, currently just use the met office
+    if not _MET_OFFICE_KEY:
+        return temperature, timestamp
+
     try:
 
         # get a list of available timestamps, and choose the latest (last in list)
