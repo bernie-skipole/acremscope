@@ -35,10 +35,14 @@ def index_page(skicall):
                                   'KeepAlive',
                                   'TenSecondHeartbeat',
                                   'Network Monitor')
+    if not monitor:
+        skicall.page_data['show_error'] = "Network Error : Unable to read monitor timestamp"
+        return
 
+    # note fromisoformat method requires python 3.7 +
     timed = datetime.utcnow() - datetime.fromisoformat(monitor['timestamp'])
     if timed.total_seconds() > 15:
-        skicall.page_data['show_error'] = "Network Error : Communications lost"
+        skicall.page_data['show_error'] = "Network Error : Communications to observatory lost"
 
 
 
