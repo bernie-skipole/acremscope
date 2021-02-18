@@ -9,11 +9,11 @@
 
 import subprocess, tempfile, os, random, time, glob
 
-import urllib.request
-
 from datetime import date, timedelta, datetime
 
 from skipole import FailPage, GoTo, ValidateError, ServerError
+
+from indi_mr import tools
 
 from .. import sun, database_ops, redis_ops, cfg
 
@@ -26,6 +26,18 @@ def retrieve_sensors_data(skicall):
     skicall.page_data['led_status', 'para_text'] = "LED : " + redis_ops.get_led(rconn, redisserver)
     skicall.page_data['temperature_status', 'para_text'] = "Temperature : " + redis_ops.last_temperature(rconn, redisserver)
     skicall.page_data['door_status', 'para_text'] = "Door : " + redis_ops.get_door(rconn, redisserver)
+
+    # get timestamp of the network monitor, display alarm if greater than 15 secods
+    # tools.elements_dict returns a dictionary of element attributes for the given element, property and device
+    monitor = tools.elements_dict(rconn, redisserver, 'KeepAlive', 'TenSecondHeartbeat', 'Network Monitor')
+    if not monitor:
+        skicall.page_data['show_error'] = "Network Error : Unable to read monitor timestamp"
+        return
+
+    # note fromisoformat method requires python 3.7 +
+    timed = datetime.utcnow() - datetime.fromisoformat(monitor['timestamp'])
+    if timed.total_seconds() > 15:
+        skicall.page_data['show_error'] = "Network Error : Communications to observatory lost"
 
 
 def temperature_page(skicall):
