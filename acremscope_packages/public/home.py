@@ -10,6 +10,8 @@ from datetime import date, timedelta, datetime
 
 from skipole import FailPage, GoTo, ValidateError, ServerError
 
+from indi_mr import tools
+
 from .. import sun, database_ops, cfg
 
 
@@ -25,6 +27,19 @@ def index_page(skicall):
     message_string = database_ops.get_all_messages()
     if message_string:
         skicall.page_data['messages', 'messages', 'para_text'] = message_string
+
+    # get timestamp of the network monitor, display alarm if greater than 15 secods
+    # tools.elements_dict returns a dictionary of element attributes for the given element, property and device
+    monitor = tools.elements_dict(skicall.proj_data.get("rconn"),
+                                  skicall.proj_data.get("redisserver"),
+                                  'KeepAlive',
+                                  'TenSecondHeartbeat',
+                                  'Network Monitor')
+
+    timed = datetime.utcnow() - datetime.fromisoformat(monitor['timestamp'])
+    if timed.total_seconds() > 15:
+        skicall.page_data['show_error'] = "Network Error : Communications lost"
+
 
 
 def index_image(skicall):
