@@ -1,5 +1,6 @@
-# sends indi data via mqtt
+#!/home/bernard/acenv/bin/python3
 
+# sends indi data via mqtt
 
 from indi_mr import driverstomqtt, mqtt_server
 
@@ -7,8 +8,8 @@ from indi_mr import driverstomqtt, mqtt_server
 mqtt_host = mqtt_server(host='localhost', port=1883)
 
 # blocking call which runs the service, communicating between drivers and mqtt
-driverstomqtt([ "/home/bernard/www/drivers/leddriver.py",
-                "/home/bernard/www/drivers/networkmonitor.py",
-                "/home/bernard/www/drivers/temperaturedriver.py",
-                "/home/bernard/www/drivers/doordriver.py"], 'pi_01', mqtt_host)
+driverstomqtt([ "/home/bernard/indi/leddriver.py",
+                "/home/bernard/indi/networkmonitor.py",
+                "/home/bernard/indi/temperaturedriver.py",
+                "/home/bernard/indi/doordriver.py"], 'pi_01', mqtt_host)
 
