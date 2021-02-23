@@ -154,23 +154,6 @@ The site will be visible at.
 
 [https://webparametrics.co.uk/acremscope](https://webparametrics.co.uk/acremscope)
 
-## Install mqttdrivers.service
-
-Normally a set of drivers, communicating between instruments and MQTT would be running at a remote location. However initially a set of simulation drivers are running instead, on the same container. These are started with a service.
-
-as root, copy the file
-
-cp /home/bernard/www/mqttdrivers.service /lib/systemd/system
-
-Enable the service with
-
-systemctl daemon-reload
-
-systemctl enable mqttdrivers.service
-
-systemctl start mqttdrivers
-
-This starts /home/bernard/www/mqttdrivers.py on boot up, which in turn starts the drivers in the /home/bernard/www/drivers directory.
 
 ## Install indidrivers.service
 
