@@ -29,7 +29,7 @@ def refresh_led_status(skicall):
 def led_on(skicall):
     "Send a request to light led"
     tools.newswitchvector(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver"),
-                          "LED", "Rempi01 LED", {"LED ON":"On", "LED OFF":"Off"})
+                          "LED", "Rempico01", {"LED ON":"On", "LED OFF":"Off"})
     skicall.page_data['status', 'para_text'] = "LED ON request sent"
     skicall.page_data['status', 'hide'] = False
 
@@ -37,7 +37,7 @@ def led_on(skicall):
 def led_off(skicall):
     "Send a request to turn off led"
     tools.newswitchvector(skicall.proj_data.get("rconn"), skicall.proj_data.get("redisserver"),
-                          "LED", "Rempi01 LED", {"LED ON":"Off", "LED OFF":"On"})
+                          "LED", "Rempico01", {"LED ON":"Off", "LED OFF":"On"})
     skicall.page_data['status', 'para_text'] = "LED OFF request sent"
     skicall.page_data['status', 'hide'] = False
 

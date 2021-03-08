@@ -286,7 +286,7 @@ def get_led(rconn, redisserver):
         return 'UNKNOWN'
     try:
         #led_status = rconn.get('led').decode('utf-8')
-        led = tools.elements_dict(rconn, redisserver, "LED ON", "LED", "Rempi01 LED")
+        led = tools.elements_dict(rconn, redisserver, "LED ON", "LED", "Rempico01")
         # led should be a dictionary, key 'value' should be On or Off
         if not led:
             return "UNKNOWN"
@@ -328,7 +328,7 @@ def get_temperatures(rconn, redisserver):
         raise FailPage("Unable to access redis temperature variable")
     # get data from redis
     try:
-        elementlogs = tools.logs(rconn, redisserver, 48, 'elementattributes', "TEMPERATURE", "ATMOSPHERE", "Rempi01 Temperature")
+        elementlogs = tools.logs(rconn, redisserver, 48, 'elementattributes', "TEMPERATURE", "ATMOSPHERE", "Rempico01")
         if not elementlogs:
             return []
         dataset = [] # needs to be a list of lists of [day, time, temperature]
@@ -354,7 +354,7 @@ def last_temperature(rconn, redisserver):
         return ''
     # get data from redis
     try:
-        element_att = tools.elements_dict(rconn, redisserver, "TEMPERATURE", "ATMOSPHERE", "Rempi01 Temperature")
+        element_att = tools.elements_dict(rconn, redisserver, "TEMPERATURE", "ATMOSPHERE", "Rempico01")
         # element_att should be a dictionary
         if not element_att:
             return ''
