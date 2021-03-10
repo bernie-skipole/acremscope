@@ -124,11 +124,7 @@ As user bernard
 
 Edit the file /home/bernard/www/acremscope_packages/cfg.py to have the correct database ip, usernames passwords.
 
-In particular set the lines in the _CONFIG directory:
-
-mqtt_ip : 10.105.192.1
-
-and
+In particular set the line in the _CONFIG directory:
 
 postgresql_ip : 10.105.192.252
 
@@ -158,6 +154,8 @@ The site will be visible at.
 ## Install indidrivers.service
 
 This runs an indi client, pulling data from MQTT and storing it in redis. I may rename it indiclient in future since its name is misleading.
+
+The python script /home/bernard/www/indidrivers.py is to be started on boot up. First view the file, it sets the ip addresses of redis and mqtt servers, ensure these point to the correct addresses.
 
 It is started with a service.
 

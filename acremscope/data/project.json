@@ -3,7 +3,7 @@
 "default_language": "en",
 "brief": "Astronomy Centre Robotic Telescope",
 "version": "0.0.1",
-"skipole": "5.2.1",
+"skipole": "5.2.2",
 "specialpages": {
 "addguest": 3404,
 "book_members": 3222,
@@ -22763,21 +22763,6 @@ false
 ]
 ]
 }
-],
-[
-"Part",
-{
-"tag_name": "p",
-"brief": "met office",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"Text",
-"Contains public sector information licensed under the Open Government Licence"
-]
-]
-}
 ]
 ]
 }
@@ -23375,50 +23360,6 @@ false
 [
 "Text",
 "http://mkweb.bcgsc.ca/universe-voids-and-superclusters/constellation.shapes.iau.txt"
-]
-]
-}
-]
-]
-}
-],
-[
-"Part",
-{
-"tag_name": "p",
-"brief": "Met office",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"Text",
-"Temperature and other weather data derived from the Met Office Datapoint service.\r\n\"Contains public sector information licensed under the Open Government Licence\""
-]
-]
-}
-],
-[
-"Part",
-{
-"tag_name": "p",
-"brief": "Link to datapoint",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"Part",
-{
-"tag_name": "a",
-"brief": "Link to https://www.metoffice.gov.uk/services/data/datapoint",
-"show": true,
-"hide_if_empty": false,
-"attribs": {
-"href": "https://www.metoffice.gov.uk/services/data/datapoint"
-},
-"parts": [
-[
-"Text",
-"https://www.metoffice.gov.uk/services/data/datapoint"
 ]
 ]
 }
