@@ -26,10 +26,12 @@ def fill_edit_sessions(skicall):
     if sessions:
         # sessions are enabled
         page_data['enabletext', 'para_text'] = "Sessions Enabled."
+        page_data['enabletext', 'widget_class'] = "w3-section w3-green"
         page_data['enable', 'button_text'] = "Disable Sessions"
         page_data['enable', 'link_ident'] = "disable_sessions"
     else:
         page_data['enabletext', 'para_text'] = "Sessions Disabled."
+        page_data['enabletext', 'widget_class'] = "w3-section w3-red"
         page_data['enable', 'button_text'] = "Enable Sessions"
         page_data['enable', 'link_ident'] = "enable_sessions"
 
@@ -209,6 +211,7 @@ def list_slots(skicall):
                 else:
                     # session disabled
                     col0_classes.append('w3-grey')
+                    column_text = column_text + " Disabled"
             elif status == 1:
                 # session booked
                 col0_classes.append('w3-red')
@@ -229,9 +232,12 @@ def list_slots(skicall):
             else:
                 # session disabled
                 col0_classes.append('w3-grey')
+                column_text = column_text + " Disabled"
                 if sessions_enabled:
                     # can enable it
                     but2 = True
+
+
 
             str_seq = str(slot.sequence)
 

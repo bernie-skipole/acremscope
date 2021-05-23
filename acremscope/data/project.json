@@ -3,7 +3,7 @@
 "default_language": "en",
 "brief": "Astronomy Centre Robotic Telescope",
 "version": "0.0.1",
-"skipole": "5.2.2",
+"skipole": "5.3.3",
 "specialpages": {
 "addguest": 3404,
 "book_members": 3222,
@@ -908,7 +908,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -918,7 +919,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -4014,7 +4016,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -4024,7 +4027,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -4431,7 +4435,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -4441,7 +4446,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -4673,7 +4679,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -4683,7 +4690,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -5437,7 +5445,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -5447,7 +5456,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -8251,7 +8261,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -8261,7 +8272,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -8682,7 +8694,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -8692,7 +8705,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -9024,7 +9038,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -9034,7 +9049,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -10148,7 +10164,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -10158,7 +10175,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -10404,7 +10422,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -10414,7 +10433,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -10907,7 +10927,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -10917,7 +10938,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -11202,7 +11224,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -11212,7 +11235,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -11458,7 +11482,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -11468,7 +11493,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -11878,7 +11904,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -11888,7 +11915,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -11953,7 +11981,8 @@ false,
 "section_name": "planetposition",
 "placename": "planetposition",
 "multiplier": 9,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ]
 ]
@@ -12333,7 +12362,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -12343,7 +12373,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -12371,7 +12402,8 @@ false,
 "section_name": "messages",
 "placename": "messages",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -12444,7 +12476,8 @@ false,
 "section_name": "footer",
 "placename": "footer",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ]
 ]
@@ -12634,7 +12667,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -12644,7 +12678,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -13022,7 +13057,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -13032,7 +13068,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -13381,7 +13418,8 @@ false,
 "section_name": "slot",
 "placename": "slot_0",
 "multiplier": 24,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ]
 ]
@@ -13423,7 +13461,8 @@ false,
 "section_name": "slot",
 "placename": "slot_1",
 "multiplier": 24,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ]
 ]
@@ -13604,7 +13643,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -13614,7 +13654,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -13773,7 +13814,8 @@ false,
 "section_name": "publicslot",
 "placename": "slot_0",
 "multiplier": 24,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ]
 ]
@@ -13815,7 +13857,8 @@ false,
 "section_name": "publicslot",
 "placename": "slot_1",
 "multiplier": 24,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ]
 ]
@@ -14204,7 +14247,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -14214,7 +14258,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -14941,7 +14986,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -14951,7 +14997,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -15489,7 +15536,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -15499,7 +15547,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -16160,7 +16209,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -16170,7 +16220,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -16653,7 +16704,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -16663,7 +16715,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -17103,7 +17156,8 @@ false
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -17113,7 +17167,8 @@ false
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -17666,7 +17721,8 @@ false
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -17676,7 +17732,8 @@ false
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -17983,7 +18040,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -17993,7 +18051,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -18452,7 +18511,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -18462,7 +18522,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -18814,7 +18875,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -18824,7 +18886,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -18880,6 +18943,17 @@ false,
 },
 "parts": [
 [
+"Part",
+{
+"tag_name": "div",
+"brief": "centre enable status",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container w3-center"
+},
+"parts": [
+[
 "Widget",
 {
 "class": "paras.ParaText",
@@ -18888,9 +18962,12 @@ false,
 "fields": {
 "para_text": "You can disable all members 'Book Session' facility. Any sessions currently booked will not be affected.",
 "show": true,
-"widget_class": "ski_top_bot_10 boldfont",
-"widget_style": ""
+"widget_class": "w3-section",
+"widget_style": "font-weight: bold; text-shadow:1px 1px 0 #444"
 }
+}
+]
+]
 }
 ],
 [
@@ -19086,21 +19163,6 @@ false,
 ]
 ]
 }
-],
-[
-"Part",
-{
-"tag_name": "p",
-"brief": "About days",
-"show": true,
-"hide_if_empty": false,
-"parts": [
-[
-"Text",
-"Sessions in the nights listed above can be freed, booked, enabled or disabled. Further nights can be accessed by choosing one of the above and then using the 'Next Night' option."
-]
-]
-}
 ]
 ]
 }
@@ -19274,7 +19336,8 @@ false,
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -19284,7 +19347,8 @@ false,
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -19480,6 +19544,45 @@ false
 "get_field4": "",
 "hide": false,
 "link_ident": "prev_day",
+"show": true,
+"show_error": "",
+"target": "",
+"widget_class": "w3-button w3-block w3-theme-d4",
+"widget_style": ""
+}
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "button div",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "ski_mid_button"
+},
+"parts": [
+[
+"Widget",
+{
+"class": "links.ButtonLink1",
+"name": "editsessions",
+"brief": "back to sessions control",
+"fields": {
+"button_text": "Back to Sessions Control",
+"clear_error": false,
+"error_class": "w3-button w3-block w3-theme-action",
+"force_ident": true,
+"get_field1": "",
+"get_field2": "",
+"get_field3": "",
+"get_field4": "",
+"hide": false,
+"link_ident": "editsessions",
 "show": true,
 "show_error": "",
 "target": "",
@@ -20120,7 +20223,8 @@ false
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -20130,7 +20234,8 @@ false
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -21319,7 +21424,8 @@ false
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -21329,7 +21435,8 @@ false
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -21699,7 +21806,8 @@ false
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -21709,7 +21817,8 @@ false
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -22570,7 +22679,8 @@ false
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -22580,7 +22690,8 @@ false
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -22985,7 +23096,8 @@ false
 "section_name": "navigation",
 "placename": "navigation",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [
@@ -22995,7 +23107,8 @@ false
 "section_name": "header",
 "placename": "header",
 "multiplier": 0,
-"mtag": "div"
+"mtag": "div",
+"show": true
 }
 ],
 [

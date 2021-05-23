@@ -407,7 +407,7 @@ _HEADER_TEXT = {    2: "About this web site build.",
                  3540: "Edit Users Page",
                  3610: "Edit User Page",
                  3620: "Set administrator PIN",
-                 3701: "Edit sessions page",
+                 3701: "Sessions Control",
                  3702: "Choose a session",
                  3703: "Confirm free session",
                  3720: "Book a session",
@@ -735,7 +735,7 @@ if __name__ == "__main__":
 
     ###################### Remove for deployment ##################################
     #                                                                              #
-    set_debug(True)                                                               #
+    #set_debug(True)                                                               #
     #from skipole import skiadmin                                                  #
     #skiadmin_application = skiadmin.makeapp(editedprojname=PROJECT)               #
     #application.add_project(skiadmin_application, url='/acremscope/skiadmin')     #
