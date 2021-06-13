@@ -130,6 +130,9 @@ postgresql_ip : 10.105.192.252
 
 This informs the web service how to connect to these servers.
 
+Edit the file /home/bernard/www/astrodata/metoffice.py to contain the correct met office api keys, so the file can download
+weather data.
+
 ## Install acremscope.service
 
 as root, copy the file
@@ -185,11 +188,15 @@ crontab -u bernard -e
 
 15 10 * * * /usr/bin/python3 /home/bernard/www/astrodata/clientrequests.py >/dev/null 2>&1
 
+30 9,16 * * * /usr/bin/python3 /home/bernard/www/astrodata/metoffice.py >/dev/null 2>&1
+
 make_planets.py is run at 10:30 each day, which populates planet.db with planetary positions
 
 IERS_A.py is run at 9:00 every Saturday, It downloads the IERS bulletin A for Astroplan earth location
 
 clientrequests.py is run at 10:15 each day, which requests dome door closure
+
+metoffice.py is run at 9:30 and 16:30 each day, and calls a met office api to obtain weather data which is sets into file weather.json.
 
 
 

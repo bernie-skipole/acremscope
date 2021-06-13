@@ -69,7 +69,7 @@ def weathertime(weatherfile, timestring):
 
 if __name__ == "__main__":
 
-    # NOTE: This call needs to be edited with the correct longitude, latitude and met office values
+    # NOTE: This call needs to be edited with the correct longitude, latitude and met office api values
 
     get_weather("weather.json",
                 longitude=-2.1544,
@@ -78,10 +78,9 @@ if __name__ == "__main__":
                 met_client_secret="")
 
     # datetime needed in a format like 2021-06-13T12:00Z
-    thistime = datetime.datetime.now(datetime.timezone.utc).strftime("%G-%m-%dT%H:00Z")
-
-    result = weathertime("weather.json", thistime)
-    print(result)
+    #thistime = datetime.datetime.now(datetime.timezone.utc).strftime("%G-%m-%dT%H:00Z")
+    #result = weathertime("weather.json", thistime)
+    #print(result)
 
 
 # As root create a cron table with:
