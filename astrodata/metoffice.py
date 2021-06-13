@@ -1,4 +1,4 @@
-import json
+import json, datetime
 
 from urllib.request import Request, urlopen
 
@@ -77,7 +77,10 @@ if __name__ == "__main__":
                 met_client_id="",
                 met_client_secret="")
 
-    result = weathertime("weather.json", "2021-06-11T21:00Z")
+    # datetime needed in a format like 2021-06-13T12:00Z
+    thistime = datetime.datetime.now(datetime.timezone.utc).strftime("%G-%m-%dT%H:00Z")
+
+    result = weathertime("weather.json", thistime)
     print(result)
 
 
