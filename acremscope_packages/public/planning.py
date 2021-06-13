@@ -5,12 +5,12 @@
 ##################################
 
 
-import os, sys, sqlite3, math
+import os, sys, sqlite3, math, json
 
 from datetime import date, datetime, timedelta
 from collections import namedtuple
 
-from skipole import FailPage, GoTo, ValidateError, ServerError
+from skipole import FailPage, GoTo, ValidateError, ServerError, PageData, SectionData
 
 # target for finder chart, note dec_sign is a string '+' or '-'
 Target = namedtuple('Target', ['target_name', 'planning_date', 'target_datetime', 'str_date', 'str_time', 'ra', 'dec', 'alt', 'az',
@@ -22,13 +22,22 @@ import astropy.units as u
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz, name_resolve, solar_system_ephemeris, get_body, Angle, PrecessedGeocentric
 from astropy.time import Time
 
-from ..cfg import observatory, get_planetdb, planetmags
+from ..cfg import observatory, get_planetdb, planetmags, get_astrodata_directory
 from ..sun import Slot
 from ..stars import get_stars, radec_to_xy, xy_constellation_lines, get_planets, get_named_object_slots, get_unnamed_object_slots, get_named_object_intervals, get_unnamed_object_intervals
 
 # These are mean apparant visual magnitudes, except for pluto, which is a rough guesstimate
 
 _PLANETS = planetmags()
+
+SIG_WEATHER = ["Clear night", "Sunny day", "Partly cloudy (night)", "Partly cloudy (day)",
+               "Not used", "Mist", "Fog", "Cloudy", "Overcast", "Light rain shower (night)",
+               "Light rain shower (day)", "Drizzle", "Light rain", "Heavy rain shower (night)",
+               "Heavy rain shower (day)", "Heavy rain", "Sleet shower (night)", "Sleet shower (day)",
+               "Sleet", "Hail shower (night)", "Hail shower (day)", "Hail", "Light snow shower (night)",
+               "Light snow shower (day)", "Light snow", "Heavy snow shower (night)", "Heavy snow shower (day)",
+               "Heavy snow", "Thunder shower (night)", "Thunder shower (day)", "Thunder"]
+
 
 
 def target_from_store(skicall):
@@ -650,7 +659,8 @@ def detail(skicall):
     """Fills in the detail page, from ident data and received hour info"""
 
     call_data = skicall.call_data
-    page_data = skicall.page_data
+    pd = call_data['pagedata']
+    sd_weather = SectionData("weather")
 
     # gets a Target tuple from call_data['stored_values']
     storedtarget = target_from_store(skicall)
@@ -722,9 +732,9 @@ def detail(skicall):
     # result list is a list of lists : [ datetime, ra(J2000), dec(J2000), alt, az, ra(precessed), dec(precessed)]
 
     if altaz:
-        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "ALT (Degrees)", "AZ (Degrees)"]
+        pd['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "ALT (Degrees)", "AZ (Degrees)"]
     else:
-        page_data['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "RA (Precessed)", "DEC (Precessed)"]
+        pd['table', 'titles'] = ["Time (UTC)", "RA (J2000)", "DEC (J2000)", "RA (Precessed)", "DEC (Precessed)"]
 
     # for each cell; [0:text in the table, 1:the text color, 2:the background color]
 
@@ -757,34 +767,64 @@ def detail(skicall):
                 contents.append([ra_pg, 'red', 'grey'])
                 contents.append([dec_pg, 'red', 'grey'])
 
-    page_data['table', 'contents'] = contents
+    pd['table', 'contents'] = contents
 
     if target_name:
-        page_data['toppara', 'para_text'] = "Ephemeris for %s" % (target_name,)
+        pd['toppara', 'para_text'] = "Ephemeris for %s" % (target_name,)
     else:
-        page_data['toppara', 'para_text'] = "Ephemeris for %s, %s" % (target_ra, target_dec)
-    page_data['fromdate','para_text'] = "at 10 minute intervals for session starting " + result_list[0][0].isoformat(sep=' ')
-    page_data['todate','para_text'] = "and ending " + result_list[-1][0].isoformat(sep=' ')
+        pd['toppara', 'para_text'] = "Ephemeris for %s, %s" % (target_ra, target_dec)
+    pd['fromdate','para_text'] = "at 10 minute intervals for session starting " + result_list[0][0].isoformat(sep=' ')
+    pd['todate','para_text'] = "and ending " + result_list[-1][0].isoformat(sep=' ')
 
-    page_data['printout', 'get_field1'] = target_datetime
-    page_data['coords', 'get_field1'] = target_datetime
+    pd['printout', 'get_field1'] = target_datetime
+    pd['coords', 'get_field1'] = target_datetime
     if altaz:
-        page_data['coords', 'button_text'] = "Precessed"
-        page_data['printout', 'get_field2'] = "altaz"
+        pd['coords', 'button_text'] = "Precessed"
+        pd['printout', 'get_field2'] = "altaz"
         if back_to_session:
-            page_data['coords', 'get_field2'] = "session_pg"
-            page_data['back', 'link_ident'] = "30201"
+            pd['coords', 'get_field2'] = "session_pg"
+            pd['back', 'link_ident'] = "30201"
         else:
-            page_data['coords', 'get_field2'] = "pg"
+            pd['coords', 'get_field2'] = "pg"
     else:
-        page_data['coords', 'button_text'] = "Alt Az"
-        page_data['printout', 'get_field2'] = "pg"
+        pd['coords', 'button_text'] = "Alt Az"
+        pd['printout', 'get_field2'] = "pg"
         if back_to_session:
-            page_data['coords', 'get_field2'] = "session_altaz"
-            page_data['back', 'link_ident'] = "30201"
+            pd['coords', 'get_field2'] = "session_altaz"
+            pd['back', 'link_ident'] = "30201"
         else:
-            page_data['coords', 'get_field2'] = "altaz"
+            pd['coords', 'get_field2'] = "altaz"
 
+
+    # datetime needed in a format like 2021-06-13T12:00Z
+    thistime = start.strftime("%G-%m-%dT%H:00Z")
+    weatherfile = os.path.join(get_astrodata_directory(),"weather.json")
+    try:
+        with open(weatherfile, 'r') as fp:
+            weather_dict = json.load(fp)
+
+        if thistime not in weather_dict:
+            sd_weather.show = False
+        else:
+            weathernow = weather_dict[thistime]
+            columns = list(zip(*weathernow))
+            sd_weather["wtable","col1"] = columns[0]
+            sd_weather["wtable","col2"] = columns[1]
+            sd_weather["wtable","col3"] = columns[2]
+            sd_weather["weatherhead","large_text"] = f"Met office data for UTC time : {thistime[:-4]}"
+            try:
+                index = columns[0].index("Significant Weather Code")
+                code = int(columns[1][index])
+                sd_weather["weatherhead","small_text"] = "Weather summary : " + SIG_WEATHER[code]
+            except:
+                pass                
+            sd_weather["weatherhead","large_text"]
+    except:
+        # The file does not exist, or is not readable by json
+        sd_weather.show = False
+
+    pd.update(sd_weather)
+    skicall.update(pd)
 
 
 

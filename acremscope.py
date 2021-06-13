@@ -9,7 +9,7 @@ The host server will use nginx to forward calls to this port 8000
 
 import os, sys, random
 
-from skipole import WSGIApplication, FailPage, GoTo, ValidateError, ServerError, set_debug, use_submit_list, skis
+from skipole import WSGIApplication, FailPage, GoTo, ValidateError, ServerError, set_debug, use_submit_list, skis, PageData, SectionData
 
 from indi_mr import redis_server
 
@@ -217,6 +217,7 @@ def start_call(called_ident, skicall):
 
     # set initial call_data values
     skicall.call_data = { "project":skicall.project,
+                          "pagedata": PageData(),
                           "called_ident":called_ident,
                           "authenticated":False,
                           "loggedin":False,

@@ -736,6 +736,64 @@ false,
 ]
 ]
 }
+],
+"weather": [
+"Section",
+{
+"tag_name": "div",
+"brief": "Display weather table",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-section"
+},
+"parts": [
+[
+"Widget",
+{
+"class": "headers.HeaderText3",
+"name": "weatherhead",
+"brief": "Displays date for weather",
+"fields": {
+"clear_error": false,
+"error_class": "",
+"h_class": "",
+"h_style": "",
+"large_text": "",
+"p_class": "",
+"p_style": "",
+"show": true,
+"show_error": "",
+"small_text": "",
+"widget_class": "",
+"widget_style": ""
+}
+}
+],
+[
+"Widget",
+{
+"class": "tables.ThreeColTable1",
+"name": "wtable",
+"brief": "Displays data from the met office",
+"fields": {
+"col1": [],
+"col2": [],
+"col3": [],
+"even_class": "",
+"header_class": "w3-theme-d3",
+"odd_class": "w3-theme-d2",
+"show": true,
+"title1": "",
+"title2": "",
+"title3": "",
+"widget_class": "w3-table w3-theme-d1 w3-border w3-bordered",
+"widget_style": ""
+}
+}
+]
+]
+}
 ]
 },
 "RootFolder": {
@@ -8494,6 +8552,17 @@ false,
 "widget_class": "w3-section",
 "widget_style": ""
 }
+}
+],
+[
+"SectionPlaceHolder",
+{
+"brief": "Met office",
+"section_name": "weather",
+"placename": "weather",
+"multiplier": 0,
+"mtag": "div",
+"show": true
 }
 ]
 ]
@@ -22736,6 +22805,46 @@ false
 },
 "parts": [
 [
+"SectionPlaceHolder",
+{
+"brief": "Displays the weather table",
+"section_name": "weather",
+"placename": "weather",
+"multiplier": 0,
+"mtag": "div",
+"show": true
+}
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "Div holding intrument header",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-section"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "h3",
+"brief": "Instrument header text",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Temperature from instrument sensor (RP2040)"
+]
+]
+}
+]
+]
+}
+],
+[
 "Part",
 {
 "tag_name": "div",
@@ -23473,6 +23582,45 @@ false
 [
 "Text",
 "http://mkweb.bcgsc.ca/universe-voids-and-superclusters/constellation.shapes.iau.txt"
+]
+]
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "met office",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Weather data from the met office -"
+],
+[
+"HTMLSymbol",
+{
+"text": "&nbsp;"
+}
+],
+[
+"Part",
+{
+"tag_name": "a",
+"brief": "link to metoffice",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"href": "https://www.metoffice.gov.uk/services/data"
+},
+"parts": [
+[
+"Text",
+"https://www.metoffice.gov.uk/services/data"
 ]
 ]
 }
