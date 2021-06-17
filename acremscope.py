@@ -72,6 +72,8 @@ _UNPROTECTED_PAGES = [1,         # index
                      30103,      # detail ephemeris calculation over an hour interval
                      30104,      # back to session table display
                      30105,      # detail printout
+                     30106,      # planetarium
+                     30107,      # back to finder chart from planetarium
                      30111,      # request finder chart
                      30112,      # Change view
                      30113,      # rotate plus 20
@@ -433,6 +435,7 @@ _HEADER_TEXT = {    2: "About this web site build.",
                 30151: "Session Planning",
                 30153: "Target Ephemeris",
                 30154: "Target Ephemeris",
+                30156: "Planetarium",
                 30161: "Finder chart",
                 30251: "Planet Positions",
                 75002: "Telescope Alt Az control"

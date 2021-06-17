@@ -3,7 +3,7 @@
 "default_language": "en",
 "brief": "Astronomy Centre Robotic Telescope",
 "version": "0.0.1",
-"skipole": "5.3.3",
+"skipole": "5.3.6",
 "specialpages": {
 "addguest": 3404,
 "book_members": 3222,
@@ -7154,6 +7154,82 @@ false,
 ]
 ]
 }
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "Holds buttons",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"style": "margin-left:auto;width:20em;margin-right:auto;"
+},
+"parts": [
+[
+"Widget",
+{
+"class": "links.ButtonLink2",
+"name": "planetarium",
+"brief": "button to go to the planetarium page",
+"fields": {
+"button_class": "w3-button w3-block w3-theme-d4",
+"button_style": "",
+"button_text": "Photographic View",
+"button_wait_text": "Please wait...",
+"buttondiv_class": "",
+"buttondiv_style": "",
+"clear_error": false,
+"error_class": "w3-panel w3-red",
+"get_field1": "",
+"get_field2": "",
+"hide": false,
+"json_ident": "",
+"link_ident": "30106",
+"show": true,
+"show_error": "",
+"widget_class": "w3-section",
+"widget_style": ""
+}
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "About the planetarium",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-section"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "Paragraph containing textblock",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"TextBlock",
+{
+"textref": "aboutplanetarium",
+"failmessage": "TextBlock not found",
+"show": true,
+"escape": true,
+"linebreaks": true
+}
+]
+]
+}
+]
+]
+}
 ]
 ]
 }
@@ -8922,6 +8998,332 @@ false,
 }
 ]
 },
+"planetarium": {
+"ident": 30156,
+"brief": "planetarium template",
+"TemplatePage": {
+"show_backcol": true,
+"last_scroll": true,
+"interval": 0,
+"interval_target": null,
+"catch_to_html": null,
+"lang": "en",
+"backcol": "#28069d",
+"default_error_widget": [
+"header",
+"top_error"
+]
+},
+"head": [
+"Part",
+{
+"tag_name": "head",
+"brief": "The head section of the page",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"ClosedPart",
+{
+"tag_name": "meta",
+"brief": "The charset meta declaration",
+"show": true,
+"attribs": {
+"charset": "utf-8"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "meta",
+"brief": "The viewport meta declaration",
+"show": true,
+"attribs": {
+"content": "width=device-width, initial-scale=1",
+"name": "viewport"
+}
+}
+],
+[
+"Part",
+{
+"tag_name": "title",
+"brief": "The page title element",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Planetarium"
+]
+]
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to w3_css",
+"show": true,
+"attribs": {
+"href": "{w3_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to w3_theme_ski_css",
+"show": true,
+"attribs": {
+"href": "{w3_theme_ski_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "css link to ski_css",
+"show": true,
+"attribs": {
+"href": "{ski_css}",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"ClosedPart",
+{
+"tag_name": "link",
+"brief": "Link to Aladin Lite CSS file",
+"show": true,
+"attribs": {
+"href": "https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css",
+"rel": "stylesheet",
+"type": "text/css"
+}
+}
+],
+[
+"Part",
+{
+"tag_name": "script",
+"brief": "script link to jquery_core",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"src": "{jquery_core}"
+},
+"parts": []
+}
+],
+[
+"Part",
+{
+"tag_name": "script",
+"brief": "script link to skipole_js",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"src": "{skipole_js}"
+},
+"parts": []
+}
+],
+[
+"Part",
+{
+"tag_name": "script",
+"brief": "script to aladin.u-strasbg.fr",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"charset": "utf-8",
+"src": "https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js",
+"type": "text/javascript"
+},
+"parts": []
+}
+]
+]
+}
+],
+"body": [
+"Part",
+{
+"tag_name": "body",
+"brief": "The body section of the page",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-theme"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "container",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-container"
+},
+"parts": [
+[
+"SectionPlaceHolder",
+{
+"brief": "Left navigation panel",
+"section_name": "navigation",
+"placename": "navigation",
+"multiplier": 0,
+"mtag": "div",
+"show": true
+}
+],
+[
+"SectionPlaceHolder",
+{
+"brief": "Page header",
+"section_name": "header",
+"placename": "header",
+"multiplier": 0,
+"mtag": "div",
+"show": true
+}
+],
+[
+"Widget",
+{
+"class": "links.OpenButton",
+"name": "opennav",
+"brief": "Opens the navigation panel",
+"fields": {
+"get_field1": "",
+"get_field2": "",
+"link_ident": "",
+"show": true,
+"target_section": "navigation",
+"target_widget": "",
+"widget_class": "w3-button w3-theme-d4 w3-xlarge w3-hide-large",
+"widget_style": "margin-top:5px"
+}
+}
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "main",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-main",
+"style": "margin-left:200px"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "Containing div to centre and size",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-content w3-section",
+"style": "max-width:600px;height:600px;"
+},
+"parts": [
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "aladin planetarium",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"id": "aladin-lite-div",
+"style": "width:100%;height:100%;"
+},
+"parts": []
+}
+],
+[
+"Widget",
+{
+"class": "paras.TagUnEscaped",
+"name": "aladin",
+"brief": "aladin script code",
+"fields": {
+"content": "",
+"show": true,
+"tag": "script",
+"widget_class": "",
+"widget_style": ""
+}
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "div",
+"brief": "button div",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-section",
+"style": "margin-left:auto;width:20em;margin-right:auto;"
+},
+"parts": [
+[
+"Widget",
+{
+"class": "inputforms.SubmitFromScript",
+"name": "callfinder",
+"brief": "Back to the finder page",
+"fields": {
+"action": "30107",
+"action_json": "",
+"button_class": "w3-button w3-block w3-theme-d4",
+"button_text": "Back to Finder Chart",
+"buttondiv_class": "",
+"buttondiv_style": "",
+"hidden_field1": "return aladin.getFov()[0];",
+"hidden_field2": "return aladin.getRaDec()[0];",
+"hidden_field3": "return aladin.getRaDec()[1];",
+"hidden_field4": "",
+"hide": false,
+"show": true,
+"target": "",
+"widget_class": "",
+"widget_style": "width:100%;"
+}
+}
+]
+]
+}
+]
+]
+}
+]
+]
+}
+]
+]
+}
+]
+},
 "planning_template": {
 "ident": 30151,
 "brief": "Template for the session plannning page",
@@ -9839,6 +10241,35 @@ false,
 }
 }
 },
+"callfinder": {
+"ident": 30107,
+"brief": "Called from planetarium page to return to the finder",
+"RespondPage": {
+"class": "AllowStore",
+"original_args": {
+"allowed_callers": [
+30156
+],
+"alternate_ident": "home",
+"fail_ident": "home",
+"submit_list": [
+"acremscope_packages",
+"public",
+"planning",
+"callfinder"
+],
+"submit_option": true,
+"target_ident": 30161,
+"validate_fail_ident": null,
+"validate_option": false
+},
+"original_fields": {
+"callfinder:hidden_field1": "",
+"callfinder:hidden_field2": "",
+"callfinder:hidden_field3": ""
+}
+}
+},
 "detailplan": {
 "ident": 30103,
 "brief": "calculates alt az over an hour",
@@ -9912,6 +10343,25 @@ false,
 "target_from_stored_planning"
 ],
 "target_ident": 30152
+},
+"original_fields": {}
+}
+},
+"planetarium": {
+"ident": 30106,
+"brief": "Displays aladin planetarium",
+"RespondPage": {
+"class": "SubmitData",
+"original_args": {
+"allowed_callers": [],
+"fail_ident": "home",
+"submit_list": [
+"acremscope_packages",
+"public",
+"planning",
+"planetarium"
+],
+"target_ident": 30156
 },
 "original_fields": {}
 }
@@ -23621,6 +24071,45 @@ false
 [
 "Text",
 "https://www.metoffice.gov.uk/services/data"
+]
+]
+}
+]
+]
+}
+],
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "aladin",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"Sky Atlas uses Aladin Light -"
+],
+[
+"HTMLSymbol",
+{
+"text": "&nbsp;"
+}
+],
+[
+"Part",
+{
+"tag_name": "a",
+"brief": "link to aladin",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"href": "http://aladin.unistra.fr/"
+},
+"parts": [
+[
+"Text",
+"http://aladin.unistra.fr/"
 ]
 ]
 }

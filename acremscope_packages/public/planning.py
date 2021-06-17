@@ -1948,6 +1948,91 @@ def _slot_from_received_data(received_data):
     return Slot(startday, sequence)
 
 
+def planetarium(skicall):
+    """Fills in the planetarium page"""
+    # get the current position
+    storedtarget = target_from_store(skicall)
+    if not storedtarget:
+        # no ident data
+        raise FailPage("Target data unavailable")
+    # set the current position into the aladin atlas initialisation script
+
+    try:
+        ra = Angle(storedtarget.ra).hms
+        ra = ra.h * 360.0/24.0 + ra.m * 360.0/(24.0*60.0) +  ra.s * 360.0/(24.0*60.0*60.0)
+        dec1 = Angle(storedtarget.dec).signed_dms
+        dec = dec1.d + dec1.m/60.0 + dec1.s/3600.0
+        if dec1.sign < 1:
+            dec = -1 * dec
+    except:
+        raise FailPage("Invalid target data")
+
+    try:
+        view = float(storedtarget.view)
+    except:
+        view = 100.0
+
+    script = """var aladin = A.aladin('#aladin-lite-div', {{survey: "P/DSS2/color", fov:{:2.1f}, target:"{} {}"}});""".format(view, ra, dec)
+
+    pd = skicall.call_data['pagedata']
+    pd['aladin', 'content'] = script
+    skicall.update(pd)
+    # ensure ident data contains the current values
+    set_target_from_store(skicall)
+
+
+def callfinder(skicall):
+    """Gets data from planetarium page and sets finder"""
+
+    call_data = skicall.call_data
+
+    storedtarget = target_from_store(skicall)
+
+    if not storedtarget:
+        # no ident data
+        raise FailPage("Target data unavailable")
+
+    # get newra, newdec, view as floats
+
+    try:
+        view = float(call_data["callfinder", "hidden_field1"])
+        newra = float(call_data["callfinder", "hidden_field2"])
+        newdec = float(call_data["callfinder", "hidden_field3"])
+    except:
+        raise FailPage("Unable to parse coordinates")
+
+    solar_system_ephemeris.set('jpl')
+    # longitude, latitude, elevation of the astronomy centre
+    longitude, latitude, elevation = observatory()
+    astro_centre = EarthLocation.from_geodetic(longitude, latitude, elevation)
+
+    # reset rotation
+    call_data['stored_values']['rot'] = 0
+    call_data['stored_values']['flip'] = False
+
+    call_data['stored_values']['view'] = "{:3.2f}".format(view)
+
+    rahr, ramin, rasec, decsign, decdeg, decmin, decsec = _ra_dec_conversion(newra, newdec)
+
+    call_data['stored_values']['target_dec'] = "{}{}d{}m{:2.1f}s".format(decsign, decdeg, decmin, decsec)
+    call_data['stored_values']['target_ra'] = "{}h{}m{:2.1f}s".format(rahr, ramin, rasec)
+
+    try:
+        newtarget = SkyCoord(newra * u.deg, newdec * u.deg, frame='icrs')
+    except Exception:
+        raise FailPage("Unable to determine astropy.coordinates.SkyCoord")
+
+    thisdate_time = storedtarget.target_datetime
+    time = Time(thisdate_time.isoformat(sep=' '))
+    newtarget_altaz = newtarget.transform_to(AltAz(obstime = time, location = astro_centre))
+    call_data['stored_values']['target_alt'] = "{:3.2f}".format(newtarget_altaz.alt.degree)
+    call_data['stored_values']['target_az'] = "{:3.2f}".format(newtarget_altaz.az.degree)
+
+    call_data['stored_values']['back'] = 30104
+    call_data['stored_values']['target_name'] = 'none'
+    # now draw the chart
+    _draw_finder(skicall)
+
 
 
 
