@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     # NOTE: This call needs to be edited with the correct longitude, latitude and met office api values
 
-    get_weather("weather.json",
+    get_weather("/home/bernard/www/astrodata/weather.json",
                 longitude=-2.1544,
                 latitude=53.7111,
                 met_client_id="",
