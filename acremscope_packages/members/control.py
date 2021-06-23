@@ -30,7 +30,7 @@ from .. import redis_ops
 
 from ..cfg import observatory, get_planetdb, planetmags
 from ..sun import night_slots, Slot
-from ..stars import get_stars, radec_to_xy, xy_constellation_lines, get_planets, get_named_object
+from ..stars import get_stars, xy_constellation_lines, get_planets, get_named_object, chartpositions
 
 from .sessions import livesession, doorsession
 
@@ -142,12 +142,12 @@ DEC: {act_dec}
     # the planets database are created at 30 minutes past the hour, so get the planets for this hour
     planets = get_planets(tstamp, dec, view, scale, const)
 
-    # convert stars ra, dec, to xy positions on the chart
-    stars = list(radec_to_xy(stars, ra, dec, view))
-
     if planets:
-        planets = list(radec_to_xy(planets, ra, dec, view))
         stars.extend(planets)
+
+    # convert stars ra, dec, to xy positions on the chart
+    stars = chartpositions(stars, ra, dec, view)
+
     if stars:
         page_data['starchart', 'stars'] = stars
 
@@ -207,11 +207,10 @@ def refresh_chart(skicall):
         stars, scale, const = get_stars(ra, dec, view)
         # the planets database are created at 30 minutes past the hour, so get the planets for this hour
         planets = get_planets(datetime.utcnow(), dec, view, scale, const)
-        # convert stars ra, dec, to xy positions on the chart
-        stars = list(radec_to_xy(stars, ra, dec, view))
         if planets:
-            planets = list(radec_to_xy(planets, ra, dec, view))
             stars.extend(planets)
+        # convert stars ra, dec, to xy positions on the chart
+        stars = chartpositions(stars, ra, dec, view)
         if stars:
             page_data['starchart', 'stars'] = stars
         if status:

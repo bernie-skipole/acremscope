@@ -24248,6 +24248,45 @@ false
 ]
 ]
 }
+],
+[
+"Part",
+{
+"tag_name": "p",
+"brief": "astropy-healpix",
+"show": true,
+"hide_if_empty": false,
+"parts": [
+[
+"Text",
+"astropy-healpix -"
+],
+[
+"HTMLSymbol",
+{
+"text": "&nbsp;"
+}
+],
+[
+"Part",
+{
+"tag_name": "a",
+"brief": "link to astropy-healpix",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"href": "https://astropy-healpix.readthedocs.io/en/latest/"
+},
+"parts": [
+[
+"Text",
+"https://astropy-healpix.readthedocs.io/en/latest/"
+]
+]
+}
+]
+]
+}
 ]
 ]
 }

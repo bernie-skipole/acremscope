@@ -24,7 +24,7 @@ from astropy.time import Time
 
 from ..cfg import observatory, get_planetdb, planetmags, get_astrodata_directory
 from ..sun import Slot
-from ..stars import get_stars, radec_to_xy, xy_constellation_lines, get_planets, get_named_object_slots, get_unnamed_object_slots, get_named_object_intervals, get_unnamed_object_intervals
+from ..stars import get_stars, xy_constellation_lines, get_planets, get_named_object_slots, get_unnamed_object_slots, get_named_object_intervals, get_unnamed_object_intervals, chartpositions
 
 # These are mean apparant visual magnitudes, except for pluto, which is a rough guesstimate
 
@@ -1464,12 +1464,12 @@ def _draw_finder(skicall):
     stars, scale, const = get_stars(ra, dec, view)
     planets = get_planets(thisdate_time, dec, view, scale, const)
 
-    # convert stars ra, dec, to xy positions on the chart
-    stars = list(radec_to_xy(stars, ra, dec, view))
-
     if planets:
-        planets = list(radec_to_xy(planets, ra, dec, view))
         stars.extend(planets)
+
+    # convert stars ra, dec, to xy positions on the chart
+    stars = chartpositions(stars, ra, dec, view)
+
     if stars:
         page_data['starchart', 'stars'] = stars
 
@@ -1570,12 +1570,12 @@ Elevation: {:2.1f} meters""".format(storedtarget.ra,
     stars, scale, const = get_stars(ra, dec, view)
     planets = get_planets(thisdate_time, dec, view, scale, const)
 
-    # convert stars ra, dec, to xy positions on the chart
-    stars = list(radec_to_xy(stars, ra, dec, view))
-
     if planets:
-        planets = list(radec_to_xy(planets, ra, dec, view))
         stars.extend(planets)
+
+    # convert stars ra, dec, to xy positions on the chart
+    stars = chartpositions(stars, ra, dec, view)
+
     if stars:
         page_data['starchart', 'stars'] = stars
 

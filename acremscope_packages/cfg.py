@@ -45,7 +45,7 @@ def set_projectfiles(projectfiles):
     _CONFIG['servedfiles_directory'] = os.path.join(projectfiles, 'astrodata', 'served')
     _CONFIG['planetdb'] = os.path.join(projectfiles, 'astrodata', 'planet.db')
     _CONFIG['constellation_lines'] = os.path.join(projectfiles, 'astrodata', 'lines.csv')
-    _CONFIG['star_catalogs'] = os.path.join(projectfiles, 'astrodata', 'gsc1.2')
+    _CONFIG['star_catalogs'] = os.path.join(projectfiles, 'astrodata', 'dbases')
     
 
 def planetmags():

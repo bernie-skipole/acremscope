@@ -3,11 +3,13 @@ import os, sys, sqlite3, math
 
 from datetime import datetime, timedelta, timezone
 
-import astropy.units as u
-from astropy.coordinates import SkyCoord, EarthLocation, AltAz, name_resolve, solar_system_ephemeris, get_body, Angle, PrecessedGeocentric
+from astropy import units as u
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz, name_resolve, solar_system_ephemeris, get_body, Angle, PrecessedGeocentric, ICRS
 from astropy.time import Time
 from astroquery.mpc import MPC
 from astroquery.exceptions import InvalidQueryError
+from astropy_healpix import HEALPix
+import numpy as np
 
 from .cfg import observatory, get_planetdb, get_constellation_lines, get_star_catalogs_directory, planetmags
 
@@ -19,22 +21,26 @@ starcatalogs = get_star_catalogs_directory()
 # dictionary of planet names and magnitudes
 _PLANETS = planetmags()
 
-# These catalogs all consist of a single table 'stars' with columns MAG, RA, DEC
-# each column being a 'REAL' value
+# Each database has a single table 'stars" with columns (HP INTEGER, GSC_ID TEXT, RA REAL, DEC REAL, MAG REAL)
+# where HP is a healpix id
 
-# database cat6.db has stars to magnitude 6
-_CAT6 = os.path.join(starcatalogs, "CAT6.db")
+# database HP48.db has stars to magnitude 6, organised in 48 healpix pixels
+_HP48 = os.path.join(starcatalogs, "HP48.db")
 
-# database cat9.db has stars to magnitude 9
-_CAT9 = os.path.join(starcatalogs, "CAT9.db")
+# database HP192.db has stars to magnitude 9, organised in 192 healpix pixels
+_HP192 = os.path.join(starcatalogs, "HP192.db")
 
-# These are a set of catalogs containing stars down to magnitude 14
-_CAT14_P90 = os.path.join(starcatalogs, "CAT14_P90.db")  # covers declination 50 to 90
-_CAT14_P60 = os.path.join(starcatalogs, "CAT14_P60.db")  # covers declination 20 to 60
-_CAT14_P30 = os.path.join(starcatalogs, "CAT14_P30.db")  # covers declination -10 to 30
-_CAT14_M90 = os.path.join(starcatalogs, "CAT14_M90.db")  # covers declination -50 to -90
-_CAT14_M60 = os.path.join(starcatalogs, "CAT14_M60.db")  # covers declination -20 to -60
-_CAT14_M30 = os.path.join(starcatalogs, "CAT14_M30.db")  # covers declination 10 to -30
+# database HP768.db has all stars, organised in 768 healpix pixels
+_HP768 = os.path.join(starcatalogs, "HP768.db")
+
+# HEALPix object with nside 2 and 48 pixels
+_hp48 = HEALPix(nside=np.int64(2), order='nested', frame=ICRS())
+
+# HEALPix object with nside 4 and 192 pixels
+_hp192 = HEALPix(nside=np.int64(4), order='nested', frame=ICRS())
+
+# HEALPix object with nside 8 and 768 pixels
+_hp768 = HEALPix(nside=np.int64(8), order='nested', frame=ICRS())
 
 
 # given a view, query databases
@@ -60,11 +66,16 @@ def get_stars(ra, dec, view):
 # query functions, each calls a different database catalogue (or set of catalogs)
 
 def q1( ra, dec, view, mag_scale, mag_offset, mag_limit):
-    "Gets ALL stars in the _CAT6 database which are brighter than the mag_limit"
+    "Gets stars in the _HP48 database which are brighter than the mag_limit"
+    radius = view/2.0
+    hp_to_search = tuple(_hp48.cone_search_skycoord(SkyCoord(ra=ra*u.deg, dec=dec*u.deg), radius=radius * u.deg))
     try:
-        con = sqlite3.connect(_CAT6, detect_types=sqlite3.PARSE_DECLTYPES)
+        con = sqlite3.connect(_HP48, detect_types=sqlite3.PARSE_DECLTYPES)
         cur = con.cursor()
-        cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where MAG < {mag_limit}" )
+        if len(hp_to_search) > 1:
+            cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where HP in {hp_to_search} and MAG < {mag_limit}" )
+        else:
+            cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where HP = {hp_to_search[0]} and MAG < {mag_limit}" )
         result = cur.fetchall()
     finally:
         con.close()
@@ -73,14 +84,16 @@ def q1( ra, dec, view, mag_scale, mag_offset, mag_limit):
 
 
 def q2( ra, dec, view, mag_scale, mag_offset, mag_limit):
-    """Get stars from the _CAT9 database limited by Declination + or - view / 2 and  brighter than the mag_limit"""
-    max_dec = dec + view/2.0
-    min_dec = dec - view/2.0
+    """Get stars from the _HP192 database brighter than the mag_limit"""
+    radius = view/2.0
+    hp_to_search = tuple(_hp192.cone_search_skycoord(SkyCoord(ra=ra*u.deg, dec=dec*u.deg), radius=radius * u.deg))
     try:
-        con = sqlite3.connect(_CAT9, detect_types=sqlite3.PARSE_DECLTYPES)
+        con = sqlite3.connect(_HP192, detect_types=sqlite3.PARSE_DECLTYPES)
         cur = con.cursor()
-        cur = con.cursor()
-        cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where MAG < {mag_limit} and DEC between {min_dec} and {max_dec}" )
+        if len(hp_to_search) > 1:
+            cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where HP in {hp_to_search} and MAG < {mag_limit}" )
+        else:
+            cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where HP = {hp_to_search[0]} and MAG < {mag_limit}" )
         result = cur.fetchall()
     finally:
         con.close()
@@ -88,105 +101,34 @@ def q2( ra, dec, view, mag_scale, mag_offset, mag_limit):
 
 
 def q3(ra, dec, view, mag_scale, mag_offset, mag_limit):
-    """Get stars from one of the CAT14_? databases limited by magnitude"""
-    max_dec = dec + view/2.0
-    min_dec = dec - view/2.0
-    if max_dec>=90 or min_dec<=-90:
-        # around the poles, must look at all ra values
-        qstring = f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where MAG < {mag_limit} and DEC between {min_dec} and {max_dec}"
-    else:
-        # ra span is wider than the dec span, as ra is not just an addition of view degrees
-        if max_dec>88 or min_dec<-88:
-            # close to the poles, so look at wide ra values
-            max_ra = ra + 90
-            min_ra = ra - 90
-        elif max_dec>80 or min_dec<-80:
-            # close to the poles, so look at wide ra values
-            max_ra = ra + 45
-            min_ra = ra - 45
-        else:
-            # make ra + or - view rather than view/2
-            max_ra = ra + view
-            min_ra = ra - view
-        if max_ra > 360.0:
-            max_ra = max_ra - 360
-            qstring = f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where MAG < {mag_limit} and DEC between {min_dec} and {max_dec} and (ra > {min_ra} or ra < {max_ra})"
-        elif min_ra < 0.0:
-            min_ra = min_ra + 360
-            qstring = f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where MAG < {mag_limit} and DEC between {min_dec} and {max_dec} and (ra > {min_ra} or ra < {max_ra})"
-        else:
-            qstring = f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where MAG < {mag_limit} and DEC between {min_dec} and {max_dec} and ra BETWEEN {min_ra} AND {max_ra}"
-    # decide which database
-    if dec>55:
-        dbase = _CAT14_P90 # covers 50 to 90
-    elif dec>25:
-        dbase = _CAT14_P60 # covers 20 to 60
-    elif dec>0:
-        dbase = _CAT14_P30 # covers -10 to 30
-    elif dec>-25:
-        dbase = _CAT14_M30 # covers -30 to 10
-    elif dec>-55:
-        dbase = _CAT14_M60 # covers -60 to -20
-    else:
-        dbase = _CAT14_M90 # covers -90 to -50
-    # connect to the database
+    """Get stars from the _HP768 database limited by magnitude"""
+    radius = view/2.0
+    hp_to_search = tuple(_hp768.cone_search_skycoord(SkyCoord(ra=ra*u.deg, dec=dec*u.deg), radius=radius * u.deg))
     try:
-        con = sqlite3.connect(dbase, detect_types=sqlite3.PARSE_DECLTYPES)
+        con = sqlite3.connect(_HP768, detect_types=sqlite3.PARSE_DECLTYPES)
         cur = con.cursor()
-        cur.execute(qstring)
+        if len(hp_to_search) > 1:
+            cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where HP in {hp_to_search} and MAG < {mag_limit}" )
+        else:
+            cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where HP = {hp_to_search[0]} and MAG < {mag_limit}" )
         result = cur.fetchall()
     finally:
         con.close()
     return result, mag_scale, mag_offset
 
 
+
 def q4(ra, dec, view, mag_scale, mag_offset, mag_limit):
-    """Get stars from one of the CAT14_? databases not limited by magnitude"""
-    max_dec = dec + view/2.0
-    min_dec = dec - view/2.0
-    if max_dec>=90 or min_dec<=-90:
-        # around the poles, must look at all ra values
-        qstring = f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where MAG < {mag_limit} and DEC between {min_dec} and {max_dec}"
-    else:
-        # ra span is wider than the dec span, as ra is not just an addition of view degrees
-        if max_dec>88 or min_dec<-88:
-            # close to the poles, so look at wide ra values
-            max_ra = ra + 90
-            min_ra = ra - 90
-        elif max_dec>80 or min_dec<-80:
-            # close to the poles, so look at wide ra values
-            max_ra = ra + 45
-            min_ra = ra - 45
-        else:
-            # make ra + or - view rather than view/2
-            max_ra = ra + view
-            min_ra = ra - view
-        if max_ra > 360.0:
-            max_ra = max_ra - 360
-            qstring = f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where DEC between {min_dec} and {max_dec} and (ra > {min_ra} or ra < {max_ra})"
-        elif min_ra < 0.0:
-            min_ra = min_ra + 360
-            qstring = f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where DEC between {min_dec} and {max_dec} and (ra > {min_ra} or ra < {max_ra})"
-        else:
-            qstring = f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where DEC between {min_dec} and {max_dec} and ra BETWEEN {min_ra} AND {max_ra}"
-    # decide which database
-    if dec>55:
-        dbase = _CAT14_P90 # covers 50 to 90
-    elif dec>25:
-        dbase = _CAT14_P60 # covers 20 to 60
-    elif dec>0:
-        dbase = _CAT14_P30 # covers -10 to 30
-    elif dec>-25:
-        dbase = _CAT14_M30 # covers -30 to 10
-    elif dec>-55:
-        dbase = _CAT14_M60 # covers -60 to -20
-    else:
-        dbase = _CAT14_M90 # covers -90 to -50
-    # connect to the database
+    """Get stars from the _HP768 database not limited by magnitude"""
+    radius = view/2.0
+    hp_to_search = tuple(_hp768.cone_search_skycoord(SkyCoord(ra=ra*u.deg, dec=dec*u.deg), radius=radius * u.deg))
     try:
-        con = sqlite3.connect(dbase, detect_types=sqlite3.PARSE_DECLTYPES)
+        con = sqlite3.connect(_HP768, detect_types=sqlite3.PARSE_DECLTYPES)
         cur = con.cursor()
-        cur.execute(qstring)
+        if len(hp_to_search) > 1:
+            cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where HP in {hp_to_search} and MAG < {mag_limit}" )
+        else:
+            cur.execute( f"select {mag_scale}*MAG + {mag_offset}, RA, DEC from stars where HP = {hp_to_search[0]} and MAG < {mag_limit}" )
         result = cur.fetchall()
     finally:
         con.close()
@@ -220,90 +162,6 @@ views = {   110 :      ( q1,    4.0 ),
             0.3 :      ( q3,   14.8 ),
               0 :      ( q4,   15.0 )
         }
-
-
-
-def radec_to_xy(stars, ra, dec, view):
-    "Generator converting each star position to an x, y position for the star chart"
-
-    # limit centre of the chart
-    ra0_deg = float(ra)
-    if (ra0_deg < 0.0) or (ra0_deg > 360.0):
-        ra0_deg = 0.0
-    ra0 = math.radians(ra0_deg)
-
-    dec0_deg = float(dec)
-    if dec0_deg > 90.0:
-        dec0_deg = 90.0
-    if dec0_deg < -90.0:
-        dec0_deg = -90.0
-    dec0 = math.radians(dec0_deg)
-
-    view_deg = float(view)
-
-    # avoid division by zero
-    if view_deg < 0.000001:
-        view_deg = 0.00001
-
-    # avoid extra wide angle
-    if view_deg > 270.0:
-        view_deg = 270.0
-
-    max_dec = dec0_deg + view_deg / 2.0
-    if max_dec > 90.0:
-        max_dec = 90.0
-
-    min_dec = dec0_deg - view_deg / 2.0
-    if min_dec < -90.0:
-        min_dec = -90.0
-
-    scale = 500 / math.radians(view_deg)
-
-    cosdec0 = math.cos(dec0)
-    sindec0 = math.sin(dec0)
-
-    # stereographic algorithm
-    # taken from www.projectpluto.com/project.htm
-
-    for star in stars:
-
-        ra_deg = float(star[1])
-        dec_deg = float(star[2])
-
-        if (ra_deg < 0.0) or (ra_deg > 360.0):
-            # something wrong, do not plot this star
-            continue
-
-        # don't calculate star position if its declination is outside required view
-        # unfortunately ra is more complicated
-        if dec_deg > max_dec:
-            continue
-        if dec_deg < min_dec:
-            continue
-
-
-        ra_rad = math.radians(ra_deg)
-        dec_rad = math.radians(dec_deg)
-        delta_ra = ra_rad - ra0
-        sindec = math.sin(dec_rad)
-        cosdec = math.cos(dec_rad)
-        cosdelta_ra = math.cos(delta_ra)
-
-        x1 = cosdec * math.sin(delta_ra);
-        y1 = sindec * cosdec0 - cosdec * cosdelta_ra * sindec0
-        z1 = sindec * sindec0 + cosdec * cosdec0 * cosdelta_ra
-        if z1 < -0.9:
-           d = 20.0 * math.sqrt(( 1.0 - 0.81) / ( 1.00001 - z1 * z1))
-        else:
-           d = 2.0 / (z1 + 1.0)
-        x = x1 * d * scale
-        y = y1 * d * scale
-
-        if x*x + y*y > 62500:
-            # star position is outside the circle
-            continue
-        yield (star[0], x, y)
-
 
 
 def xy_constellation_lines(ra, dec, view):
@@ -787,6 +645,76 @@ def get_unnamed_object_intervals(target_ra, target_dec, start, step, number, ast
 
     return result_list
 
+
+def chartpositions(stars, ra, dec, view):
+    "Convert each star position to an x, y position for the star chart"
+
+    # limit centre of the chart
+    ra0_deg = float(ra)
+    if (ra0_deg < 0.0) or (ra0_deg > 360.0):
+        ra0_deg = 0.0
+    ra0 = math.radians(ra0_deg)
+
+    dec0_deg = float(dec)
+    if dec0_deg > 90.0:
+        dec0_deg = 90.0
+    if dec0_deg < -90.0:
+        dec0_deg = -90.0
+    dec0 = math.radians(dec0_deg)
+
+    view_deg = float(view)
+
+    # avoid division by zero
+    if view_deg < 0.000001:
+        view_deg = 0.00001
+
+    # avoid extra wide angle
+    if view_deg > 270.0:
+        view_deg = 270.0
+
+    max_dec = dec0_deg + view_deg / 2.0
+    if max_dec > 90.0:
+        max_dec = 90.0
+
+    min_dec = dec0_deg - view_deg / 2.0
+    if min_dec < -90.0:
+        min_dec = -90.0
+
+    scale = 500 / math.radians(view_deg)
+
+    cosdec0 = math.cos(dec0)
+    sindec0 = math.sin(dec0)
+
+    # stereographic algorithm
+    # taken from www.projectpluto.com/project.htm
+
+    starlist = list([float(star[0]), float(star[1]), float(star[2])] for star in stars)
+    stararray = np.array(starlist)
+    test1 = np.logical_or( (stararray[:,1] < 0.0), (stararray[:,1] > 360.0) )
+    test2 = np.logical_or( (stararray[:,2] > max_dec), (stararray[:,2] < min_dec) )
+    test = np.logical_or(test1, test2)
+    stararray = np.delete(stararray, test, axis=0)
+
+    ra_rad = np.radians(stararray[:, 1])    # ra in radians
+    dec_rad = np.radians(stararray[:, 2])   # dec in radians
+
+    delta_ra = ra_rad - ra0   # ra in radians, with ra0 subtracted from each element
+
+    sindec = np.sin(dec_rad)
+    cosdec = np.cos(dec_rad)
+    cosdelta_ra = np.cos(delta_ra)
+
+    x1 = cosdec * np.sin(delta_ra);
+    y1 = sindec * cosdec0 - cosdec * cosdelta_ra * sindec0
+    z1 = sindec * sindec0 + cosdec * cosdec0 * cosdelta_ra
+
+    d = np.where(z1 < -0.9, 20.0 * np.sqrt(0.19 / ( 1.00001 - z1 * z1)), 2.0 / (z1 + 1.0))
+    x = x1 * d * scale
+    y = y1 * d * scale
+
+    stackarray = np.column_stack((stararray[:, 0],x,y))
+    stackarray = np.delete(stackarray, np.where((x*x + y*y)>62500), axis=0)
+    return stackarray.tolist()
 
 
 

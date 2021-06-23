@@ -1,42 +1,57 @@
-
+#!/home/bernard/makecat/bin/python3
 
 """
 Once the gsc files have been downloaded from https://cdsarc.unistra.fr/viz-bin/cat/I/254
 this python script can read through them and will create the following sqlite databases:
 
-CAT6.db - stars to magnitude 6
-CAT9.db - stars to magnitude 9
+HP48.db - stars to magnitude 6
+HP192.db - stars to magnitude 9
+HP768.db - all stars
 
-CAT14_P90.db - covers declination 50 to 90
-CAT14_P60.db - covers declination 20 to 60
-CAT14_P30.db - covers declination -10 to 30
-CAT14_M90.db - covers declination -50 to -90
-CAT14_M60.db - covers declination -20 to -60
-CAT14_M30.db - covers declination 10 to -30
-
-Note, as these have overlapping areas, stars can appear in more than one database
-
-Each database has a single table 'stars" with columns (GSC_ID TEXT, RA REAL, DEC REAL, MAG REAL)
+Each database has a single table 'stars" with columns (HP INTEGER, GSC_ID TEXT, RA REAL, DEC REAL, MAG REAL)
 
 The GSC_ID is not used by my chart, but is saved should there be a future need
 to cross-reference a star on the chart with the source material.
+
+HP is the healpix index containing the star
 """
 
 
 ####
-# notes, this script need the package bitstring, available from pypi
+# notes, this script need an number of packages, available from pypi
 #
-# under /home/bernard/catalog I created 
+# under /home/bernard I created 
 #
-# python3 -m venv bitenv
+# python3 -m venv ~/makecat
 #
-# activated it, and then python3 -m pip install bitstring
-#
+# activated it, and then
 
+# pip install bitstring
+# pip install astropy
+# pip install astropy_healpix
+#
+# if you locate your virtual environment elsewhere, you will
+# have to change the top shebang line of this script
+#
 
 import os, sys, sqlite3
 
 from bitstring import ConstBitStream
+
+from astropy_healpix import HEALPix
+from astropy.coordinates import ICRS, SkyCoord
+from astropy import units as u
+import numpy
+
+
+# HEALPix object with nside 2 and 48 pixels
+hp48 = HEALPix(nside=numpy.int64(2), order='nested', frame=ICRS())
+
+# HEALPix object with nside 4 and 192 pixels
+hp192 = HEALPix(nside=numpy.int64(4), order='nested', frame=ICRS())
+
+# HEALPix object with nside 8 and 768 pixels
+hp768 = HEALPix(nside=numpy.int64(8), order='nested', frame=ICRS())
 
 
 
@@ -152,30 +167,25 @@ def create_databases(starcatalogs):
 
     dbpaths = {}          # will hold the path to each database
 
-    # each dictionary has the database name as key (without the .db file extension)
+    # this dictionary will have database names as key (without the .db file extension)
+    # and database paths as values
 
-    # database cat6.db has stars to magnitude 6
-    dbpaths["CAT6"] = os.path.join(starcatalogs, "CAT6.db")
+    # database HP48.db has stars to magnitude 6, organised in 48 healpix pixels
+    dbpaths["HP48"] = os.path.join(starcatalogs, "HP48.db")
 
-    # database cat9.db has stars to magnitude 9
-    dbpaths["CAT9"] = os.path.join(starcatalogs, "CAT9.db")
+    # database HP192.db has stars to magnitude 9, organised in 192 healpix pixels
+    dbpaths["HP192"] = os.path.join(starcatalogs, "HP192.db")
 
-    # These are a set of databases containing all stars
-    dbpaths["CAT14_P90"] = os.path.join(starcatalogs, "CAT14_P90.db")  # covers declination 50 to 90
-    dbpaths["CAT14_P60"] = os.path.join(starcatalogs, "CAT14_P60.db")  # covers declination 20 to 60
-    dbpaths["CAT14_P30"] = os.path.join(starcatalogs, "CAT14_P30.db")  # covers declination -10 to 30
-    dbpaths["CAT14_M90"] = os.path.join(starcatalogs, "CAT14_M90.db")  # covers declination -50 to -90
-    dbpaths["CAT14_M60"] = os.path.join(starcatalogs, "CAT14_M60.db")  # covers declination -20 to -60
-    dbpaths["CAT14_M30"] = os.path.join(starcatalogs, "CAT14_M30.db")  # covers declination 10 to -30
+    # database HP768.db has all stars, organised in 768 healpix pixels
+    dbpaths["HP768"] = os.path.join(starcatalogs, "HP768.db")
 
     # for every name in dbpaths
     # create the database
 
     for path in dbpaths.values():
         con = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES)
-        con.execute("create table stars (GSC_ID TEXT, RA REAL, DEC REAL, MAG REAL)")
-        con.execute("create index RA_IDX  on stars(RA)")
-        con.execute("create index DEC_IDX on stars(DEC)")
+        con.execute("create table stars (HP INTEGER, GSC_ID TEXT, RA REAL, DEC REAL, MAG REAL)")
+        con.execute("create index HP_IDX  on stars(HP)")
         con.execute("create index MAG_IDX on stars(MAG)")
         con.commit()
         con.close()
@@ -185,30 +195,40 @@ def create_databases(starcatalogs):
 
 
 def add_record(gsc_id, ra, dec, mag):
-    """Returns a set of database names which should have this record inserted
-       gsc_id, ra, dec, mag are the star parameters to add
-"""
-    # for the given star, set the names of the database it is to be added to in this set
-    # the record can be added to more than one database, as they overlap
-    dbnames = set()
-    if mag < 6:
-        dbnames.add("CAT6")
-    if mag < 9:
-        dbnames.add("CAT9")
+    """Given a star record defined by gsc_id, ra, dec, mag
+       Returns a list of database names and healpix pixel id's which contain this star
+       so the star can be added to each database together with the id for that database
+    """
+    # for the given star, return the names of the databases it is to be added to
+    # and the hp number in each database
 
-    if dec > 50:
-        dbnames.add("CAT14_P90")    # covers declination 50 to 90
-    if 20 < dec < 60:
-        dbnames.add("CAT14_P60")
-    if -10 < dec < 30:
-        dbnames.add("CAT14_P30")
-    if -30 < dec < 10:
-        dbnames.add("CAT14_M30")
-    if -60 < dec < -20:
-        dbnames.add("CAT14_M60")
-    if dec < -50:
-        dbnames.add("CAT14_M90")
-    return dbnames
+    # HP48.db - stars to magnitude 6
+    # HP192.db - stars to magnitude 9
+    # HP768.db - all stars
+
+    # a list of lists will be returned; [[dbasename, hp index],....]
+
+    # Example: the healpix index in the global hp48 HEALPix object
+    # can be found using
+    # hp48.skycoord_to_healpix(coords)
+    # where coords is the SkyCoord object for the star
+    # the index is converted to a Python integer, since the method
+    # returns a numpy integer
+
+    coords = SkyCoord(ra=ra*u.deg, dec=dec*u.deg)
+
+    recordbases = []
+
+    if mag < 6:
+        recordbases.append(["HP48", int(hp48.skycoord_to_healpix(coords))])
+
+    if mag < 9:
+        recordbases.append(["HP192", int(hp192.skycoord_to_healpix(coords))])
+
+    recordbases.append(["HP768", int(hp768.skycoord_to_healpix(coords))])
+
+
+    return recordbases
 
 
 
@@ -238,20 +258,20 @@ if __name__ == "__main__":
 
     for filepath in gsc_files(directory):
         connections = {}
-        for record in read_gsc_file(filepath):
-            # record = GSC_ID, RA, DEC, magnitude
-            # get the database names which should have this record inserted
-            recordbases = add_record(*record)
-            for name in recordbases:
+        for star in read_gsc_file(filepath):
+            # star = GSC_ID, RA, DEC, magnitude
+            # get the database names and hp number which should have this record inserted
+            recordbases = add_record(*star)
+            for name, hp in recordbases:
                 if name not in connections:
                     path =  dbpaths[name]
                     connections[name] = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES)
-                connections[name].execute("insert into stars values (?, ?, ?, ?)", record)
+                connections[name].execute("insert into stars values (?, ?, ?, ?, ?)", (hp, *star))
         # commit and close the database connections after reading this file
         for con in connections.values():
             con.commit()
             con.close()
-        # print filepath so you can see something happenning
+        # print filepath so you can see something
         print(filepath)
         # then repeats for the next file until all files read
 
