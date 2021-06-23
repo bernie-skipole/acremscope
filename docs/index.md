@@ -69,15 +69,21 @@ From the 'releases' part of this repository, upload files using:
 
 cd /home/bernard/www/astrodata
 
-curl -L https://github.com/bernie-skipole/acremscope/releases/download/v2.0.0/gsc1.2.tar.gz --output gsc1.2.tar.gz
-
-note - the above is still provisional
+curl -L https://github.com/bernie-skipole/acremscope/releases/download/v0.0.1/dbases.tar.gz --output dbases.tar.gz
 
 extract with
 
-tar -xvf gsc1.2.tar.gz
+tar -xvf dbases.tar.gz
 
-to create directory /home/bernard/www/astrodata/gsc1.2 with db files within it.
+to create directory /home/bernard/www/astrodata/dbases with three files within it.
+
+dbases/HP48.db
+
+dbases/HP192.db
+
+dbases/HP768.db
+
+These are sqlite database files holding the GSC v1.2 star catalogue with Healpix indexes, and are used to plot the finder charts.
 
 Of the other files under the astrodata directory IERS_A.py will be run by a cron job to regularly update earth location data.
 
@@ -85,7 +91,7 @@ make_planets.py will be run by a cron job to pre - calculate planet positions wh
 
 Edit make_planets.py, so it refers to the correct file name location.
 
-builddb.py is unused, and can be left where it is. It is included for information only. It was initially used to create the sqlite databases which make up gsc1.2.tar.gz from a downloaded set of files of the GSC1.2 star catalog. The python file builddb.py is heavily commented and describes how the GSC files are read, the data extracted, and placed into a set of sqlite databases.
+builddb.py is unused, and can be left where it is. It is included for information only. It was initially used to create the sqlite databases which make up dbases.tar.gz from a downloaded set of files of the GSC1.2 star catalog. The python file builddb.py is heavily commented and describes how the GSC files are read, the data extracted, and placed into a set of sqlite databases.
 
 Load dependencies from pypi
 
@@ -110,6 +116,8 @@ python3 -m pip install --user astroplan
 Note: this gave an astroquery problem, the following sorted it:
 
 python3 -m pip install --user --pre --upgrade astroquery
+
+python3 -m pip install --user astropy-healpix
 
 
 Run make_planets.py, so in /home/bernard/www/astrodata
