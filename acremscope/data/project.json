@@ -8919,7 +8919,7 @@ false,
 "parts": [
 [
 "Text",
-"For RA and Dec coordinates, please follow the 'one hour detail' links."
+"For RA,Dec coordinates, and weather prediction for the hour, please follow the 'one hour detail' links."
 ]
 ]
 }
