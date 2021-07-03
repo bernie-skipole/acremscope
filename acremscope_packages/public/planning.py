@@ -549,6 +549,9 @@ def detail_planet(skicall):
     call_data = skicall.call_data
     page_data = skicall.page_data
 
+    pd = call_data['pagedata']
+    sd_weather = SectionData("weather")
+
     stored_values = skicall.call_data['stored_values']
 
     if 'received_data' not in skicall.submit_dict:
@@ -591,8 +594,6 @@ def detail_planet(skicall):
     stored_values['view'] = "100.0"
     stored_values['back'] = "30201"
 
-    storedtarget = target_from_store(skicall)
-
     # hold the target parameters
     set_target_from_store(skicall)
 
@@ -618,7 +619,7 @@ def detail_planet(skicall):
 
     # result list is a list of lists : [ datetime, ra, dec, alt, az] in degrees
 
-    page_data['table', 'titles'] = ["Time (UTC)", "RA", "DEC", "ALT (Degrees)", "AZ (Degrees)"]
+    pd['table', 'titles'] = ["Time (UTC)", "RA", "DEC", "ALT (Degrees)", "AZ (Degrees)"]
 
     # for each cell; [0:text in the table, 1:the text color, 2:the background color]
 
@@ -641,18 +642,47 @@ def detail_planet(skicall):
             contents.append(["{:3.2f}".format(row[3]), 'red', 'grey'])
         contents.append(["{:3.2f}".format(row[4]), '', ''])
 
-    page_data['table', 'contents'] = contents
+    pd['table', 'contents'] = contents
 
-    page_data['toppara', 'para_text'] = "Ephemeris for %s" % (target_name,)
+    pd['toppara', 'para_text'] = "Ephemeris for %s" % (target_name,)
 
-    page_data['fromdate','para_text'] = "at 10 minute intervals for session starting " + result_list[0][0].isoformat(sep=' ')
-    page_data['todate','para_text'] = "and ending " + result_list[-1][0].isoformat(sep=' ')
-    page_data['back', 'link_ident'] = "30201"
-    page_data['printout', 'get_field1'] = datestring + "T" + timestring
+    pd['fromdate','para_text'] = "at 10 minute intervals for session starting " + result_list[0][0].isoformat(sep=' ')
+    pd['todate','para_text'] = "and ending " + result_list[-1][0].isoformat(sep=' ')
+    pd['printout', 'get_field1'] = datestring + "T" + timestring
 
-    page_data['coords', 'get_field1'] = datestring + "T" + timestring
-    page_data['coords', 'button_text'] = "Precessed"
-    page_data['coords', 'get_field2'] = "session_pg"
+    pd['coords', 'get_field1'] = datestring + "T" + timestring
+    pd['coords', 'button_text'] = "Precessed"
+    pd['coords', 'get_field2'] = "session_pg"
+
+    # datetime needed in a format like 2021-06-13T12:00Z
+    thistime = start.strftime("%G-%m-%dT%H:00Z")
+    weatherfile = os.path.join(get_astrodata_directory(),"weather.json")
+    try:
+        with open(weatherfile, 'r') as fp:
+            weather_dict = json.load(fp)
+
+        if thistime not in weather_dict:
+            sd_weather.show = False
+        else:
+            weathernow = weather_dict[thistime]
+            columns = list(zip(*weathernow))
+            sd_weather["wtable","col1"] = columns[0]
+            sd_weather["wtable","col2"] = columns[1]
+            sd_weather["wtable","col3"] = columns[2]
+            sd_weather["weatherhead","large_text"] = f"Met office data for UTC time : {thistime[:-4]}"
+            try:
+                index = columns[0].index("Significant Weather Code")
+                code = int(columns[1][index])
+                sd_weather["weatherhead","small_text"] = "Weather summary : " + SIG_WEATHER[code]
+            except:
+                pass                
+            sd_weather["weatherhead","large_text"]
+    except:
+        # The file does not exist, or is not readable by json
+        sd_weather.show = False
+
+    pd.update(sd_weather)
+    skicall.update(pd)
 
 
 def detail(skicall):
@@ -668,9 +698,6 @@ def detail(skicall):
     if not storedtarget:
         # no ident data
         raise FailPage("Target data unavailable")
-
-    # copy call_data['stored_values'] into call_data['set_values']
-    set_target_from_store(skicall)
 
     target_datetime = call_data.get(('ephems', 'get_field1_1'))
     if not target_datetime:
@@ -709,6 +736,14 @@ def detail(skicall):
         start = datetime(year=year, month=month, day=day, hour=hour, minute=0, second=0)
     except:
         raise FailPage("Invalid date and time")
+
+    # set datestring and timestring into stored values
+    stored_values = skicall.call_data['stored_values']
+    stored_values['target_date'] = datestring
+    stored_values['target_time'] = timestring
+
+    # copy call_data['stored_values'] into call_data['set_values']
+    set_target_from_store(skicall)
 
     # ra is plan[1] - or 'none'
     if storedtarget.ra != 'none':
@@ -783,7 +818,6 @@ def detail(skicall):
         pd['printout', 'get_field2'] = "altaz"
         if back_to_session:
             pd['coords', 'get_field2'] = "session_pg"
-            pd['back', 'link_ident'] = "30201"
         else:
             pd['coords', 'get_field2'] = "pg"
     else:
@@ -791,7 +825,6 @@ def detail(skicall):
         pd['printout', 'get_field2'] = "pg"
         if back_to_session:
             pd['coords', 'get_field2'] = "session_altaz"
-            pd['back', 'link_ident'] = "30201"
         else:
             pd['coords', 'get_field2'] = "altaz"
 

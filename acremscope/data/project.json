@@ -8452,6 +8452,45 @@ false,
 },
 "parts": [
 [
+"Part",
+{
+"tag_name": "div",
+"brief": "button right",
+"show": true,
+"hide_if_empty": false,
+"attribs": {
+"class": "w3-right"
+},
+"parts": [
+[
+"Widget",
+{
+"class": "links.ButtonLink1",
+"name": "planets",
+"brief": "Shows all planets",
+"fields": {
+"button_text": "Planets",
+"clear_error": false,
+"error_class": "w3-button w3-block w3-theme-action",
+"force_ident": true,
+"get_field1": "",
+"get_field2": "",
+"get_field3": "",
+"get_field4": "",
+"hide": false,
+"link_ident": "30201",
+"show": true,
+"show_error": "",
+"target": "",
+"widget_class": "w3-button w3-block w3-theme-d4",
+"widget_style": ""
+}
+}
+]
+]
+}
+],
+[
 "Widget",
 {
 "class": "paras.ParaText",
@@ -8608,11 +8647,11 @@ false,
 {
 "class": "links.ButtonLink2",
 "name": "back",
-"brief": "button to go back",
+"brief": "Hourly Ephemeris",
 "fields": {
 "button_class": "w3-button w3-block w3-theme-d4",
 "button_style": "",
-"button_text": "Back",
+"button_text": "Hourly Ephemeris",
 "button_wait_text": "Please wait...",
 "buttondiv_class": "ski_mid_button",
 "buttondiv_style": "",
