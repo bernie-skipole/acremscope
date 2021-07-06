@@ -85,13 +85,32 @@ dbases/HP768.db
 
 These are sqlite database files holding the GSC v1.2 star catalogue with Healpix indexes, and are used to plot the finder charts.
 
+HP48.db has stars to magnitude 6, organised in 48 healpix pixels
+
+HP192.db has stars to magnitude 9, organised in 192 healpix pixels
+
+HP768.db has all stars, organised in 768 healpix pixels
+
+Each database has a table 'stars', with columns
+
+HP INTEGER, GSC_ID TEXT, RA REAL, DEC REAL, MAG REAL
+
+Where HP is the Healpix number, GSC_ID is the index number from the GSC catalog, RA and DEC are in degrees, and MAG is the star magnitude.
+
+The files builddb.py, dbquery.py and cleandb.py in the astrodata directory are unused by the running system but are included for information, they were used in the development of the above three databases.
+
+builddb.py was initially used to create the sqlite databases from a downloaded set of files of the GSC1.2 star catalog. The python file builddb.py is heavily commented and describes how the GSC files are read, the data extracted, and placed into the set of sqlite databases.
+
+dbquery.py is manually edited and used to identify the GSC index of a star in these databases if a spurious point is suspected in the catalog, perhaps due to a satelite or imperfection being recorded.
+
+cleandb.py is used to delete any spurious items - it is manually edited to hold a list of unwanted GSC indexes, and to delete them from each of the sqlite files.
+
 Of the other files under the astrodata directory IERS_A.py will be run by a cron job to regularly update earth location data.
 
 make_planets.py will be run by a cron job to pre - calculate planet positions which will be placed in an sqlite file /home/bernard/www/astrodata/planet.db
 
 Edit make_planets.py, so it refers to the correct file name location.
 
-builddb.py is unused, and can be left where it is. It is included for information only. It was initially used to create the sqlite databases which make up dbases.tar.gz from a downloaded set of files of the GSC1.2 star catalog. The python file builddb.py is heavily commented and describes how the GSC files are read, the data extracted, and placed into a set of sqlite databases.
 
 Load dependencies from pypi
 
