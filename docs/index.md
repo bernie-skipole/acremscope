@@ -143,19 +143,19 @@ Run make_planets.py, so in /home/bernard/www/astrodata
 
 python3 make_planets.py
 
-This could take some time, and will create the database planets.db
+This could take some time, and will create the sqlite database planets.db
 
 ## Edit the acremscope web service
 
 As user bernard 
 
-Edit the file /home/bernard/www/acremscope_packages/cfg.py to have the correct database ip, usernames passwords.
+Edit the file /home/bernard/www/acremscope_packages/cfg.py to have the correct postgresql database ip, usernames passwords.
 
-In particular set the line in the _CONFIG directory:
+In particular set the 'postgresql_ip' line in the _CONFIG directory to the ip address of the postgresql server/container, in my case this is:
 
 postgresql_ip : 10.105.192.252
 
-This informs the web service how to connect to these servers.
+This informs the web service how to connect to the postgresql database which holds user and session data.
 
 Edit the file /home/bernard/www/astrodata/metoffice.py to contain the correct met office api keys, so the file can download
 weather data.
@@ -221,7 +221,7 @@ make_planets.py is run at 10:30 each day, which populates planet.db with planeta
 
 IERS_A.py is run at 9:00 every Saturday, It downloads the IERS bulletin A for Astroplan earth location
 
-clientrequests.py is run at 10:15 each day, which requests dome door closure
+clientrequests.py is run at 10:15 each day, which requests dome door closure, and telescope diconnection, note that the global variables DOOR_NAME and TELESCOPE_NAME should be edited with the names used by the indi driver for these devices. If this automatic function is not required (as the scope is being developed), remove the line from the cron job.
 
 metoffice.py is run at 9:30 and 16:30 each day, and calls a met office api to obtain weather data which is sets into file weather.json.
 
